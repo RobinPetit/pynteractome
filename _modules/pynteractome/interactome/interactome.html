@@ -1,0 +1,631 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynteractome.interactome.interactome &mdash; pynteractome 0.0.0.0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pynteractome
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pynteractome/modules.html">pynteractome</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pynteractome</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynteractome.interactome.interactome</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynteractome.interactome.interactome</h1><div class="highlight"><pre>
+<span></span><span class="c1"># std</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+<span class="c1"># ext libs</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">graph_tool</span> <span class="k">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">GraphView</span>
+<span class="kn">from</span> <span class="nn">graph_tool.topology</span> <span class="k">import</span> <span class="n">shortest_distance</span><span class="p">,</span> <span class="n">label_largest_component</span>
+<span class="c1"># local</span>
+<span class="kn">from</span> <span class="nn">pynteractome.utils</span> <span class="k">import</span> <span class="n">sec2date</span><span class="p">,</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">pynteractome.IO</span> <span class="k">import</span> <span class="n">IO</span>
+
+<div class="viewcode-block" id="X"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.X">[docs]</a><span class="k">def</span> <span class="nf">X</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Compute binomial coefficient n choose 2&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">n</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span></div>
+
+<div class="viewcode-block" id="get_lcc_size"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.get_lcc_size">[docs]</a><span class="k">def</span> <span class="nf">get_lcc_size</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Return the size of the largest connected component (LCC) within G.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">label_largest_component</span><span class="p">(</span><span class="n">G</span><span class="p">)</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="get_density"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.get_density">[docs]</a><span class="k">def</span> <span class="nf">get_density</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Return the density of graph G.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">G</span><span class="o">.</span><span class="n">num_edges</span><span class="p">()</span>  <span class="o">/</span> <span class="n">X</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Interactome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome">[docs]</a><span class="k">class</span> <span class="nc">Interactome</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    ATTRIBUTES:</span>
+<span class="sd">        + interactome_path (str)</span>
+<span class="sd">        + G (gt.Graph)</span>
+<span class="sd">        + genes2vertices (dict)</span>
+<span class="sd">        + genes (set)</span>
+<span class="sd">        + lcc_cache (np.ndarray)</span>
+<span class="sd">        + density_cache (np.ndarray)</span>
+<span class="sd">        + distances (np.ndarray)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distances</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Loading interactome&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_network</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;interactome loaded&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Interactome.get_lcc_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_lcc_cache">[docs]</a>    <span class="k">def</span> <span class="nf">get_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Return the cache of LCC sizes. WARNING: no copy is made.</span>
+<span class="sd">        Modifying the returned cache can result in undefined behaviour&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_lcc_cache</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span></div>
+
+<div class="viewcode-block" id="Interactome.load_lcc_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.load_lcc_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load the cache of LCC sizes simulations if exists, else creates an empty one.&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interactome.load_density_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.load_density_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load the cache of density simulations if exists, else creates an empty one.&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interactome.load_network"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.load_network">[docs]</a>    <span class="k">def</span> <span class="nf">load_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Load the interactome stored in a tsv file</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            path: the path of the interactome file</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">genes</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+                <span class="n">gene1</span><span class="p">,</span> <span class="n">gene2</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">genes</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">gene1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">gene2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vert_id</span><span class="p">(</span><span class="n">gene1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_id</span><span class="p">(</span><span class="n">gene2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">genes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_spls</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Interactome.add_vertex"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.add_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">add_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create new vertex for `gene` in the graph if not yet present</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            gene: the name of the gene to ad in the interactome</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">gene</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="p">[</span><span class="n">gene</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Interactome.vert_id"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.vert_id">[docs]</a>    <span class="k">def</span> <span class="nf">vert_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the id of the desired gene</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            gene: the gene to retrieve</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            the id of the desired gene</span>
+
+<span class="sd">        RAISES:</span>
+<span class="sd">            KeyError if no such gene is in the interactome</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="p">[</span><span class="n">gene</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Interactome.verts_id"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.verts_id">[docs]</a>    <span class="k">def</span> <span class="nf">verts_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">gene_to_ignore</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return a list of Vertex instances of the desired genes</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            genes: an iterable of desired genes</span>
+<span class="sd">            gene_to_ignore: gene in `genes` that is not desired</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            a list of Vertex instances of the desired genes</span>
+
+<span class="sd">        RAISES:</span>
+<span class="sd">            KeyError if any of the genes is not in the interactome</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">vert_id</span><span class="p">(</span><span class="n">gene</span><span class="p">)</span> <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">genes</span> <span class="k">if</span> <span class="n">gene</span> <span class="o">!=</span> <span class="n">gene_to_ignore</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Interactome.compute_spls"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.compute_spls">[docs]</a>    <span class="k">def</span> <span class="nf">compute_spls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Compute the shortest path between each pair of genes.&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distances</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">dists</span> <span class="o">=</span> <span class="n">shortest_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">array</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dists</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">a</span><span class="p">[:]</span></div>
+
+<div class="viewcode-block" id="Interactome.get_all_dists"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_all_dists">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_dists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get a list containing all the distances from a gene in A to the gene set B</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            A: a source gene set</span>
+<span class="sd">            B: a destination gene set</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            a list of distances [d(a, B) s.t. a in A]</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">insert_self</span> <span class="o">=</span> <span class="n">A</span> <span class="ow">is</span> <span class="n">B</span>
+        <span class="n">all_dists</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">gene1</span> <span class="ow">in</span> <span class="n">A</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">insert_self</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">el</span> <span class="o">==</span> <span class="n">gene1</span><span class="p">:</span>
+                        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+                        <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="n">B</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">indices</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_spls</span><span class="p">()</span>
+            <span class="n">dists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distances</span><span class="p">[</span><span class="n">gene1</span><span class="p">,</span> <span class="n">indices</span><span class="p">]</span>
+            <span class="n">min_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">min_dist</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">():</span>  <span class="c1"># if gene is isolated</span>
+                <span class="k">continue</span>                          <span class="c1"># go to next gene</span>
+            <span class="n">all_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">min_dist</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_dists</span></div>
+
+<div class="viewcode-block" id="Interactome.get_d_A"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_d_A">[docs]</a>    <span class="k">def</span> <span class="nf">get_d_A</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the inner distance of the disease module A.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            A: a gene set</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            $d_A$</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_dists</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">A</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Interactome.get_d_AB"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_d_AB">[docs]</a>    <span class="k">def</span> <span class="nf">get_d_AB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the graph-based distance between A and B</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            A: a gene set</span>
+<span class="sd">            B: a gene set</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            d_AB</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_dists</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_all_dists</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">A</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interactome.get_random_subgraph"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_random_subgraph">[docs]</a>    <span class="k">def</span> <span class="nf">get_random_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Uniformly sample a subgraph of given size.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            size: number of genes to sample</span>
+
+<span class="sd">         RETURN:</span>
+<span class="sd">            A subgraph of self of given size</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">seeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">genes</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">seeds</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interactome.get_subgraph"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_subgraph">[docs]</a>    <span class="k">def</span> <span class="nf">get_subgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">genes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the subgraph of self induced by the given vertices.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            vertices: a set of vertex IDs (or a set of genes)</span>
+<span class="sd">            genes: a boolean with value `True` if `vertices` is a set of genes</span>
+<span class="sd">                and `False` if it is a set of vertex IDs.</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            $\Delta_{\text{Vertices}}(G)$</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">genes</span><span class="p">:</span>
+            <span class="n">vertices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verts_id</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span>
+        <span class="n">filt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">new_vertex_property</span><span class="p">(</span><span class="s1">&#39;bool&#39;</span><span class="p">)</span>
+        <span class="n">filt</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="n">vertices</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">GraphView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">,</span> <span class="n">vfilt</span><span class="o">=</span><span class="n">filt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interactome.get_genes_lcc_size"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_genes_lcc_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_genes_lcc_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the LCC size of the graph induced by given genes.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            genes: an iterable containing genes</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            $|LCC(\Delta_{\text{genes}}(G))|$</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">get_lcc_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">genes</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="Interactome.get_random_genes_lcc"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_random_genes_lcc">[docs]</a>    <span class="k">def</span> <span class="nf">get_random_genes_lcc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the LCC size of a random subgraph of given size.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            size (in): number of genes to sample</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            $|LCC(\mathcal G(\text{size}, G))|$</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">get_lcc_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_random_subgraph</span><span class="p">(</span><span class="n">size</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Interactome.get_random_genes_density"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_random_genes_density">[docs]</a>    <span class="k">def</span> <span class="nf">get_random_genes_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the density of a random subgraph of given size.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            size (int): number of genes to sample</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            $d(\mathcal G(\text{size}, G))$</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">get_density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_random_subgraph</span><span class="p">(</span><span class="n">size</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Interactome.get_genes_density"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_genes_density">[docs]</a>    <span class="k">def</span> <span class="nf">get_genes_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the density of the subgraph induced by given genes.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            genes: an iterable of genes</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            $d(\Delta_{\text{genes}}(G))$</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">get_density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">genes</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="Interactome.get_lcc_score"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_lcc_score">[docs]</a>    <span class="k">def</span> <span class="nf">get_lcc_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">shapiro</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">shapiro_threshold</span><span class="o">=.</span><span class="mi">05</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the $z$-score and the empirical p-value of the LCC size of given genes.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            genes (set): gene set</span>
+<span class="sd">            nb_sims (int): minimum number of simulations for probability distribution estimation</span>
+<span class="sd">            shapiro (bool): True if normality test is needed, False otherwise (default False)</span>
+<span class="sd">            shapiro_threshold (float): statistical threshold for normality test</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            $(z, p_e, N)$ if shapiro is True and $(z, p_e)$ otherwise;</span>
+<span class="sd">            where $z$ is the $z$-score of the LCC size, $p_e$ is the associated</span>
+<span class="sd">            empirical $p$-value and $N$ is True if Shapiro-Wilk normality test</span>
+<span class="sd">            $p$-value &gt;= shapiro_threshold and False otherwise</span>
+
+<span class="sd">        RAISE:</span>
+<span class="sd">            ValueError if not enough simulations have been performed</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">genes</span> <span class="o">=</span> <span class="n">genes</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes</span>
+        <span class="n">genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verts_id</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
+        <span class="n">nb_seeds</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nb_seeds</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\t</span><span class="s1">[Warning: get_lcc_score found no matching gene]&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">genes_lcc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_genes_lcc_size</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lccs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lcc_cache</span><span class="p">()[</span><span class="n">nb_seeds</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lccs</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">nb_sims</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Only </span><span class="si">{}</span><span class="s1"> simulations found. Expected &gt;= </span><span class="si">{}</span><span class="s1">. &#39;</span> <span class="o">+</span> \
+                              <span class="s1">&#39;fill_lcc_cache has not been called properly&#39;</span><span class="p">)</span> \
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lccs</span><span class="p">),</span> <span class="n">nb_sims</span><span class="p">))</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="n">lccs</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">lccs</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">std</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">((</span><span class="n">genes_lcc</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span><span class="p">)</span>
+        <span class="n">empirical_p</span> <span class="o">=</span> <span class="p">(</span><span class="n">lccs</span> <span class="o">&gt;=</span> <span class="n">genes_lcc</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lccs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shapiro</span><span class="p">:</span>
+            <span class="n">is_normal</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">shapiro</span><span class="p">(</span><span class="n">lccs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">shapiro_threshold</span>
+            <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">empirical_p</span><span class="p">,</span> <span class="n">is_normal</span>
+        <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">empirical_p</span></div>
+
+<div class="viewcode-block" id="Interactome.where_density_cache_nb_sims_lower_than"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.where_density_cache_nb_sims_lower_than">[docs]</a>    <span class="k">def</span> <span class="nf">where_density_cache_nb_sims_lower_than</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the sizes whose density hasn&#39;t been simulated enough.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            sizes (iterable): iterable of int values corresponding to sizes to test</span>
+<span class="sd">            nb_sims (int): minimal number of simulations</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            set of int values corresponding to sizes that haven&#39;t been simulated enough:</span>
+<span class="sd">            $\{s \in \text{sizes} : |\text{density_cache}[s]| &lt; \text{nb_sims}\}$</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_density_cache</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">size</span> <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span> \
+                     <span class="k">if</span> <span class="n">size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> \
+                     <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">nb_sims</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Interactome.where_lcc_cache_nb_sims_lower_than"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.where_lcc_cache_nb_sims_lower_than">[docs]</a>    <span class="k">def</span> <span class="nf">where_lcc_cache_nb_sims_lower_than</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the sizes whose LCC hasn&#39;t been simulated enough.</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            sizes (iterable): iterable of int values corresponding to sizes to test</span>
+<span class="sd">            nb_sims (int): minimal number of simulations</span>
+
+<span class="sd">        RETURN:</span>
+<span class="sd">            set of int values corresponding to sizes that haven&#39;t been simulated enough:</span>
+<span class="sd">            $\{s \in \text{sizes} : |\text{lcc_cache}[s]| &lt; \text{nb_sims}\}$</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_lcc_cache</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">size</span> <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span> \
+                     <span class="k">if</span> <span class="n">size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> \
+                     <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">nb_sims</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Interactome.fill_lcc_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.fill_lcc_cache">[docs]</a>    <span class="k">def</span> <span class="nf">fill_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">sizes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Fill the lcc_cache such that:</span>
+<span class="sd">        $\forall s \in \text{sizes} : |\text{lcc_cache[n]}| &gt;= \text{nb_sims}$</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            nb_sims (int): minimal number of simulations to be performed</span>
+<span class="sd">            sizes (set): set of number of genes for which LCC size shall be tested</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_lcc_cache</span><span class="p">()</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sizes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_compute_lcc_dist</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> out of </span><span class="si">{}</span><span class="s1">  (</span><span class="si">{:3.2f}</span><span class="s1">%)    eta: </span><span class="si">{}</span><span class="s1">&#39;</span> \
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">),</span> <span class="mi">100</span><span class="o">*</span><span class="n">prop</span><span class="p">,</span>
+                        <span class="n">sec2date</span><span class="p">((</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="n">prop</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prop</span><span class="p">))),</span>
+                <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_cache</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_compute_lcc_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">:</span>
+            <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">nb_sims</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[Warning]: </span><span class="si">{}</span><span class="s1"> sims required but </span><span class="si">{}</span><span class="s1"> already performed&#39;</span> \
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])))</span>
+            <span class="k">return</span>
+        <span class="n">lccs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
+            <span class="n">lccs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_genes_lcc</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">],</span> <span class="n">lccs</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Interactome.fill_density_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.fill_density_cache">[docs]</a>    <span class="k">def</span> <span class="nf">fill_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">sizes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Fill the density_cache such that:</span>
+<span class="sd">        $\forall s \in \text{sizes} : |\text{density_cache[n]}| &gt;= \text{nb_sims}$</span>
+
+<span class="sd">        PARAMS:</span>
+<span class="sd">            nb_sims (int): minimal number of simulations to be performed</span>
+<span class="sd">            sizes (set): set of number of genes for which density shall be tested</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sizes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_compute_disease_module_density</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> out of </span><span class="si">{}</span><span class="s1">  (</span><span class="si">{:3.2f}</span><span class="s1">%)    eta: </span><span class="si">{}</span><span class="s1">&#39;</span> \
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">),</span> <span class="mi">100</span><span class="o">*</span><span class="n">prop</span><span class="p">,</span>
+                        <span class="n">sec2date</span><span class="p">((</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="n">prop</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prop</span><span class="p">))),</span>
+                <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_density_cache</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_compute_disease_module_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">:</span>
+            <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
+            <span class="n">densities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_genes_density</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">],</span> <span class="n">densities</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">densities</span>
+
+    <span class="k">def</span> <span class="nf">write_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">IO</span><span class="o">.</span><span class="n">save_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">IO</span><span class="o">.</span><span class="n">save_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_subinteractome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">genes_hash</span> <span class="o">=</span> <span class="s1">&#39;-mendeliome&#39;</span>  <span class="c1"># TODO: find how to hash properly the genes</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">+=</span> <span class="n">genes_hash</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">genes2vertices</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">gene</span><span class="p">:</span> <span class="n">vert_id</span> <span class="k">for</span> <span class="p">(</span><span class="n">gene</span><span class="p">,</span> <span class="n">vert_id</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> \
+                <span class="k">if</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">genes</span>
+        <span class="p">}</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">genes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">genes2vertices</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">distances</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">compute_spls</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Robin Petit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

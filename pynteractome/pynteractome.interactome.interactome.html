@@ -1,0 +1,693 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynteractome.interactome.interactome module &mdash; pynteractome 0.0.0.0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pynteractome.mendeliome package" href="pynteractome.mendeliome.html" />
+    <link rel="prev" title="pynteractome.interactome package" href="pynteractome.interactome.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynteractome
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pynteractome</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pynteractome.html">pynteractome package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pynteractome.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pynteractome.core.html">pynteractome.core package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynteractome.data_handling.html">pynteractome.data_handling package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynteractome.hpo.html">pynteractome.hpo package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pynteractome.interactome.html">pynteractome.interactome package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynteractome.mendeliome.html">pynteractome.mendeliome package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynteractome.plot.html">pynteractome.plot package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pynteractome.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynteractome</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">pynteractome</a> &raquo;</li>
+        
+          <li><a href="pynteractome.html">pynteractome package</a> &raquo;</li>
+        
+          <li><a href="pynteractome.interactome.html">pynteractome.interactome package</a> &raquo;</li>
+        
+      <li>pynteractome.interactome.interactome module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/pynteractome/pynteractome.interactome.interactome.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pynteractome.interactome.interactome">
+<span id="pynteractome-interactome-interactome-module"></span><h1>pynteractome.interactome.interactome module<a class="headerlink" href="#module-pynteractome.interactome.interactome" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynteractome.interactome.interactome.Interactome">
+<em class="property">class </em><code class="descclassname">pynteractome.interactome.interactome.</code><code class="descname">Interactome</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt>
+<code class="descname">+ interactome_path</code></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">+ G</code></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">gt.Graph</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">+ genes2vertices</code></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">+ genes</code></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">+ lcc_cache</code></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">+ density_cache</code></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">+ distances</code></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.add_vertex">
+<code class="descname">add_vertex</code><span class="sig-paren">(</span><em>gene</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.add_vertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.add_vertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new vertex for <cite>gene</cite> in the graph if not yet present</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>gene: the name of the gene to ad in the interactome</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.compute_spls">
+<code class="descname">compute_spls</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.compute_spls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.compute_spls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the shortest path between each pair of genes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.fill_density_cache">
+<code class="descname">fill_density_cache</code><span class="sig-paren">(</span><em>nb_sims</em>, <em>sizes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.fill_density_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.fill_density_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the density_cache such that:
+$forall s in text{sizes} : <a href="#id1"><span class="problematic" id="id2">|\text{density_cache[n]}|</span></a> &gt;= text{nb_sims}$</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>nb_sims (int): minimal number of simulations to be performed
+sizes (set): set of number of genes for which density shall be tested</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.fill_lcc_cache">
+<code class="descname">fill_lcc_cache</code><span class="sig-paren">(</span><em>nb_sims</em>, <em>sizes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.fill_lcc_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.fill_lcc_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the lcc_cache such that:
+$forall s in text{sizes} : <a href="#id3"><span class="problematic" id="id4">|\text{lcc_cache[n]}|</span></a> &gt;= text{nb_sims}$</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>nb_sims (int): minimal number of simulations to be performed
+sizes (set): set of number of genes for which LCC size shall be tested</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_all_dists">
+<code class="descname">get_all_dists</code><span class="sig-paren">(</span><em>A</em>, <em>B</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_all_dists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_all_dists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list containing all the distances from a gene in A to the gene set B</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>A: a source gene set
+B: a destination gene set</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of distances [d(a, B) s.t. a in A]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_d_A">
+<code class="descname">get_d_A</code><span class="sig-paren">(</span><em>A</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_d_A"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_d_A" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the inner distance of the disease module A.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>A: a gene set</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">$d_A$</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_d_AB">
+<code class="descname">get_d_AB</code><span class="sig-paren">(</span><em>A</em>, <em>B</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_d_AB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_d_AB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the graph-based distance between A and B</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>A: a gene set
+B: a gene set</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">d_AB</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_genes_density">
+<code class="descname">get_genes_density</code><span class="sig-paren">(</span><em>genes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_genes_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_genes_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the density of the subgraph induced by given genes.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>genes: an iterable of genes</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">$d(Delta_{text{genes}}(G))$</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_genes_lcc_size">
+<code class="descname">get_genes_lcc_size</code><span class="sig-paren">(</span><em>genes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_genes_lcc_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_genes_lcc_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the LCC size of the graph induced by given genes.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>genes: an iterable containing genes</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">$|LCC(Delta_{text{genes}}(G))|$</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_lcc_cache">
+<code class="descname">get_lcc_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_lcc_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_lcc_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the cache of LCC sizes. WARNING: no copy is made.
+Modifying the returned cache can result in undefined behaviour</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_lcc_score">
+<code class="descname">get_lcc_score</code><span class="sig-paren">(</span><em>genes</em>, <em>nb_sims</em>, <em>shapiro=False</em>, <em>shapiro_threshold=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_lcc_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_lcc_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the $z$-score and the empirical p-value of the LCC size of given genes.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>genes (set): gene set
+nb_sims (int): minimum number of simulations for probability distribution estimation
+shapiro (bool): True if normality test is needed, False otherwise (default False)
+shapiro_threshold (float): statistical threshold for normality test</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">$(z, p_e, N)$ if shapiro is True and $(z, p_e)$ otherwise;
+where $z$ is the $z$-score of the LCC size, $p_e$ is the associated
+empirical $p$-value and $N$ is True if Shapiro-Wilk normality test
+$p$-value &gt;= shapiro_threshold and False otherwise</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>RAISE:</dt>
+<dd>ValueError if not enough simulations have been performed</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_random_genes_density">
+<code class="descname">get_random_genes_density</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_random_genes_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_random_genes_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the density of a random subgraph of given size.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>size (int): number of genes to sample</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">$d(mathcal G(text{size}, G))$</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_random_genes_lcc">
+<code class="descname">get_random_genes_lcc</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_random_genes_lcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_random_genes_lcc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the LCC size of a random subgraph of given size.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>size (in): number of genes to sample</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">$|LCC(mathcal G(text{size}, G))|$</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_random_subgraph">
+<code class="descname">get_random_subgraph</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_random_subgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_random_subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uniformly sample a subgraph of given size.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd><blockquote class="first">
+<div>size: number of genes to sample</div></blockquote>
+<dl class="last docutils">
+<dt>RETURN:</dt>
+<dd>A subgraph of self of given size</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_subgraph">
+<code class="descname">get_subgraph</code><span class="sig-paren">(</span><em>vertices</em>, <em>genes=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_subgraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_subgraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the subgraph of self induced by the given vertices.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd><p class="first">vertices: a set of vertex IDs (or a set of genes)
+genes: a boolean with value <cite>True</cite> if <cite>vertices</cite> is a set of genes</p>
+<blockquote class="last">
+<div>and <cite>False</cite> if it is a set of vertex IDs.</div></blockquote>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">$Delta_{text{Vertices}}(G)$</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.load_density_cache">
+<code class="descname">load_density_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.load_density_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.load_density_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the cache of density simulations if exists, else creates an empty one.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.load_lcc_cache">
+<code class="descname">load_lcc_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.load_lcc_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.load_lcc_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the cache of LCC sizes simulations if exists, else creates an empty one.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.load_network">
+<code class="descname">load_network</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.load_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.load_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the interactome stored in a tsv file</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>path: the path of the interactome file</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.vert_id">
+<code class="descname">vert_id</code><span class="sig-paren">(</span><em>gene</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.vert_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.vert_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the id of the desired gene</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>gene: the gene to retrieve</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the id of the desired gene</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>KeyError if no such gene is in the interactome</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.verts_id">
+<code class="descname">verts_id</code><span class="sig-paren">(</span><em>genes</em>, <em>gene_to_ignore=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.verts_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.verts_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of Vertex instances of the desired genes</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>genes: an iterable of desired genes
+gene_to_ignore: gene in <cite>genes</cite> that is not desired</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of Vertex instances of the desired genes</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>KeyError if any of the genes is not in the interactome</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.where_density_cache_nb_sims_lower_than">
+<code class="descname">where_density_cache_nb_sims_lower_than</code><span class="sig-paren">(</span><em>sizes</em>, <em>nb_sims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.where_density_cache_nb_sims_lower_than"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.where_density_cache_nb_sims_lower_than" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sizes whose density hasn’t been simulated enough.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>sizes (iterable): iterable of int values corresponding to sizes to test
+nb_sims (int): minimal number of simulations</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">${s in text{sizes} : <a href="#id5"><span class="problematic" id="id6">|\text{density_cache}[s]|</span></a> &lt; text{nb_sims}}$</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set of int values corresponding to sizes that haven’t been simulated enough</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.where_lcc_cache_nb_sims_lower_than">
+<code class="descname">where_lcc_cache_nb_sims_lower_than</code><span class="sig-paren">(</span><em>sizes</em>, <em>nb_sims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.where_lcc_cache_nb_sims_lower_than"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.where_lcc_cache_nb_sims_lower_than" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sizes whose LCC hasn’t been simulated enough.</p>
+<dl class="docutils">
+<dt>PARAMS:</dt>
+<dd>sizes (iterable): iterable of int values corresponding to sizes to test
+nb_sims (int): minimal number of simulations</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">${s in text{sizes} : <a href="#id7"><span class="problematic" id="id8">|\text{lcc_cache}[s]|</span></a> &lt; text{nb_sims}}$</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">set of int values corresponding to sizes that haven’t been simulated enough</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.interactome.interactome.X">
+<code class="descclassname">pynteractome.interactome.interactome.</code><code class="descname">X</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#X"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute binomial coefficient n choose 2</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.interactome.interactome.get_density">
+<code class="descclassname">pynteractome.interactome.interactome.</code><code class="descname">get_density</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#get_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.get_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the density of graph G.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.interactome.interactome.get_lcc_size">
+<code class="descclassname">pynteractome.interactome.interactome.</code><code class="descname">get_lcc_size</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#get_lcc_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.get_lcc_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the size of the largest connected component (LCC) within G.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pynteractome.mendeliome.html" class="btn btn-neutral float-right" title="pynteractome.mendeliome package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pynteractome.interactome.html" class="btn btn-neutral" title="pynteractome.interactome package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Robin Petit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

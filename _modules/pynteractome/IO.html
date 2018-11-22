@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynteractome.IO &mdash; pynteractome 0.0.0.0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynteractome
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pynteractome/modules.html">pynteractome</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynteractome</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynteractome.IO</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynteractome.IO</h1><div class="highlight"><pre>
+<span></span><span class="c1"># std</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">shelve</span>
+<span class="c1"># ext libs</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># local</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">save_to_shelf</span><span class="p">,</span> <span class="n">get_from_shelf</span><span class="p">,</span> <span class="n">SHELF_DIR</span><span class="p">,</span> <span class="n">log</span>
+
+<div class="viewcode-block" id="IO"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO">[docs]</a><span class="k">class</span> <span class="nc">IO</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39; Interface class whose goal is to provide store/fetch instructions</span>
+<span class="sd">    for the rest of the code. &#39;&#39;&#39;</span>
+
+    <span class="n">_ENTROPY_SHELF_PATH</span> <span class="o">=</span> <span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="s1">&#39;entropy.shelf&#39;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_sep</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">prop_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_from_shelf</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">separations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="n">Cs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="IO.save_sep"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.save_sep">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_sep</span><span class="p">(</span><span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">prop_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        TODO: complete by describing the variables</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">IO</span><span class="o">.</span><span class="n">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">):</span> <span class="p">(</span><span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">save_to_shelf</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_density_cache</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Loading Density cache]&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_from_shelf</span><span class="p">(</span><span class="s1">&#39;density-cache-&#39;</span><span class="o">+</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_density_cache</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Saving density cache]&#39;</span><span class="p">)</span>
+        <span class="n">save_to_shelf</span><span class="p">({</span><span class="s1">&#39;density-cache-&#39;</span><span class="o">+</span><span class="n">path</span><span class="p">:</span> <span class="n">cache</span><span class="p">})</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_lcc_cache</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Loading lcc_cache]&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">get_from_shelf</span><span class="p">(</span><span class="s1">&#39;lcc_cache-&#39;</span><span class="o">+</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_lcc_cache</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Saving lcc_cache]&#39;</span><span class="p">)</span>
+        <span class="n">save_to_shelf</span><span class="p">({</span><span class="s1">&#39;lcc_cache-&#39;</span><span class="o">+</span><span class="n">path</span><span class="p">:</span> <span class="n">cache</span><span class="p">})</span>
+
+<div class="viewcode-block" id="IO.save_entropy"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.save_entropy">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_entropy</span><span class="p">(</span><span class="n">hs</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Save the isomorphism entropy computed on random subgraphs. The</span>
+<span class="sd">        entropy of the disease modules is also saved if it is not None.</span>
+
+<span class="sd">        Params:</span>
+<span class="sd">            hs: list</span>
+<span class="sd">                all the computed entropy values</span>
+<span class="sd">            H: float</span>
+<span class="sd">                The entropy of the disease modules</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">with</span> <span class="n">shelve</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">_ENTROPY_SHELF_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">shelf</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">H</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;H&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shelf</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Entropy of disease modules hasn</span><span class="se">\&#39;</span><span class="s1">t been computed yet.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;hs&#39;</span> <span class="ow">in</span> <span class="n">shelf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">hs</span> <span class="o">=</span> <span class="n">shelf</span><span class="p">[</span><span class="s1">&#39;hs&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">hs</span>
+            <span class="n">shelf</span><span class="p">[</span><span class="s1">&#39;hs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hs</span>
+            <span class="k">if</span> <span class="n">H</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">shelf</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_entropy</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">get_from_shelf</span><span class="p">([</span><span class="s1">&#39;hs&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">IO</span><span class="o">.</span><span class="n">_ENTROPY_SHELF_PATH</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_nb_sims_entropy</span><span class="p">():</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">load_entropy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;sep-</span><span class="si">{}</span><span class="s1">prop&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">prop_depth</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;no-&#39;</span><span class="p">)</span>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_interactome</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="s1">&#39;interactome.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pynteractome.interactome</span> <span class="k">import</span> <span class="n">Interactome</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">Interactome</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="s1">&#39;interactome.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Robin Petit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
