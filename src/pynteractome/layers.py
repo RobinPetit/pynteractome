@@ -8,7 +8,6 @@ from .hpo.load_obo import get_subtree, load_abnormal_phenotypes
 from .mendeliome.parser import MendeliomeParser
 from .utils import reverse_set_dict, log
 from .IO import IO
-from .data_constants import *
 
 __integrator = None
 

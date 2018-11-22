@@ -4,7 +4,7 @@ import shelve
 # ext libs
 import numpy as np
 # local
-from .utils import save_to_shelf, get_from_shelf, SHELF_DIR, log
+from .utils import save_to_shelf, get_from_shelf, SHELF_DIR, log, hash_str
 
 class IO:
     ''' Interface class whose goal is to provide store/fetch instructions
@@ -91,11 +91,17 @@ class IO:
 
 
     @staticmethod
-    def load_interactome(path):
+    def load_interactome(path, create_if_not_found=True):
+        ret = None
         try:
-            ret = pickle.load(open(SHELF_DIR + 'interactome.pickle', 'rb'))
+            ret = pickle.load(open(SHELF_DIR + hash_str(path) + '.pickle', 'rb'))
         except FileNotFoundError:
-            from pynteractome.interactome import Interactome
-            ret = Interactome(path)
-            pickle.dump(ret, open(SHELF_DIR + 'interactome.pickle', 'wb'))
+            if create_if_not_found:
+                from pynteractome.interactome import Interactome
+                ret = Interactome(path)
+                IO.save_interactome(ret)
         return ret
+
+    @staticmethod
+    def save_interactome(interactome):
+        pickle.dump(interactome, open(SHELF_DIR + hash_str(interactome.interactome_path) + '.pickle', 'wb'))

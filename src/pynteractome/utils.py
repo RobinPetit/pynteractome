@@ -1,4 +1,5 @@
 from datetime import datetime as dt
+from hashlib import md5
 import shelve
 import numpy as np
 
@@ -70,3 +71,6 @@ def extract_triangular(array, indices):
                 ret.append(array[i, j])
     assert len(ret) == indices.sum()*(indices.sum()-1)//2
     return np.asarray(ret, dtype=array.dtype)
+
+def hash_str(s):
+    return md5(s.encode('utf-8')).hexdigest()

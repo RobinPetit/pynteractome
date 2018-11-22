@@ -25,7 +25,7 @@ def _lcc_analysis(integrator, nb_sims, disease2genes):
     print('{} sizes are unique to this depth'.format(len(sizes)))
     if sizes:
         log('Filling cache')
-        interactome.fill_cache(nb_sims, sizes)
+        interactome.fill_lcc_cache(nb_sims, sizes)
         log('Cache filled')
     else:
         log('Everything already in cache')

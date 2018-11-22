@@ -1,6 +1,7 @@
 # std
 import csv
 from copy import deepcopy
+from hashlib import md5
 from time import time
 # ext libs
 import numpy as np
@@ -62,7 +63,7 @@ class Interactome:
         '''
         Load the interactome stored in a tsv file
 
-        PARAMS:
+        Args:
             path: the path of the interactome file
         '''
         self.G = Graph(directed=False)
@@ -81,7 +82,7 @@ class Interactome:
         '''
         Create new vertex for `gene` in the graph if not yet present
 
-        PARAMS:
+        Args:
             gene: the name of the gene to ad in the interactome
         '''
         if gene not in self.genes2vertices:
@@ -92,14 +93,14 @@ class Interactome:
         '''
         Return the id of the desired gene
 
-        PARAMS:
+        Args:
             gene: the gene to retrieve
 
-        RETURN:
+        Returns:
             the id of the desired gene
 
-        RAISES:
-            KeyError if no such gene is in the interactome
+        Raises:
+            KeyError: if no such gene is in the interactome
         '''
         return self.genes2vertices[gene]
 
@@ -107,15 +108,15 @@ class Interactome:
         '''
         Return a list of Vertex instances of the desired genes
 
-        PARAMS:
+        Args:
             genes: an iterable of desired genes
             gene_to_ignore: gene in `genes` that is not desired
 
-        RETURN:
+        Returns:
             a list of Vertex instances of the desired genes
 
-        RAISES:
-            KeyError if any of the genes is not in the interactome
+        Raises:
+            KeyError: if any of the genes is not in the interactome
         '''
         return np.array([self.vert_id(gene) for gene in genes if gene != gene_to_ignore])
 
@@ -132,11 +133,11 @@ class Interactome:
         '''
         Get a list containing all the distances from a gene in A to the gene set B
 
-        PARAMS:
+        Args:
             A: a source gene set
             B: a destination gene set
 
-        RETURN:
+        Returns:
             a list of distances [d(a, B) s.t. a in A]
         '''
         insert_self = A is B
@@ -161,14 +162,14 @@ class Interactome:
         return all_dists
 
     def get_d_A(self, A):
-        r'''
+        '''
         Return the inner distance of the disease module A.
 
-        PARAMS:
+        Args:
             A: a gene set
 
-        RETURN:
-            $d_A$
+        Returns:
+            :math:`d_A`
         '''
         return np.mean(self.get_all_dists(A, A))
 
@@ -176,12 +177,12 @@ class Interactome:
         '''
         Return the graph-based distance between A and B
 
-        PARAMS:
+        Args:
             A: a gene set
             B: a gene set
 
-        RETURN:
-            d_AB
+        Returns:
+            :math:`d_{AB}`
         '''
         values = self.get_all_dists(A, B)
         values.extend(self.get_all_dists(B, A))
@@ -191,10 +192,10 @@ class Interactome:
         '''
         Uniformly sample a subgraph of given size.
 
-        PARAMS:
+        Args:
             size: number of genes to sample
 
-         RETURN:
+        Returns:
             A subgraph of self of given size
         '''
         seeds = np.random.choice(len(self.genes), size=size, replace=False)
@@ -204,13 +205,13 @@ class Interactome:
         r'''
         Return the subgraph of self induced by the given vertices.
 
-        PARAMS:
+        Args:
             vertices: a set of vertex IDs (or a set of genes)
             genes: a boolean with value `True` if `vertices` is a set of genes
                 and `False` if it is a set of vertex IDs.
 
-        RETURN:
-            $\Delta_{\text{Vertices}}(G)$
+        Returns:
+            :math:`\Delta_{\text{vertices}}(G)`
         '''
         if genes:
             vertices = self.verts_id(vertices)
@@ -222,11 +223,11 @@ class Interactome:
         r'''
         Return the LCC size of the graph induced by given genes.
 
-        PARAMS:
+        Args:
             genes: an iterable containing genes
 
-        RETURN:
-            $|LCC(\Delta_{\text{genes}}(G))|$
+        Returns:
+            :math:`|LCC(\Delta_{\text{genes}}(G))|`
         '''
         return get_lcc_size(self.get_subgraph(np.asarray(genes)))
 
@@ -234,11 +235,11 @@ class Interactome:
         r'''
         Return the LCC size of a random subgraph of given size.
 
-        PARAMS:
+        Args:
             size (in): number of genes to sample
 
-        RETURN:
-            $|LCC(\mathcal G(\text{size}, G))|$
+        Returns:
+            :math:`|LCC(\mathcal G(\text{size}, G))|`
         '''
         return get_lcc_size(self.get_random_subgraph(size))
 
@@ -246,11 +247,11 @@ class Interactome:
         r'''
         Return the density of a random subgraph of given size.
 
-        PARAMS:
+        Args:
             size (int): number of genes to sample
 
-        RETURN:
-            $d(\mathcal G(\text{size}, G))$
+        Returns:
+            :math:`d(\mathcal G(\text{size}, G))`
         '''
         return get_density(self.get_random_subgraph(size))
 
@@ -258,30 +259,47 @@ class Interactome:
         r'''
         Return the density of the subgraph induced by given genes.
 
-        PARAMS:
+        Args:
             genes: an iterable of genes
 
-        RETURN:
-            $d(\Delta_{\text{genes}}(G))$
+        Returns:
+            :math:`d(\Delta_{\text{genes}}(G))`
         '''
         return get_density(self.get_subgraph(np.asarray(genes)))
 
-    def random_comp(self, genes, nb_sims, shapiro=False, shapiro_threshold=.05):
-        '''
-        Approach probability distribution of the LCC size of ...  # TODO: Find how to express this function + split in 2
+    def get_lcc_score(self, genes, nb_sims, shapiro=False, shapiro_threshold=.05):
+        r'''
+        Get the z-score and the empirical p-value of the LCC size of given genes.
+
+        Args:
+            genes (set): gene set
+            nb_sims (int): minimum number of simulations for probability distribution estimation
+            shapiro (bool): True if normality test is needed, False otherwise (default False)
+            shapiro_threshold (float): statistical threshold for normality test
+
+        Returns:
+            :math:`(z, p_e, N)` if shapiro is True and :math:`(z, p_e)` otherwise;
+            where z is the z-score of the LCC size, :math:`p_e` is the associated
+            empirical p-value and N is True if Shapiro-Wilk normality test
+            p-value >= shapiro_threshold and False otherwise
+
+        Raises:
+            ValueError: if not enough simulations have been performed
         '''
         genes = genes & self.genes
         genes = self.verts_id(genes)
         nb_seeds = len(genes)
         if nb_seeds == 0:
-            print('\n\t[Warning: random_comp found no matching gene]')
+            print('\n\t[Warning: get_lcc_score found no matching gene]')
             return None
         genes_lcc = self.get_genes_lcc_size(genes)
         try:
             lccs = self.get_lcc_cache()[nb_seeds]
             assert len(lccs) >= nb_sims
-        except:  # if cache miss, fill_cache has not been called properly before
-            raise
+        except AssertionError:
+            raise ValueError(('Only {} simulations found. Expected >= {}. ' + \
+                              'fill_lcc_cache has not been called properly') \
+                             .format(len(lccs), nb_sims))
         std = lccs.std()
         mean = lccs.mean()
         z = None if std == 0 else float((genes_lcc - mean) / std)
@@ -292,20 +310,52 @@ class Interactome:
         return z, empirical_p
 
     def where_density_cache_nb_sims_lower_than(self, sizes, nb_sims):
+        r'''
+        Get the sizes whose density hasn't been simulated enough.
+
+        Args:
+            sizes (iterable): iterable of int values corresponding to sizes to test
+            nb_sims (int): minimal number of simulations
+
+        Returns:
+            set of int values corresponding to sizes that haven't been simulated enough:
+            .. math::
+                \{s \in \text{sizes} : |\text{density_cache}[s]| < \text{nb_sims}\}
+        '''
         self.load_density_cache()
         return {size for size in sizes \
                      if size not in self.density_cache.keys() \
                      or len(self.density_cache[size]) < nb_sims}
 
     def where_lcc_cache_nb_sims_lower_than(self, sizes, nb_sims):
+        r'''
+        Get the sizes whose LCC hasn't been simulated enough.
+
+        Args:
+            sizes (iterable): iterable of int values corresponding to sizes to test
+            nb_sims (int): minimal number of simulations
+
+        Returns:
+            set of int values corresponding to sizes that haven't been simulated enough:
+            .. math::
+                \{s \in \text{sizes} : |\text{lcc_cache}[s]| < \text{nb_sims}\}
+        '''
         self.load_lcc_cache()
         return {size for size in sizes \
                      if size not in self.lcc_cache.keys() \
                      or len(self.lcc_cache[size]) < nb_sims}
 
-    def fill_cache(self, nb_sims, sizes):
-        if not hasattr(self, 'lcc_cache'):
-            self.load_lcc_cache()
+    def fill_lcc_cache(self, nb_sims, sizes):
+        r'''
+        Fill the lcc_cache such that:
+        .. math::
+            \forall s \in \text{sizes} : |\text{lcc_cache[n]}| >= \text{nb_sims}
+
+        Args:
+            nb_sims (int): minimal number of simulations to be performed
+            sizes (set): set of number of genes for which LCC size shall be tested
+        '''
+        self.load_lcc_cache()
         a = time()
         for idx, size in enumerate(sizes):
             self._compute_lcc_dist(nb_sims, size)
@@ -315,7 +365,7 @@ class Interactome:
                         sec2date((time()-a)/prop*(1-prop))),
                 end='\r')
         print('')
-        self.write_cache()
+        self._write_lcc_cache()
 
     def _compute_lcc_dist(self, nb_sims, size):
         N = nb_sims
@@ -331,6 +381,15 @@ class Interactome:
         self.lcc_cache[size] = np.concatenate((self.lcc_cache[size], lccs))
 
     def fill_density_cache(self, nb_sims, sizes):
+        r'''
+        Fill the density_cache such that:
+        .. math::
+            \forall s \in \text{sizes} : |\text{density_cache[n]}| >= \text{nb_sims}
+
+        Args:
+            nb_sims (int): minimal number of simulations to be performed
+            sizes (set): set of number of genes for which density shall be tested
+        '''
         if self.density_cache is None:
             self.density_cache = IO.load_density_cache(self.interactome_path)
         a = time()
@@ -342,7 +401,7 @@ class Interactome:
                         sec2date((time()-a)/prop*(1-prop))),
                 end='\r')
         print('')
-        self.write_density_cache()
+        self._write_density_cache()
 
     def _compute_disease_module_density(self, nb_sims, size):
         N = nb_sims
@@ -359,16 +418,21 @@ class Interactome:
             pass
         self.density_cache[size] = densities
 
-    def write_cache(self):
+    def _write_lcc_cache(self):
         IO.save_lcc_cache(self.interactome_path, self.lcc_cache)
 
-    def write_density_cache(self):
+    def _write_density_cache(self):
         IO.save_density_cache(self.interactome_path, self.density_cache)
 
     def get_subinteractome(self, genes):
+        genes &= self.genes
+        genes_hash = md5(''.join(sorted(map(str, genes))).encode('utf-8')).hexdigest()
+        namecode = self.interactome_path + genes_hash
+        ret = IO.load_interactome(namecode, False)
+        if ret is not None:
+            return ret
         ret = deepcopy(self)
-        genes_hash = '-mendeliome'  # TODO: find how to hash properly the genes
-        ret.interactome_path += genes_hash
+        ret.interactome_path = namecode
         ret.G = self.get_subgraph(genes, True)
         ret.genes2vertices = {
             gene: vert_id for (gene, vert_id) in self.genes2vertices.items() \
@@ -378,4 +442,5 @@ class Interactome:
         ret.lcc_cache = ret.density_cache = None
         ret.distances = dict()
         ret.compute_spls()
+        IO.save_interactome(ret)
         return ret

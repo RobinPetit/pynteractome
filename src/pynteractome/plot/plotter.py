@@ -19,7 +19,7 @@ class Plotter:
         lcc_cache = interactome.lcc_cache
         for depth in range(integrator.get_hpo_depth()):
             integrator.propagate_genes(depth)
-            zs = {term: interactome.random_comp(genes, 0, shapiro=True) \
+            zs = {term: interactome.get_lcc_score(genes, 0, shapiro=True) \
                   for (term, genes) in integrator.get_hpo2genes().items()}
             Plotter._loc_hpo(integrator, zs, depth)
 
@@ -83,7 +83,7 @@ class Plotter:
             genes &= interactome.genes
             if not genes:
                 continue
-            z, empirical_p, shapiro_p = interactome.random_comp(genes, 0, shapiro=True)
+            z, empirical_p, shapiro_p = interactome.get_lcc_score(genes, 0, shapiro=True)
             if z is None:
                 continue
             lcc = interactome.get_genes_lcc_size(interactome.verts_id(genes))

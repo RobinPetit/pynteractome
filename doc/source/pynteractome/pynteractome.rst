@@ -1,0 +1,31 @@
+pynteractome package
+====================
+
+.. automodule:: pynteractome
+    :members:
+    :private-members:
+    :show-inheritance:
+    :ignore-module-all:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    pynteractome.core
+    pynteractome.data_handling
+    pynteractome.hpo
+    pynteractome.interactome
+    pynteractome.mendeliome
+    pynteractome.plot
+
+Submodules
+----------
+
+.. toctree::
+
+   pynteractome.IO
+   pynteractome.config
+   pynteractome.layers
+   pynteractome.utils
+
