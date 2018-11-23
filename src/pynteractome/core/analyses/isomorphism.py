@@ -69,7 +69,7 @@ def isomorphism_entropy_analysis(integrator, nb_sims):
         for genes in disease_modules_genes:
             disease_modules.append(interactome.get_subgraph(genes))
         H = isomorphism_entropy(disease_modules)
-    IO.save_entropy(entropy_values, H)
+    IO.save_entropy(interactome, entropy_values, H)
 
 def get_entropy_values(nb_sims, nb_vertices, interactome):
     entropy_values = list()

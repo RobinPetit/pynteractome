@@ -52,12 +52,12 @@ class Interactome:
     def load_lcc_cache(self):
         '''Load the cache of LCC sizes simulations if exists, else creates an empty one.'''
         if self.lcc_cache is None:
-            self.lcc_cache = IO.load_lcc_cache(self.interactome_path)
+            self.lcc_cache = IO.load_lcc_cache(self)
 
     def load_density_cache(self):
         '''Load the cache of density simulations if exists, else creates an empty one.'''
         if self.density_cache is None:
-            self.density_cache = IO.load_density_cache(self.interactome_path)
+            self.density_cache = IO.load_density_cache(self)
 
     def load_network(self, path):
         '''
@@ -390,8 +390,7 @@ class Interactome:
             nb_sims (int): minimal number of simulations to be performed
             sizes (set): set of number of genes for which density shall be tested
         '''
-        if self.density_cache is None:
-            self.density_cache = IO.load_density_cache(self.interactome_path)
+		self.load_density_cache()
         a = time()
         for idx, size in enumerate(sizes):
             self._compute_disease_module_density(nb_sims, size)
@@ -419,10 +418,10 @@ class Interactome:
         self.density_cache[size] = densities
 
     def _write_lcc_cache(self):
-        IO.save_lcc_cache(self.interactome_path, self.lcc_cache)
+        IO.save_lcc_cache(self, self.lcc_cache)
 
     def _write_density_cache(self):
-        IO.save_density_cache(self.interactome_path, self.density_cache)
+        IO.save_density_cache(self, self.density_cache)
 
     def get_subinteractome(self, genes):
         genes &= self.genes

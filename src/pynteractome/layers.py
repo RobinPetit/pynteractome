@@ -1,5 +1,4 @@
 # std
-from copy import deepcopy
 import networkx as nx  # damn it obonet
 import numpy as np
 # local

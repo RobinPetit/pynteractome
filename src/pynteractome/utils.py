@@ -1,10 +1,6 @@
 from datetime import datetime as dt
 from hashlib import md5
-import shelve
 import numpy as np
-
-SHELF_DIR = '/media/robin/DATA/Research/MA-Thesis/'
-SHELF_PATH = SHELF_DIR + 'data.shelf'
 
 def fmt_g(value):
     return '{:g}'.format(value)
@@ -47,19 +43,6 @@ def J_score(A, B):
     if not isinstance(B, set):
         B = set(B)
     return len(A & B) / len(A | B)
-
-def save_to_shelf(d, path=SHELF_PATH):
-    with shelve.open(path) as shelf:
-        for key in d:
-            shelf[key] = d[key]
-
-def get_from_shelf(key, path=SHELF_PATH):
-    with shelve.open(path) as shelf:
-        if isinstance(key, (list, tuple)):
-            ret = [shelf[k] for k in key]
-        else:
-            ret = shelf[key]
-    return ret
 
 def extract_triangular(array, indices):
     ret = list()

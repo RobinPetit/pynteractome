@@ -28,7 +28,9 @@ def X(n):
 def sep_analysis_menche(integrator):
     d_A_cache, genes_sets = _load_d_A_cache(integrator)
     nb_steps = X(len(genes_sets)-1)
-    separations, Cs, i0, j0 = IO.load_sep(len(genes_sets), integrator.get_hpo_propagation_depth())
+    separations, Cs, i0, j0 = IO.load_sep(
+        integrator.interactome, len(genes_sets), integrator.get_hpo_propagation_depth()
+    )
     counter = 0
     for i in range(i0):
         counter += len(genes_sets)-1 - i
@@ -49,10 +51,16 @@ def sep_analysis_menche(integrator):
             if counter % 1000 == 0:
                 print_sep_proportion(start_time, counter, initial_counter, nb_steps)
                 if time() - last_save_time > 1800:
-                    IO.save_sep(separations, Cs, i, j, integrator.get_hpo_propagation_depth())
+                    IO.save_sep(
+                        integrator.interactome, separations, Cs,
+                        i, j, integrator.get_hpo_propagation_depth()
+                    )
                     last_save_time = time()
     i, j = [len(genes_sets)-1]*2
-    IO.save_sep(separations, Cs, i, j, integrator.get_hpo_propagation_depth())
+    IO.save_sep(
+        integrator.interactome, separations, Cs,
+        i, j, integrator.get_hpo_propagation_depth()
+    )
 
 def print_sep_proportion(start_time, counter, initial_counter, nb_steps):
     elapsed = time()-start_time

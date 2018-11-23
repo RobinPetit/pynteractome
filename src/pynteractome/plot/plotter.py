@@ -1,11 +1,10 @@
-import shelve
 import matplotlib.pyplot as plt
 from matplotlib import rcParams, cm
 import numpy as np
 from scipy import stats
 # local
 from pynteractome.IO import IO
-from pynteractome.utils import log, get_from_shelf, extract_triangular, fmt_g, fmt_e
+from pynteractome.utils import extract_triangular, fmt_g, fmt_e
 
 #rc('text', usetex=True)  # Activate LaTeX rendering
 PLOT_DIR = '../plots/'
@@ -16,7 +15,6 @@ class Plotter:
     @staticmethod
     def loc_hpo(integrator):
         interactome = integrator.interactome
-        lcc_cache = interactome.lcc_cache
         for depth in range(integrator.get_hpo_depth()):
             integrator.propagate_genes(depth)
             zs = {term: interactome.get_lcc_score(genes, 0, shapiro=True) \
@@ -75,11 +73,10 @@ class Plotter:
     def loc_omim(integrator):
         interactome = integrator.interactome
         omim2genes = integrator.alpha_prime
-        zs = list()
         xs, ys = list(), list()
         are_normal = list()
         empirical_ps = list()
-        for omim, genes in omim2genes.items():
+        for genes in omim2genes.values():
             genes &= interactome.genes
             if not genes:
                 continue
@@ -116,7 +113,9 @@ class Plotter:
         print('{}/{} are significant'.format((zs > 1.65).sum(), len(zs)))
         print('{}/{} are < 0'.format((zs < 0).sum(), len(zs)))
         print('{} out of {} are normal'.format(are_normal.sum(), len(are_normal)))
-        fig, axes = Plotter.dot_plot_with_hists(xs, zs, 'Relative size: |LCC|/|S|', 'z-score', title)
+        fig, axes = Plotter.dot_plot_with_hists(
+            xs, zs, 'Relative size: |LCC|/|S|', 'z-score', title
+        )
         ax = axes[0]
         ax.plot([0, 1], [1.65]*2, 'k-.')
         ax.plot([0, 1], [-1.65]*2, 'k-.')
@@ -136,8 +135,11 @@ class Plotter:
 
     @staticmethod
     def _plot_loc_ps(xs, empirical_ps, title, path, are_normal):
+        print('According to Shapiro-Wilk: {}/{} are normal'.format(are_normal.sum(), len(are_normal)))
         print('{}/{} are significant'.format((empirical_ps < .05).sum(), len(empirical_ps)))
-        fig, axes = Plotter.dot_plot_with_hists(xs, empirical_ps, 'Relative size: |LCC|/|S|', 'log10(Empirical p)', title)
+        fig, axes = Plotter.dot_plot_with_hists(
+            xs, empirical_ps, 'Relative size: |LCC|/|S|', 'log10(Empirical p)', title
+        )
         ax = axes[0]
         xlim = ax.get_xlim()
         ax.plot(xlim, [np.log10(.05)]*2, 'k-.')
@@ -152,15 +154,18 @@ class Plotter:
         significant = np.where(np.logical_and(zs > 1.65, empirical_ps < .05))[0]
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
-        lengths = np.asarray([len(non_significant), len(z_significant), len(p_significant), len(significant)])
+        lengths = np.asarray(
+            [len(non_significant), len(z_significant), len(p_significant), len(significant)]
+        )
         lengths = 100*lengths / lengths.sum()
-        ax.bar(np.arange(len(lengths)), lengths, align='center', color='salmon',
-               tick_label=(
+        ax.bar(
+            np.arange(len(lengths)), lengths, align='center', color='salmon',
+            tick_label=(
                 r'$z \leq 1.65$ and $p \geq .05$',
                 r'$z > 1.65$ and $p \geq .05$',
                 r'$z \leq 1.65$ and $p < .05$',
                 r'$z > 1.65$ and p < .05'
-               )
+            )
         )
         for x, y in zip(ax.get_xticks(), lengths):
             ax.text(x-.1, y+5, '{:.2f}%'.format(y), weight='bold')
@@ -177,7 +182,7 @@ class Plotter:
         for prop_depth in [0, integrator.get_hpo_depth()]:
             integrator.propagate_genes(prop_depth)
             nb_genes = integrator.get_nb_associated_genes()
-            matrix_seps, matrix_Cs = IO.load_sep(0, prop_depth)[:2]
+            matrix_seps, matrix_Cs = IO.load_sep(integrator.interactome, 0, prop_depth)[:2]
             if matrix_seps.shape == (0, 0) or matrix_Cs.shape == (0, 0):
                 continue
             prop = 'prop' if prop_depth > 0 else 'no-prop'
@@ -185,9 +190,12 @@ class Plotter:
                 indices = nb_genes >= min_nb_genes
                 seps, Cs = map(lambda a: extract_triangular(a, indices), [matrix_seps, matrix_Cs])
                 print('{}|{}\t\t[Pearson] (r, p): {}\t\t[Spearman] (r, p): {}' \
-                      .format(prop_depth, min_nb_genes, stats.pearsonr(seps, Cs), stats.spearmanr(seps, Cs)))
+                      .format(prop_depth, min_nb_genes,
+                              stats.pearsonr(seps, Cs), stats.spearmanr(seps, Cs)))
                 Plotter._plot_sep_hist(seps[Cs == 0], 'no overlap', prop, min_nb_genes)
-                Plotter._plot_sep_hist(seps[np.logical_and(Cs != 0, Cs != 1)], 'partial overlap', prop, min_nb_genes)
+                Plotter._plot_sep_hist(
+                    seps[np.logical_and(Cs != 0, Cs != 1)],
+                    'partial overlap', prop, min_nb_genes)
                 Plotter._plot_sep_hist(seps[Cs == 1], 'complete overlap', prop, min_nb_genes)
                 Plotter._plot_sep_hist(seps, 'summary', prop, min_nb_genes)
 
@@ -200,27 +208,34 @@ class Plotter:
             'summary': 'orchid'
         }
         print('\t\t', name, prop, min_nb_genes)
-        print('# < 0: {:,d} ({:3.2f}%)\n# = 0: {:,d} ({:3.2f}%)\n# > 0: {:,d} ({:3.2f}%)\n\ttotal: {:,d}' \
-              .format(
+        print(
+            ('# < 0: {:,d} ({:3.2f}%)\n' + \
+             '# = 0: {:,d} ({:3.2f}%)\n' + \
+             '# > 0: {:,d} ({:3.2f}%)\n' + \
+             '\ttotal: {:,d}') \
+            .format(
                 (array < 0).sum(), 100 * (array < 0).sum() / array.size,
                 (array == 0).sum(), 100 * (array == 0).sum() / array.size,
                 (array > 0).sum(), 100 * (array > 0).sum() / array.size,
-                array.size)
-              )
+                array.size
+            )
+        )
         NB_BINS = 50
         bins = np.arange(NB_BINS+1)/(NB_BINS+1)*9 - 5
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        y, _, _ = ax.hist(array, bins, color=colors[name])
-        ax.set_title(name + '\n{:,d} < 0 and {:,d} > 0'.format((array<0).sum(), (array>0).sum()))
-        #y_max = 10**(np.ceil(np.log10(y.max())))
+        ax.hist(array, bins, color=colors[name])
+        ax.set_title(
+            name + '\n{:,d} < 0 and {:,d} > 0'.format((array < 0).sum(), (array > 0).sum())
+        )
         y_max = 1e7
         ax.set_ylim((.9, y_max))
         ax.plot([0, 0], [.9, y_max], 'k-.')
         ax.set_yscale('log')
-        plt.savefig(PLOT_DIR + '../report/figs/sep-{}-{}-{}.eps' \
-                   .format(min_nb_genes, prop, name.replace(' ', '-')),
-                   bbox_inches='tight')
+        plt.savefig(
+            (PLOT_DIR + '../report/figs/sep-{}-{}-{}.eps') \
+            .format(min_nb_genes, prop, name.replace(' ', '-')),
+            bbox_inches='tight')
         plt.close(fig)
 
     @staticmethod
@@ -256,7 +271,7 @@ class Plotter:
             Plotter._plot_deg_vs_nb_terms(degrees, terms_prop, color='b', path=str(depth), log=log)
 
     @staticmethod
-    def _plot_deg_vs_nb_terms(degrees: list, terms: list, color: str, path: str, log: bool=False):
+    def _plot_deg_vs_nb_terms(degrees, terms, color, path, log=False):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.plot(degrees, terms, color+'o')
@@ -330,8 +345,14 @@ class Plotter:
             if len(v) != 0:
                 indices.append(i+1)
                 vs.append(v)
-        ax.plot(indices, [np.median(v) for v in vs], 'r:', marker='x', ms=15, label='median (original)')
-        ax.plot(indices, [np.mean(v) for v in vs], 'b:', marker='x', ms=15, label='mean (original)')
+        ax.plot(
+            indices, [np.median(v) for v in vs], 'r:',
+            marker='x', ms=15, label='median (original)'
+        )
+        ax.plot(
+            indices, [np.mean(v) for v in vs], 'b:',
+            marker='x', ms=15, label='mean (original)'
+        )
         integrator.propagate_genes(integrator.get_hpo_depth())
         hpo2omim = integrator.beta_prime
         all_values = [
@@ -344,8 +365,14 @@ class Plotter:
             if len(v) != 0:
                 indices.append(i+1)
                 vs.append(v)
-        ax.plot(indices, [np.median(v) for v in vs], 'r:', marker='*', ms=15, label='median (propagated)')
-        ax.plot(indices, [np.mean(v) for v in vs], 'b:', marker='*', ms=15, label='mean (propagated)')
+        ax.plot(
+            indices, [np.median(v) for v in vs], 'r:',
+            marker='*', ms=15, label='median (propagated)'
+        )
+        ax.plot(
+            indices, [np.mean(v) for v in vs], 'b:',
+            marker='*', ms=15, label='mean (propagated)'
+        )
         ax.set_yscale('log')
         ax.set_xlabel('Depth')
         ax.set_title('Distribution of the number of OMIM associations per term')
@@ -359,7 +386,8 @@ class Plotter:
 
     @staticmethod
     def dot_plot_with_hists(xs, ys, xlabel, ylabel, title, grid=False, figsize=(12.5, 12.5),
-                            show=False, set_xticks_fmt_g=True, set_yticks_fmt_g=True, hists_ylog=False):
+                            show=False, set_xticks_fmt_g=True, set_yticks_fmt_g=True,
+                            hists_ylog=False):
         ''' Returns a list with the 3 axes: dot-plot, upper hist, right hist.
         '''
         # Create axes
@@ -445,7 +473,7 @@ class Plotter:
         x, y, depths = map(lambda l: np.asarray(l, dtype=np.int), zip(*[
             (len(hpo2genes_cup[t]), len(hpo2genes_cap[t]), integrator.get_term_depth(t)) \
             for t in common_terms]))
-        print('Pearson\'s r:', np.corrcoef(x, y)[0,0])
+        print('Pearson\'s r:', np.corrcoef(x, y)[0, 0])
         print('Spearman\'s r:', stats.spearmanr(x, y))
 
         fig = plt.figure(figsize=(12, 12))
@@ -492,8 +520,8 @@ class Plotter:
         plt.close(fig)
 
     @staticmethod
-    def plot_iso_entropy():
-        hs, (H, n_classes) = IO.load_entropy()
+    def plot_iso_entropy(integrator):
+        hs, (H, n_classes) = IO.load_entropy(integrator.interactome)
         hs, ns = map(np.asarray, zip(*hs))
         fig = plt.figure()
         #---
@@ -533,7 +561,9 @@ class Plotter:
         ax.set_ylabel('P(n)')
         ax.legend(loc='upper center')
         ax.set_title('Distribution of #classes under uniform sampling')
-        fig.suptitle('Distribution of isomorphism behaviour under uniform sampling in the interactome')
+        fig.suptitle(
+            'Distribution of isomorphism behaviour under uniform sampling in the interactome'
+        )
         plt.gcf().set_size_inches(18, 10)
         plt.savefig('../plots/entropy.eps', bbox_inches='tight')
         plt.close(fig)
