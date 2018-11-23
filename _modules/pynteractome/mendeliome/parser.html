@@ -257,15 +257,19 @@
 <span class="sd">        return a dictionary with str keys containing the disease names and</span>
 <span class="sd">        with set values containing the associated genes.</span>
 
-<span class="sd">        Example:</span>
-<span class="sd">        --------</span>
-
-<span class="sd">        mp = MendeliomeParser(path)</span>
-<span class="sd">        disease_genes_associations = mp.get_disease_genes_dict()</span>
-<span class="sd">        for disease in disease_genes_associations:</span>
-<span class="sd">            print(&#39;disease: &#39; + disease)</span>
-<span class="sd">            print(&#39;associated genes: {}&#39;.format(disease_genes_associations[disease]))</span>
-<span class="sd">            print(&#39;-&#39;*30)</span>
+<span class="sd">        Made up example:</span>
+<span class="sd">            &gt;&gt;&gt; mp = MendeliomeParser(path)</span>
+<span class="sd">            &gt;&gt;&gt; disease_genes_associations = mp.get_disease_genes_dict()</span>
+<span class="sd">            &gt;&gt;&gt; for disease, genes in disease_genes_associations.items():</span>
+<span class="sd">            ...     print(&#39;disease:&#39;, disease)</span>
+<span class="sd">            ...     print(&#39;associated genes:&#39;, genes)</span>
+<span class="sd">            ...     print(&#39;-&#39;*30)</span>
+<span class="sd">            disease: CANCER</span>
+<span class="sd">            associated genes: {1234, 2345, 3456}</span>
+<span class="sd">            ------------------------------</span>
+<span class="sd">            disease: AUTISM</span>
+<span class="sd">            associated genes: {2056, 3141, 2718, 6283, 9876}</span>
+<span class="sd">            ------------------------------</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">disease_genes_dict</span></div></div>
 </pre></div>

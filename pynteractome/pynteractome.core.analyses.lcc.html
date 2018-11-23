@@ -84,7 +84,6 @@
 <li class="toctree-l2 current"><a class="reference internal" href="pynteractome.html">pynteractome package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pynteractome.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="pynteractome.core.html">pynteractome.core package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynteractome.data_handling.html">pynteractome.data_handling package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.hpo.html">pynteractome.hpo package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.interactome.html">pynteractome.interactome package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.mendeliome.html">pynteractome.mendeliome package</a></li>
@@ -170,6 +169,69 @@
             
   <div class="section" id="module-pynteractome.core.analyses.lcc">
 <span id="pynteractome-core-analyses-lcc-module"></span><h1>pynteractome.core.analyses.lcc module<a class="headerlink" href="#module-pynteractome.core.analyses.lcc" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pynteractome.core.analyses.lcc._lcc_analysis">
+<code class="descclassname">pynteractome.core.analyses.lcc.</code><code class="descname">_lcc_analysis</code><span class="sig-paren">(</span><em>integrator</em>, <em>nb_sims</em>, <em>disease2genes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/lcc.html#_lcc_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.lcc._lcc_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Approach the distribution of the LCC size of uniformly sampled disease modules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>integrator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pynteractome.layers.LayersIntegrator</span></code>) – the layers itnegrator</li>
+<li><strong>nb_sims</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – minimal number of simulations needed to approximate the probability distribution</li>
+<li><strong>disease2genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping from disease <span class="math notranslate nohighlight">\(\rightarrow\)</span> associated genes. Diseases can be e.g. HPO terms
+or OMIM phenotypes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.core.analyses.lcc.lcc_analysis_hpo">
+<code class="descclassname">pynteractome.core.analyses.lcc.</code><code class="descname">lcc_analysis_hpo</code><span class="sig-paren">(</span><em>integrator</em>, <em>nb_sims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/lcc.html#lcc_analysis_hpo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.lcc.lcc_analysis_hpo" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">pynteractome.core.analysis.lcc._lcc_analysis()</span></code> with HPO terms as diseases.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.core.analyses.lcc.lcc_analysis_omim">
+<code class="descclassname">pynteractome.core.analyses.lcc.</code><code class="descname">lcc_analysis_omim</code><span class="sig-paren">(</span><em>integrator</em>, <em>nb_sims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/lcc.html#lcc_analysis_omim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.lcc.lcc_analysis_omim" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <code class="xref py py-func docutils literal notranslate"><span class="pre">pynteractome.core.analysis.lcc._lcc_analysis()</span></code> with OMIM phenotypes as diseases.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.core.analyses.lcc.normality_test_lcc">
+<code class="descclassname">pynteractome.core.analyses.lcc.</code><code class="descname">normality_test_lcc</code><span class="sig-paren">(</span><em>integrator</em>, <em>p_threshold=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/lcc.html#normality_test_lcc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.lcc.normality_test_lcc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate whether the LCC size of uniformly sampled disease modules follows a normal distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>integrator</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pynteractome.layers.LayersIntegrator</span></code>) – the layers integrator</li>
+<li><strong>p_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – the statistical threshold. If <span class="math notranslate nohighlight">\(p &lt; p_{\text{threshold}}\)</span>, then the LCC size
+is considered to not be distributed normally.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Mapping HPO term <span class="math notranslate nohighlight">\(\rightarrow (p, n, m)\)</span> where <span class="math notranslate nohighlight">\(p\)</span> is
+the <span class="math notranslate nohighlight">\(p\)</span>-value of Shapiro-Wilk normality test, <span class="math notranslate nohighlight">\(m\)</span> is the number of genes,
+and <span class="math notranslate nohighlight">\(n\)</span> is a boolean describing whether the LCC size of uniformly sampled
+disease modules of size <span class="math notranslate nohighlight">\(m\)</span> are distributed randomly.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 

@@ -148,71 +148,103 @@
 <span class="c1"># ext libs</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="c1"># local</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">save_to_shelf</span><span class="p">,</span> <span class="n">get_from_shelf</span><span class="p">,</span> <span class="n">SHELF_DIR</span><span class="p">,</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">log</span><span class="p">,</span> <span class="n">hash_str</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;IO&#39;</span><span class="p">]</span>
+
+<span class="n">SHELF_DIR</span> <span class="o">=</span> <span class="s1">&#39;/media/robin/DATA/Research/MA-Thesis/&#39;</span>
+
+<span class="k">def</span> <span class="nf">_save_to_shelf</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">shelve</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">shelf</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">shelf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">_get_from_shelf</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">shelve</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">shelf</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="n">shelf</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">shelf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ret</span>
 
 <div class="viewcode-block" id="IO"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO">[docs]</a><span class="k">class</span> <span class="nc">IO</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39; Interface class whose goal is to provide store/fetch instructions</span>
 <span class="sd">    for the rest of the code. &#39;&#39;&#39;</span>
 
-    <span class="n">_ENTROPY_SHELF_PATH</span> <span class="o">=</span> <span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="s1">&#39;entropy.shelf&#39;</span>
-
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_sep</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">prop_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load_sep</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">prop_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">get_from_shelf</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">),</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="n">separations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
             <span class="n">Cs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="IO.save_sep"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.save_sep">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">save_sep</span><span class="p">(</span><span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">prop_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">save_sep</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">prop_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        TODO: complete by describing the variables</span>
+<span class="sd">        Save the progression in separation analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            interactome (:class:`pynteractome.interactome.Interactome`):</span>
+<span class="sd">                the interactome</span>
+<span class="sd">            separations (2D :class:`np.ndarray`):</span>
+<span class="sd">                matrix of :math:`s_{AB}` separation scores</span>
+<span class="sd">            Cs (2D :class:`np.ndarray`):</span>
+<span class="sd">                matrix of :math:`C`-scores</span>
+<span class="sd">            i (int):</span>
+<span class="sd">                first index of current progression in Cs and separations</span>
+<span class="sd">            j (int):</span>
+<span class="sd">                second index of current progression in Cs and separations</span>
+<span class="sd">            prop_depth (int):</span>
+<span class="sd">                depth of propagation of HPO term to genes associations</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            None</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">IO</span><span class="o">.</span><span class="n">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">):</span> <span class="p">(</span><span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
         <span class="p">}</span>
-        <span class="n">save_to_shelf</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+        <span class="n">_save_to_shelf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_density_cache</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load_density_cache</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Loading Density cache]&#39;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">get_from_shelf</span><span class="p">(</span><span class="s1">&#39;density-cache-&#39;</span><span class="o">+</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">(</span><span class="s1">&#39;density-cache&#39;</span><span class="p">,</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">save_density_cache</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">save_density_cache</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Saving density cache]&#39;</span><span class="p">)</span>
-        <span class="n">save_to_shelf</span><span class="p">({</span><span class="s1">&#39;density-cache-&#39;</span><span class="o">+</span><span class="n">path</span><span class="p">:</span> <span class="n">cache</span><span class="p">})</span>
+        <span class="n">_save_to_shelf</span><span class="p">({</span><span class="s1">&#39;density-cache&#39;</span><span class="p">:</span> <span class="n">cache</span><span class="p">},</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_lcc_cache</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load_lcc_cache</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Loading lcc_cache]&#39;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">get_from_shelf</span><span class="p">(</span><span class="s1">&#39;lcc_cache-&#39;</span><span class="o">+</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">(</span><span class="s1">&#39;lcc-cache&#39;</span><span class="p">,</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">save_lcc_cache</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">save_lcc_cache</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Saving lcc_cache]&#39;</span><span class="p">)</span>
-        <span class="n">save_to_shelf</span><span class="p">({</span><span class="s1">&#39;lcc_cache-&#39;</span><span class="o">+</span><span class="n">path</span><span class="p">:</span> <span class="n">cache</span><span class="p">})</span>
+        <span class="n">_save_to_shelf</span><span class="p">({</span><span class="s1">&#39;lcc-cache&#39;</span><span class="p">:</span> <span class="n">cache</span><span class="p">},</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
 
 <div class="viewcode-block" id="IO.save_entropy"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.save_entropy">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">save_entropy</span><span class="p">(</span><span class="n">hs</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">save_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">hs</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Save the isomorphism entropy computed on random subgraphs. The</span>
 <span class="sd">        entropy of the disease modules is also saved if it is not None.</span>
 
-<span class="sd">        Params:</span>
-<span class="sd">            hs: list</span>
+<span class="sd">        Args:</span>
+<span class="sd">            hs (list):</span>
 <span class="sd">                all the computed entropy values</span>
-<span class="sd">            H: float</span>
+<span class="sd">            H (float):</span>
 <span class="sd">                The entropy of the disease modules</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">with</span> <span class="n">shelve</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">_ENTROPY_SHELF_PATH</span><span class="p">)</span> <span class="k">as</span> <span class="n">shelf</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">shelve</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">shelf</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">H</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;H&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shelf</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Entropy of disease modules hasn</span><span class="se">\&#39;</span><span class="s1">t been computed yet.&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="s1">&#39;hs&#39;</span> <span class="ow">in</span> <span class="n">shelf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -222,12 +254,12 @@
                 <span class="n">shelf</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_entropy</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">get_from_shelf</span><span class="p">([</span><span class="s1">&#39;hs&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">IO</span><span class="o">.</span><span class="n">_ENTROPY_SHELF_PATH</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">([</span><span class="s1">&#39;hs&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_nb_sims_entropy</span><span class="p">():</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">load_entropy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">get_nb_sims_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">load_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">):</span>
@@ -235,14 +267,29 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_interactome</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load_interactome</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">create_if_not_found</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="s1">&#39;interactome.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="n">hash_str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">pynteractome.interactome</span> <span class="k">import</span> <span class="n">Interactome</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">Interactome</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="s1">&#39;interactome.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
+            <span class="k">if</span> <span class="n">create_if_not_found</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">pynteractome.interactome</span> <span class="k">import</span> <span class="n">Interactome</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">Interactome</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">IO</span><span class="o">.</span><span class="n">save_interactome</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_interactome</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="n">IO</span><span class="o">.</span><span class="n">hash_interactome_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.pickle&#39;</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">hash_interactome_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">hash_str</span><span class="p">(</span><span class="n">interactome</span><span class="o">.</span><span class="n">interactome_path</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SHELF_DIR</span> <span class="o">+</span> <span class="n">IO</span><span class="o">.</span><span class="n">hash_interactome_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.shelf&#39;</span></div>
 </pre></div>
 
            </div>

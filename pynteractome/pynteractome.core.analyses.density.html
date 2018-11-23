@@ -84,7 +84,6 @@
 <li class="toctree-l2 current"><a class="reference internal" href="pynteractome.html">pynteractome package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pynteractome.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="pynteractome.core.html">pynteractome.core package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynteractome.data_handling.html">pynteractome.data_handling package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.hpo.html">pynteractome.hpo package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.interactome.html">pynteractome.interactome package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.mendeliome.html">pynteractome.mendeliome package</a></li>
@@ -170,6 +169,28 @@
             
   <div class="section" id="module-pynteractome.core.analyses.density">
 <span id="pynteractome-core-analyses-density-module"></span><h1>pynteractome.core.analyses.density module<a class="headerlink" href="#module-pynteractome.core.analyses.density" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pynteractome.core.analyses.density.density_analysis">
+<code class="descclassname">pynteractome.core.analyses.density.</code><code class="descname">density_analysis</code><span class="sig-paren">(</span><em>integrator</em>, <em>nb_sims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/density.html#density_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.density.density_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the density analysis of disease modules.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>integrator</strong> (<em>pynteractome.layers.LayersIntegrator</em>) – instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">LayersIntegrator</span></code> containing the interactome and
+the gene/HPO term associations</li>
+<li><strong>nb_sims</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – minimal number of simulations needed to approach probability distribution</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 

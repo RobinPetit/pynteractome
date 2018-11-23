@@ -84,7 +84,6 @@
 <li class="toctree-l2 current"><a class="reference internal" href="pynteractome.html">pynteractome package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pynteractome.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.core.html">pynteractome.core package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynteractome.data_handling.html">pynteractome.data_handling package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.hpo.html">pynteractome.hpo package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.interactome.html">pynteractome.interactome package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="pynteractome.mendeliome.html">pynteractome.mendeliome package</a></li>
@@ -192,13 +191,24 @@ file and the application.</p>
 <code class="descname">get_disease_genes_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/mendeliome/parser.html#MendeliomeParser.get_disease_genes_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.mendeliome.parser.MendeliomeParser.get_disease_genes_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>return a dictionary with str keys containing the disease names and
 with set values containing the associated genes.</p>
-<p>mp = MendeliomeParser(path)
-disease_genes_associations = mp.get_disease_genes_dict()
-for disease in disease_genes_associations:</p>
-<blockquote>
-<div>print(‘disease: ‘ + disease)
-print(‘associated genes: {}’.format(disease_genes_associations[disease]))
-print(‘-‘<a href="#id1"><span class="problematic" id="id2">*</span></a>30)</div></blockquote>
+<dl class="docutils">
+<dt>Made up example:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span> <span class="o">=</span> <span class="n">MendeliomeParser</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">disease_genes_associations</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">get_disease_genes_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">disease</span><span class="p">,</span> <span class="n">genes</span> <span class="ow">in</span> <span class="n">disease_genes_associations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;disease:&#39;</span><span class="p">,</span> <span class="n">disease</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;associated genes:&#39;</span><span class="p">,</span> <span class="n">genes</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="p">)</span>
+<span class="go">disease: CANCER</span>
+<span class="go">associated genes: {1234, 2345, 3456}</span>
+<span class="go">------------------------------</span>
+<span class="go">disease: AUTISM</span>
+<span class="go">associated genes: {2056, 3141, 2718, 6283, 9876}</span>
+<span class="go">------------------------------</span>
+</pre></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

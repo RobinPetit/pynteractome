@@ -84,7 +84,6 @@
 <li class="toctree-l2 current"><a class="reference internal" href="pynteractome.html">pynteractome package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pynteractome.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="pynteractome.core.html">pynteractome.core package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynteractome.data_handling.html">pynteractome.data_handling package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.hpo.html">pynteractome.hpo package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.interactome.html">pynteractome.interactome package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.mendeliome.html">pynteractome.mendeliome package</a></li>
@@ -171,12 +170,86 @@
   <div class="section" id="module-pynteractome.core.analyses.isomorphism">
 <span id="pynteractome-core-analyses-isomorphism-module"></span><h1>pynteractome.core.analyses.isomorphism module<a class="headerlink" href="#module-pynteractome.core.analyses.isomorphism" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
+<dt id="pynteractome.core.analyses.isomorphism.are_isomorphic">
+<code class="descclassname">pynteractome.core.analyses.isomorphism.</code><code class="descname">are_isomorphic</code><span class="sig-paren">(</span><em>G</em>, <em>H</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/isomorphism.html#are_isomorphic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.isomorphism.are_isomorphic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if two graphs G and H are isomorphic to one another.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>G</strong> (<em>graph_tool.Graph</em>) – first graph</li>
+<li><strong>H</strong> (<em>graph_tool.Graph</em>) – second graph</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if <span class="math notranslate nohighlight">\(G \cong H\)</span>, False otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pynteractome.core.analyses.isomorphism.entropy">
 <code class="descclassname">pynteractome.core.analyses.isomorphism.</code><code class="descname">entropy</code><span class="sig-paren">(</span><em>S</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/isomorphism.html#entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.isomorphism.entropy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns $K(<a href="#id1"><span class="problematic" id="id2">|S|</span></a>)sum_{s in S}frac {<a href="#id3"><span class="problematic" id="id4">|s|</span></a>}{<a href="#id5"><span class="problematic" id="id6">|T|</span></a>}log_2frac {<a href="#id7"><span class="problematic" id="id8">|s|</span></a>}{<a href="#id9"><span class="problematic" id="id10">|T|</span></a>}$,
-where $T = bigsqcup_{s in S}s$ is the set of which S is a partition
-and $K(<a href="#id11"><span class="problematic" id="id12">|S|</span></a>) = frac 1{log|S|}$ is the constant normalizing the entropy
-in $[0, 1]$.</p>
+<dd><p>Compute the entropy induced by the isomorphism classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>S</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – a list of isomorphism classes</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><span class="math notranslate nohighlight">\((H(S), N)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of isomorphism classes and:<div class="math notranslate nohighlight">
+\[H(S) = K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},\]</div>
+<p>where <span class="math notranslate nohighlight">\(T = \bigsqcup_{s \in S}s\)</span> is the set of which S is a partition
+and <span class="math notranslate nohighlight">\(K(|S|) = \frac 1{\log|S|}\)</span> is the constant normalizing the entropy
+in <span class="math notranslate nohighlight">\([0, 1]\)</span>.</p>
+<p>Note the following convention: <span class="math notranslate nohighlight">\(H(\emptyset) := 0\)</span>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.core.analyses.isomorphism.extract_isomorphism_classes">
+<code class="descclassname">pynteractome.core.analyses.isomorphism.</code><code class="descname">extract_isomorphism_classes</code><span class="sig-paren">(</span><em>graphs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/isomorphism.html#extract_isomorphism_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.isomorphism.extract_isomorphism_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the isomorphism classes among the provided graphs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>graphs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">graph_tool.Graph</span></code> instances among which the
+isomorphisms are looked at.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list <code class="docutils literal notranslate"><span class="pre">L</span></code> of list such that if <span class="math notranslate nohighlight">\(N\)</span> is <code class="docutils literal notranslate"><span class="pre">len(L)</span></code>, then for <span class="math notranslate nohighlight">\(0 \leq i \leq N\)</span>:
+<span class="math notranslate nohighlight">\(\forall G, H \in L[i] : G \cong H\)</span>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.core.analyses.isomorphism.isomorphism_entropy">
+<code class="descclassname">pynteractome.core.analyses.isomorphism.</code><code class="descname">isomorphism_entropy</code><span class="sig-paren">(</span><em>S</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/isomorphism.html#isomorphism_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.isomorphism.isomorphism_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the entropy H(S).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>S</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of <code class="xref py py-class docutils literal notranslate"><span class="pre">graph_tool.Graph</span></code> instances</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><span class="math notranslate nohighlight">\((H(S/\sim), |S/\sim|)\)</span> where <span class="math notranslate nohighlight">\(\sim\)</span> is the isomorphism equivalence relation.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

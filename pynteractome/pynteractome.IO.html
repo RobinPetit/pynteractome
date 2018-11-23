@@ -172,25 +172,46 @@
 for the rest of the code.</p>
 <dl class="staticmethod">
 <dt id="pynteractome.IO.IO.save_entropy">
-<em class="property">static </em><code class="descname">save_entropy</code><span class="sig-paren">(</span><em>hs</em>, <em>H=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/IO.html#IO.save_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.IO.IO.save_entropy" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">save_entropy</code><span class="sig-paren">(</span><em>interactome</em>, <em>hs</em>, <em>H=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/IO.html#IO.save_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.IO.IO.save_entropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the isomorphism entropy computed on random subgraphs. The
 entropy of the disease modules is also saved if it is not None.</p>
-<dl class="docutils">
-<dt>Params:</dt>
-<dd><dl class="first last docutils">
-<dt>hs: list</dt>
-<dd>all the computed entropy values</dd>
-<dt>H: float</dt>
-<dd>The entropy of the disease modules</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – all the computed entropy values</li>
+<li><strong>H</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The entropy of the disease modules</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pynteractome.IO.IO.save_sep">
-<em class="property">static </em><code class="descname">save_sep</code><span class="sig-paren">(</span><em>separations</em>, <em>Cs</em>, <em>i</em>, <em>j</em>, <em>prop_depth=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/IO.html#IO.save_sep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.IO.IO.save_sep" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO: complete by describing the variables</p>
+<em class="property">static </em><code class="descname">save_sep</code><span class="sig-paren">(</span><em>interactome</em>, <em>separations</em>, <em>Cs</em>, <em>i</em>, <em>j</em>, <em>prop_depth=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/IO.html#IO.save_sep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.IO.IO.save_sep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the progression in separation analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>interactome</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">pynteractome.interactome.Interactome</span></code>) – the interactome</li>
+<li><strong>separations</strong> (2D <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – matrix of <span class="math notranslate nohighlight">\(s_{AB}\)</span> separation scores</li>
+<li><strong>Cs</strong> (2D <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – matrix of <span class="math notranslate nohighlight">\(C\)</span>-scores</li>
+<li><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – first index of current progression in Cs and separations</li>
+<li><strong>j</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – second index of current progression in Cs and separations</li>
+<li><strong>prop_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – depth of propagation of HPO term to genes associations</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
