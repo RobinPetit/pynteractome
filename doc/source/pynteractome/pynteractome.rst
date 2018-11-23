@@ -13,7 +13,6 @@ Subpackages
 .. toctree::
 
     pynteractome.core
-    pynteractome.data_handling
     pynteractome.hpo
     pynteractome.interactome
     pynteractome.mendeliome

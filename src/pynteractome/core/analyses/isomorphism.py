@@ -5,8 +5,10 @@ import numpy as np
 from graph_tool import GraphView, Graph
 from graph_tool.topology import isomorphism
 # local
-from pynteractome.utils import sec2date, log as _log
+from pynteractome.utils import sec2date, log
 from pynteractome.IO import IO
+
+__all__ = ['isomorphism_entropy_analysis']
 
 # In order to use Graph[View] in [frozen]sets
 # equality and hash functions must be defined properly
@@ -16,6 +18,16 @@ Graph.__hash__ = GraphView.__hash__ = lambda s: hash(s.to_tuple())
 
 
 def are_isomorphic(G, H):
+    r'''
+    Determine if two graphs G and H are isomorphic to one another.
+
+    Args:
+        G (graph_tool.Graph): first graph
+        H (graph_tool.Graph): second graph
+
+    Return:
+        True if :math:`G \cong H`, False otherwise
+    '''
     if G.num_vertices() != H.num_vertices():
         return False
     if G.num_edges() != H.num_edges():
@@ -23,13 +35,26 @@ def are_isomorphic(G, H):
     return G.num_edges() == 0 or isomorphism(G, H)
 
 def extract_isomorphism_classes(graphs):
+    r'''
+    Extract the isomorphism classes among the provided graphs.
+
+    Args:
+        graphs (list):
+            list of :class:`graph_tool.Graph` instances among which the
+            isomorphisms are looked at.
+
+    Return:
+        list:
+            a list ``L`` of list such that if :math:`N` is ``len(L)``, then for :math:`0 \leq i \leq N`:
+            :math:`\forall G, H \in L[i] : G \cong H`.
+    '''
     if len(graphs) == 1:
         return [graphs]
     graphs.sort(key=lambda graph: graph.num_vertices())
     classes = list()
     indices = np.arange(len(graphs))
     while indices.any():
-        _log('Building new isomorphism class {} out of {} remaining    [{:3.2f}%]     ' \
+        log('Building new isomorphism class {} out of {} remaining    [{:3.2f}%]     ' \
              .format(len(indices), len(graphs), 100*(1 - len(indices)/len(graphs))),
              end='\r')
         to_remove = [0]
@@ -49,7 +74,7 @@ def isomorphism_entropy_analysis(integrator, nb_sims):
     nb_performed_sims = IO.get_nb_sims_entropy()
     nb_sims -= nb_performed_sims
     if nb_sims <= 0:
-        _log('{} simulations already performed.'.format(nb_performed_sims))
+        log('{} simulations already performed.'.format(nb_performed_sims))
         return
     if integrator.get_hpo_propagation_depth() != 0:
         integrator.reset_propagation()
@@ -75,7 +100,7 @@ def get_entropy_values(nb_sims, nb_vertices, interactome):
     entropy_values = list()
     beg = time()
     for i in range(nb_sims):
-        _log('Running simulation {}/{}'.format(i+1, nb_sims), end='')
+        log('Running simulation {}/{}'.format(i+1, nb_sims), end='')
         if i > 0:
             el_time = time()-beg
             prop = i/nb_sims
@@ -89,10 +114,23 @@ def get_entropy_values(nb_sims, nb_vertices, interactome):
 
 def entropy(S):
     r'''
-    Returns $K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|}$,
-    where $T = \bigsqcup_{s \in S}s$ is the set of which S is a partition
-    and $K(|S|) = \frac 1{\log|S|}$ is the constant normalizing the entropy
-    in $[0, 1]$.
+    Compute the entropy induced by the isomorphism classes.
+
+    Args:
+        S (list): a list of isomorphism classes
+
+    Return:
+        tuple:
+            :math:`(H(S), N)` where :math:`N` is the number of isomorphism classes and:
+
+            .. math::
+                H(S) = K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},
+
+            where :math:`T = \bigsqcup_{s \in S}s` is the set of which S is a partition
+            and :math:`K(|S|) = \frac 1{\log|S|}` is the constant normalizing the entropy
+            in :math:`[0, 1]`.
+
+            Note the following convention: :math:`H(\emptyset) := 0`.
     '''
     if len(S) == 1:
         return 0.
@@ -104,5 +142,15 @@ def entropy(S):
     return -ret/np.log(len(S)), len(S)
 
 def isomorphism_entropy(S):
+    r'''
+    Compute the entropy H(S).
+
+    Args:
+        S (list): list of :class:`graph_tool.Graph` instances
+
+    Return:
+        tuple:
+            :math:`(H(S/\sim), |S/\sim|)` where :math:`\sim` is the isomorphism equivalence relation.
+    '''
     return entropy(extract_isomorphism_classes(S))
 

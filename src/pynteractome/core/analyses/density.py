@@ -1,7 +1,22 @@
 from pynteractome.utils import log
 
+__all__ = ['density_analysis']
+
 def density_analysis(integrator, nb_sims):
-    return _density_analysis(integrator, nb_sims, integrator.get_hpo2genes())
+    '''
+    Perform the density analysis of disease modules.
+
+    Args:
+        integrator (pynteractome.layers.LayersIntegrator):
+            instance of :class:`LayersIntegrator` containing the interactome and
+            the gene/HPO term associations
+        nb_sims (int):
+            minimal number of simulations needed to approach probability distribution
+
+    Return:
+        None
+    '''
+    _density_analysis(integrator, nb_sims, integrator.get_hpo2genes())
 
 def _density_analysis(integrator, nb_sims, disease2genes):
     interactome = integrator.interactome

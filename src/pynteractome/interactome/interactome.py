@@ -16,24 +16,31 @@ def X(n):
     '''Compute binomial coefficient n choose 2'''
     return n*(n+1)//2
 
-def get_lcc_size(G):
+def _get_lcc_size(G):
     '''Return the size of the largest connected component (LCC) within G.'''
     return label_largest_component(G).a.sum()
 
-def get_density(G):
+def _get_density(G):
     '''Return the density of graph G.'''
     return G.num_edges()  / X(G.num_vertices())
 
 class Interactome:
-    '''
-    ATTRIBUTES:
-        + interactome_path (str)
-        + G (gt.Graph)
-        + genes2vertices (dict)
-        + genes (set)
-        + lcc_cache (np.ndarray)
-        + density_cache (np.ndarray)
-        + distances (np.ndarray)
+    r'''
+    Args:
+        interactome_path (str):
+            the path to the tsv file containing the interactome per se
+        G (:class:`graph_tool.Graph`):
+            the internal representation of the interactome as a graph
+        genes2vertices (dict):
+            mapping Entrez gene :math:`\rightarrow` set of vertices in ``self.G``
+        genes (set):
+            set of Entrez names of genes present in ``self.G``
+        lcc_cache (dict):
+            mapping a number of genes to the LCC size of the uniformly sampled subgraphs of this size
+        density_cache (dict):
+            mapping a number of genes to the density of the uniformly sampled subgraphs of this size
+        distances (2D :class:`np.ndarray`):
+            matrix of shortest paths from gene :math:`i` to gene :math:`j`
     '''
     def __init__(self, path):
         self.interactome_path = path
@@ -163,19 +170,24 @@ class Interactome:
 
     def get_d_A(self, A):
         '''
-        Return the inner distance of the disease module A.
+        Return the inner distance of the disease module A as defined in [1].
 
         Args:
             A: a gene set
 
         Returns:
             :math:`d_A`
+
+        References
+        ----------
+
+        [1] J. Menche et al., Science 347 , 1257601 (2015). DOI: 10.1126/science.1257601 http://science.sciencemag.org/content/347/6224/1257601
         '''
         return np.mean(self.get_all_dists(A, A))
 
     def get_d_AB(self, A, B):
         '''
-        Return the graph-based distance between A and B
+        Return the graph-based distance between A and B as defined in [1].
 
         Args:
             A: a gene set
@@ -183,6 +195,11 @@ class Interactome:
 
         Returns:
             :math:`d_{AB}`
+
+        References
+        ----------
+
+        [1] J. Menche et al., Science 347 , 1257601 (2015). DOI: 10.1126/science.1257601 http://science.sciencemag.org/content/347/6224/1257601
         '''
         values = self.get_all_dists(A, B)
         values.extend(self.get_all_dists(B, A))
@@ -229,7 +246,7 @@ class Interactome:
         Returns:
             :math:`|LCC(\Delta_{\text{genes}}(G))|`
         '''
-        return get_lcc_size(self.get_subgraph(np.asarray(genes)))
+        return _get_lcc_size(self.get_subgraph(np.asarray(genes)))
 
     def get_random_genes_lcc(self, size):
         r'''
@@ -241,7 +258,7 @@ class Interactome:
         Returns:
             :math:`|LCC(\mathcal G(\text{size}, G))|`
         '''
-        return get_lcc_size(self.get_random_subgraph(size))
+        return _get_lcc_size(self.get_random_subgraph(size))
 
     def get_random_genes_density(self, size):
         r'''
@@ -253,7 +270,7 @@ class Interactome:
         Returns:
             :math:`d(\mathcal G(\text{size}, G))`
         '''
-        return get_density(self.get_random_subgraph(size))
+        return _get_density(self.get_random_subgraph(size))
 
     def get_genes_density(self, genes):
         r'''
@@ -265,7 +282,7 @@ class Interactome:
         Returns:
             :math:`d(\Delta_{\text{genes}}(G))`
         '''
-        return get_density(self.get_subgraph(np.asarray(genes)))
+        return _get_density(self.get_subgraph(np.asarray(genes)))
 
     def get_lcc_score(self, genes, nb_sims, shapiro=False, shapiro_threshold=.05):
         r'''
@@ -278,10 +295,11 @@ class Interactome:
             shapiro_threshold (float): statistical threshold for normality test
 
         Returns:
-            :math:`(z, p_e, N)` if shapiro is True and :math:`(z, p_e)` otherwise;
-            where z is the z-score of the LCC size, :math:`p_e` is the associated
-            empirical p-value and N is True if Shapiro-Wilk normality test
-            p-value >= shapiro_threshold and False otherwise
+            tuple:
+                :math:`(z, p_e, N)` if shapiro is True and :math:`(z, p_e)` otherwise;
+                where z is the z-score of the LCC size, :math:`p_e` is the associated
+                empirical p-value and N is True if Shapiro-Wilk normality test
+                p-value >= shapiro_threshold and False otherwise
 
         Raises:
             ValueError: if not enough simulations have been performed
@@ -318,9 +336,11 @@ class Interactome:
             nb_sims (int): minimal number of simulations
 
         Returns:
-            set of int values corresponding to sizes that haven't been simulated enough:
-            .. math::
-                \{s \in \text{sizes} : |\text{density_cache}[s]| < \text{nb_sims}\}
+            set:
+                set of int values corresponding to sizes that haven't been simulated enough:
+
+                .. math::
+                    \{s \in \text{sizes} : |\text{density_cache}[s]| < \text{nb_sims}\}
         '''
         self.load_density_cache()
         return {size for size in sizes \
@@ -336,9 +356,11 @@ class Interactome:
             nb_sims (int): minimal number of simulations
 
         Returns:
-            set of int values corresponding to sizes that haven't been simulated enough:
-            .. math::
-                \{s \in \text{sizes} : |\text{lcc_cache}[s]| < \text{nb_sims}\}
+            set:
+                set of int values corresponding to sizes that haven't been simulated enough:
+
+                .. math::
+                    \{s \in \text{sizes} : |\text{lcc_cache}[s]| < \text{nb_sims}\}
         '''
         self.load_lcc_cache()
         return {size for size in sizes \
@@ -348,6 +370,7 @@ class Interactome:
     def fill_lcc_cache(self, nb_sims, sizes):
         r'''
         Fill the lcc_cache such that:
+
         .. math::
             \forall s \in \text{sizes} : |\text{lcc_cache[n]}| >= \text{nb_sims}
 
@@ -383,6 +406,7 @@ class Interactome:
     def fill_density_cache(self, nb_sims, sizes):
         r'''
         Fill the density_cache such that:
+
         .. math::
             \forall s \in \text{sizes} : |\text{density_cache[n]}| >= \text{nb_sims}
 
@@ -390,7 +414,7 @@ class Interactome:
             nb_sims (int): minimal number of simulations to be performed
             sizes (set): set of number of genes for which density shall be tested
         '''
-		self.load_density_cache()
+        self.load_density_cache()
         a = time()
         for idx, size in enumerate(sizes):
             self._compute_disease_module_density(nb_sims, size)

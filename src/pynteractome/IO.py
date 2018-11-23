@@ -39,7 +39,24 @@ class IO:
     @staticmethod
     def save_sep(interactome, separations, Cs, i, j, prop_depth=0):
         '''
-        TODO: complete by describing the variables
+        Save the progression in separation analysis.
+
+        Args:
+            interactome (:class:`pynteractome.interactome.Interactome`):
+                the interactome
+            separations (2D :class:`np.ndarray`):
+                matrix of :math:`s_{AB}` separation scores
+            Cs (2D :class:`np.ndarray`):
+                matrix of :math:`C`-scores
+            i (int):
+                first index of current progression in Cs and separations
+            j (int):
+                second index of current progression in Cs and separations
+            prop_depth (int):
+                depth of propagation of HPO term to genes associations
+
+        Return:
+            None
         '''
         data = {
             IO.__sep_key(prop_depth): (separations, Cs, i, j)
@@ -77,10 +94,10 @@ class IO:
         ''' Save the isomorphism entropy computed on random subgraphs. The
         entropy of the disease modules is also saved if it is not None.
 
-        Params:
-            hs: list
+        Args:
+            hs (list):
                 all the computed entropy values
-            H: float
+            H (float):
                 The entropy of the disease modules
         '''
         with shelve.open(IO.get_shelf_path(interactome), 'w') as shelf:

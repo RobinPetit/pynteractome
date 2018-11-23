@@ -113,14 +113,18 @@ class MendeliomeParser():
         return a dictionary with str keys containing the disease names and
         with set values containing the associated genes.
 
-        Example:
-        --------
-
-        mp = MendeliomeParser(path)
-        disease_genes_associations = mp.get_disease_genes_dict()
-        for disease in disease_genes_associations:
-            print('disease: ' + disease)
-            print('associated genes: {}'.format(disease_genes_associations[disease]))
-            print('-'*30)
+        Made up example:
+            >>> mp = MendeliomeParser(path)
+            >>> disease_genes_associations = mp.get_disease_genes_dict()
+            >>> for disease, genes in disease_genes_associations.items():
+            ...     print('disease:', disease)
+            ...     print('associated genes:', genes)
+            ...     print('-'*30)
+            disease: CANCER
+            associated genes: {1234, 2345, 3456}
+            ------------------------------
+            disease: AUTISM
+            associated genes: {2056, 3141, 2718, 6283, 9876}
+            ------------------------------
         '''
         return self.disease_genes_dict

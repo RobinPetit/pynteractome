@@ -4,28 +4,24 @@ import numpy as np
 from pynteractome.IO import IO
 from pynteractome.utils import log, sec2date, C_score
 
-def _load_d_A_cache(integrator):
-    term2genes = integrator.get_hpo2genes()
-    log('Precomputing distances')
-    d_A_cache = list()
-    genes_sets = list()
-    for term in integrator.iter_terms():
-        if term not in term2genes:
-            continue
-        genes = term2genes[term] & integrator.interactome.genes
-        genes = integrator.interactome.verts_id(genes)
-        if genes.any():
-            values = integrator.interactome.get_all_dists(genes, genes)
-            if values:
-                d_A_cache.append(np.mean(values, dtype=np.float32))
-                genes_sets.append(genes)
-    log('|- Done')
-    return d_A_cache, genes_sets
-
-def X(n):
-    return n*(n+1)//2
+__all__ = ['sep_analysis_menche']
 
 def sep_analysis_menche(integrator):
+    '''
+    Perform separation-based analysis of disease modules as described in [1].
+
+    Args:
+        integrator (:class:`pynteractome.layers.LayersIntegrator`):
+            the layers integrator
+
+    Return:
+        None
+
+    References
+    ----------
+
+    [1] J. Menche et al., Science 347 , 1257601 (2015). DOI: 10.1126/science.1257601 http://science.sciencemag.org/content/347/6224/1257601
+    '''
     d_A_cache, genes_sets = _load_d_A_cache(integrator)
     nb_steps = X(len(genes_sets)-1)
     separations, Cs, i0, j0 = IO.load_sep(
@@ -49,7 +45,7 @@ def sep_analysis_menche(integrator):
             separations[i, j] = separations[j, i] = float(d_AB - (d_A_cache[i] + d_A_cache[j]) / 2)
             Cs[i, j] = Cs[j, i] = C_score(genes_sets[i], genes_sets[j])
             if counter % 1000 == 0:
-                print_sep_proportion(start_time, counter, initial_counter, nb_steps)
+                _print_sep_proportion(start_time, counter, initial_counter, nb_steps)
                 if time() - last_save_time > 1800:
                     IO.save_sep(
                         integrator.interactome, separations, Cs,
@@ -62,7 +58,28 @@ def sep_analysis_menche(integrator):
         i, j, integrator.get_hpo_propagation_depth()
     )
 
-def print_sep_proportion(start_time, counter, initial_counter, nb_steps):
+def _load_d_A_cache(integrator):
+    term2genes = integrator.get_hpo2genes()
+    log('Precomputing distances')
+    d_A_cache = list()
+    genes_sets = list()
+    for term in integrator.iter_terms():
+        if term not in term2genes:
+            continue
+        genes = term2genes[term] & integrator.interactome.genes
+        genes = integrator.interactome.verts_id(genes)
+        if genes.any():
+            values = integrator.interactome.get_all_dists(genes, genes)
+            if values:
+                d_A_cache.append(np.mean(values, dtype=np.float32))
+                genes_sets.append(genes)
+    log('|- Done')
+    return d_A_cache, genes_sets
+
+def X(n):
+    return n*(n+1)//2
+
+def _print_sep_proportion(start_time, counter, initial_counter, nb_steps):
     elapsed = time()-start_time
     proportion = (counter - initial_counter)/(nb_steps - initial_counter)
     nb_secs = elapsed/proportion*(1-proportion)
