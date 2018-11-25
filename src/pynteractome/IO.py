@@ -42,7 +42,7 @@ class IO:
         Save the progression in separation analysis.
 
         Args:
-            interactome (:class:`pynteractome.interactome.Interactome`):
+            interactome (:class:`Interactome <pynteractome.interactome.Interactome>`):
                 the interactome
             separations (2D :class:`np.ndarray`):
                 matrix of :math:`s_{AB}` separation scores

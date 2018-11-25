@@ -390,22 +390,6 @@ class Interactome:
         print('')
         self._write_lcc_cache()
 
-    def _compute_lcc_dist(self, nb_sims, size):
-        N = nb_sims
-        if size in self.lcc_cache:
-            nb_sims -= len(self.lcc_cache[size])
-        if nb_sims < 0:
-            print('[Warning]: {} sims required but {} already performed' \
-                  .format(N, len(self.lcc_cache[size])))
-            return
-        lccs = np.empty(nb_sims, dtype=np.float)
-        for i in range(nb_sims):
-            lccs[i] = self.get_random_genes_lcc(size)
-        if size in self.lcc_cache:
-            self.lcc_cache[size] = np.concatenate((self.lcc_cache[size], lccs))
-        else:
-            self.lcc_cache[size] = lccs
-
     def fill_density_cache(self, nb_sims, sizes):
         r'''
         Fill the density_cache such that:
@@ -429,6 +413,56 @@ class Interactome:
         print('')
         self._write_density_cache()
 
+    def get_subinteractome(self, genes):
+        '''
+        Extract a subinteractome and return it as an :class:`Interactome`
+        object which is then usable for analyses.
+
+        Args:
+            genes (set): the gene set inducing the subinteractome
+
+        Return:
+            :class:`Interactome`:
+                the subinteractome
+        '''
+        genes &= self.genes
+        genes_hash = md5(''.join(sorted(map(str, genes))).encode('utf-8')).hexdigest()
+        namecode = self.interactome_path + genes_hash
+        ret = IO.load_interactome(namecode, False)
+        if ret is not None:
+            return ret
+        ret = deepcopy(self)
+        ret.interactome_path = namecode
+        ret.G = self.get_subgraph(genes, True)
+        ret.genes2vertices = {
+            gene: vert_id for (gene, vert_id) in self.genes2vertices.items() \
+                if gene in genes
+        }
+        ret.genes = set(ret.genes2vertices.keys())
+        ret.lcc_cache = ret.density_cache = None
+        ret.distances = dict()
+        ret.compute_spls()
+        IO.save_interactome(ret)
+        return ret
+
+    ##### Private methods
+
+    def _compute_lcc_dist(self, nb_sims, size):
+        N = nb_sims
+        if size in self.lcc_cache:
+            nb_sims -= len(self.lcc_cache[size])
+        if nb_sims < 0:
+            print('[Warning]: {} sims required but {} already performed' \
+                  .format(N, len(self.lcc_cache[size])))
+            return
+        lccs = np.empty(nb_sims, dtype=np.float)
+        for i in range(nb_sims):
+            lccs[i] = self.get_random_genes_lcc(size)
+        if size in self.lcc_cache:
+            self.lcc_cache[size] = np.concatenate((self.lcc_cache[size], lccs))
+        else:
+            self.lcc_cache[size] = lccs
+
     def _compute_disease_module_density(self, nb_sims, size):
         N = nb_sims
         if size in self.density_cache:
@@ -449,24 +483,3 @@ class Interactome:
 
     def _write_density_cache(self):
         IO.save_density_cache(self, self.density_cache)
-
-    def get_subinteractome(self, genes):
-        genes &= self.genes
-        genes_hash = md5(''.join(sorted(map(str, genes))).encode('utf-8')).hexdigest()
-        namecode = self.interactome_path + genes_hash
-        ret = IO.load_interactome(namecode, False)
-        if ret is not None:
-            return ret
-        ret = deepcopy(self)
-        ret.interactome_path = namecode
-        ret.G = self.get_subgraph(genes, True)
-        ret.genes2vertices = {
-            gene: vert_id for (gene, vert_id) in self.genes2vertices.items() \
-                if gene in genes
-        }
-        ret.genes = set(ret.genes2vertices.keys())
-        ret.lcc_cache = ret.density_cache = None
-        ret.distances = dict()
-        ret.compute_spls()
-        IO.save_interactome(ret)
-        return ret

@@ -11,7 +11,7 @@ def sep_analysis_menche(integrator):
     Perform separation-based analysis of disease modules as described in [1].
 
     Args:
-        integrator (:class:`pynteractome.layers.LayersIntegrator`):
+        integrator (:class:`LayersIntegrator <pynteractome.layers.LayersIntegrator>`):
             the layers integrator
 
     Return:

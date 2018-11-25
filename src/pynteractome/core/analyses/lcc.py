@@ -26,7 +26,7 @@ def _lcc_analysis(integrator, nb_sims, disease2genes):
     Approach the distribution of the LCC size of uniformly sampled disease modules.
 
     Args:
-        integrator (:class:`pynteractome.layers.LayersIntegrator`):
+        integrator (:class:`LayersIntegrator <pynteractome.layers.LayersIntegrator>`):
             the layers itnegrator
         nb_sims (int):
             minimal number of simulations needed to approximate the probability distribution
@@ -58,7 +58,7 @@ def normality_test_lcc(integrator, p_threshold=.01):
     Evaluate whether the LCC size of uniformly sampled disease modules follows a normal distribution.
 
     Args:
-        integrator (:class:`pynteractome.layers.LayersIntegrator`):
+        integrator (:class:`LayersIntegrator <pynteractome.layers.LayersIntegrator>`):
             the layers integrator
         p_threshold (float):
             the statistical threshold. If :math:`p < p_{\text{threshold}}`, then the LCC size

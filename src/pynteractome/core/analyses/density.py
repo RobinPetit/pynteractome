@@ -7,9 +7,9 @@ def density_analysis(integrator, nb_sims):
     Perform the density analysis of disease modules.
 
     Args:
-        integrator (pynteractome.layers.LayersIntegrator):
-            instance of :class:`LayersIntegrator` containing the interactome and
-            the gene/HPO term associations
+        integrator (:class:`LayersIntegrator <pynteractome.layers.LayersIntegrator>`):
+            instance of :class:`LayersIntegrator <pynteractome.layers.LayersIntegrator>`
+            containing the interactome and the gene/HPO term associations
         nb_sims (int):
             minimal number of simulations needed to approach probability distribution
 
