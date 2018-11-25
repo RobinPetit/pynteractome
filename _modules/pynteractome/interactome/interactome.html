@@ -534,19 +534,6 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_lcc_cache</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_compute_lcc_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
-        <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">:</span>
-            <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">nb_sims</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[Warning]: </span><span class="si">{}</span><span class="s1"> sims required but </span><span class="si">{}</span><span class="s1"> already performed&#39;</span> \
-                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])))</span>
-            <span class="k">return</span>
-        <span class="n">lccs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
-            <span class="n">lccs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_genes_lcc</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">],</span> <span class="n">lccs</span><span class="p">))</span>
-
 <div class="viewcode-block" id="Interactome.fill_density_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.fill_density_cache">[docs]</a>    <span class="k">def</span> <span class="nf">fill_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">sizes</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Fill the density_cache such that:</span>
@@ -570,28 +557,18 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_density_cache</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_compute_disease_module_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
-        <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">:</span>
-            <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
-            <span class="n">densities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_genes_density</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">],</span> <span class="n">densities</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">densities</span>
+<div class="viewcode-block" id="Interactome.get_subinteractome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_subinteractome">[docs]</a>    <span class="k">def</span> <span class="nf">get_subinteractome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Extract a subinteractome and return it as an :class:`Interactome`</span>
+<span class="sd">        object which is then usable for analyses.</span>
 
-    <span class="k">def</span> <span class="nf">_write_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">IO</span><span class="o">.</span><span class="n">save_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">)</span>
+<span class="sd">        Args:</span>
+<span class="sd">            genes (set): the gene set inducing the subinteractome</span>
 
-    <span class="k">def</span> <span class="nf">_write_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">IO</span><span class="o">.</span><span class="n">save_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_subinteractome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+<span class="sd">        Return:</span>
+<span class="sd">            :class:`Interactome`:</span>
+<span class="sd">                the subinteractome</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">genes</span> <span class="o">&amp;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes</span>
         <span class="n">genes_hash</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">genes</span><span class="p">)))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
         <span class="n">namecode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">+</span> <span class="n">genes_hash</span>
@@ -611,6 +588,45 @@
         <span class="n">ret</span><span class="o">.</span><span class="n">compute_spls</span><span class="p">()</span>
         <span class="n">IO</span><span class="o">.</span><span class="n">save_interactome</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
+
+    <span class="c1">##### Private methods</span>
+
+    <span class="k">def</span> <span class="nf">_compute_lcc_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">:</span>
+            <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">nb_sims</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[Warning]: </span><span class="si">{}</span><span class="s1"> sims required but </span><span class="si">{}</span><span class="s1"> already performed&#39;</span> \
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])))</span>
+            <span class="k">return</span>
+        <span class="n">lccs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
+            <span class="n">lccs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_genes_lcc</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">],</span> <span class="n">lccs</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">lccs</span>
+
+    <span class="k">def</span> <span class="nf">_compute_disease_module_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">:</span>
+            <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
+            <span class="n">densities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_genes_density</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">],</span> <span class="n">densities</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">densities</span>
+
+    <span class="k">def</span> <span class="nf">_write_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">IO</span><span class="o">.</span><span class="n">save_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">IO</span><span class="o">.</span><span class="n">save_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

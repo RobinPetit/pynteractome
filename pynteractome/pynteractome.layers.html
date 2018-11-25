@@ -164,6 +164,208 @@
             
   <div class="section" id="module-pynteractome.layers">
 <span id="pynteractome-layers-module"></span><h1>pynteractome.layers module<a class="headerlink" href="#module-pynteractome.layers" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynteractome.layers.LayersIntegrator">
+<em class="property">class </em><code class="descclassname">pynteractome.layers.</code><code class="descname">LayersIntegrator</code><span class="sig-paren">(</span><em>interactome</em>, <em>mendeliome</em>, <em>hpo</em>, <em>prop_depth=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Integration of the 3 layers that are:</p>
+<ol class="arabic simple">
+<li>Interactome</li>
+<li>OMIM phenotypes</li>
+<li>Mendeliome</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>interactome</strong> (<a class="reference internal" href="pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a>) – the interactome</li>
+<li><strong>mendeliome</strong> (<a class="reference internal" href="pynteractome.mendeliome.parser.html#pynteractome.mendeliome.parser.MendeliomeParser" title="pynteractome.mendeliome.parser.MendeliomeParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">MendeliomeParser</span></code></a>) – the mendeliome</li>
+<li><strong>hpo</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">nx.Graph</span></code>) – the Human Phenotype Ontology</li>
+<li><strong>prop_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the depth to propagate HPO term -&gt; genes associations (see <a class="reference internal" href="#pynteractome.layers.LayersIntegrator.propagate_genes" title="pynteractome.layers.LayersIntegrator.propagate_genes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">propagate_genes()</span></code></a>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>interactome</strong> (<a class="reference internal" href="pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a>) – the interactome</li>
+<li><strong>mendeliome</strong> (<a class="reference internal" href="pynteractome.mendeliome.parser.html#pynteractome.mendeliome.parser.MendeliomeParser" title="pynteractome.mendeliome.parser.MendeliomeParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">MendeliomeParser</span></code></a>) – the mendeliome</li>
+<li><strong>hpo</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">nx.Graph</span></code>) – the Human Phenotype Ontology</li>
+<li><strong>propagation_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the current up-propagation depth in the HPO term -&gt; OMIM phenotype associations</li>
+<li><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping Entrez gene -&gt; OMIM phenotypes</li>
+<li><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping OMIM phenotype -&gt; HPO terms</li>
+<li><strong>gamma_union</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>mapping Entrez gene -&gt; HPO terms s.t.:</p>
+<div class="math notranslate nohighlight">
+\[\gamma_\cup(g) = \bigcup_{\pi \in \alpha(g)}\beta(\pi)\]</div>
+</li>
+<li><strong>gamma_inter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>mapping Entrez gene -&gt; HPO terms s.t.:</p>
+<div class="math notranslate nohighlight">
+\[\gamma_\cap(g) = \bigcap_{\pi \in \alpha(g)}\beta(\pi)\]</div>
+</li>
+<li><strong>alpha_prime</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping OMIM phenotype -&gt; Entrez genes (inverse mapping of alpha)</li>
+<li><strong>beta_prime</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping HPO term -&gt; OMIM phenotypes (inverse mapping of beta)</li>
+<li><strong>gamma_union_prime</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping HPO term -&gt; Entrez genes (inverse mapping gamma_union)</li>
+<li><strong>gamma_inter_prime</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping HPO term -&gt; Entrez genes (inverse mapping of gamma_inter)</li>
+<li><strong>terms_by_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – list of sets of HPO terms s.t. terms_by_order[i] is the set of all HPO terms of depth i</li>
+<li><strong>depths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping HPO term -&gt; depth (depths[term] == term depth)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator._compute_hpo_by_order">
+<code class="descname">_compute_hpo_by_order</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator._compute_hpo_by_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator._compute_hpo_by_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a list such that the ith element is the set of all
+HPO terms of order i</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator._init_mappings">
+<code class="descname">_init_mappings</code><span class="sig-paren">(</span><em>prop_depth</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator._init_mappings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator._init_mappings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates dictionaries simulating functions alpha, beta, gamma and their
+‘prime’ versions. See <code class="xref py py-attr docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">beta</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">gamma_union</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">gamma_inter</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.extract_mendeliome_from_interactome">
+<code class="descname">extract_mendeliome_from_interactome</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.extract_mendeliome_from_interactome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.extract_mendeliome_from_interactome" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sub-interactome induced by taking only the genes of the Mendeliome
+(associated to at least one phenotype)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><span class="math notranslate nohighlight">\(\Delta_{\mathcal M}(\mathcal I)\)</span></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_hpo2genes">
+<code class="descname">get_hpo2genes</code><span class="sig-paren">(</span><em>gene_mapping='intersection'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_hpo2genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_hpo2genes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the mapping HPO terms -&gt; genes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gene_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">'intersection'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cap\)</span> or <code class="docutils literal notranslate"><span class="pre">'union'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cup\)</span></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the mapping HPO terms -&gt; genes</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_hpo_depth">
+<code class="descname">get_hpo_depth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_hpo_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_hpo_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the maximum depth of a HPO term in the hierarchy.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_hpo_propagation_depth">
+<code class="descname">get_hpo_propagation_depth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_hpo_propagation_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_hpo_propagation_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current propagation depth of the associations.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_nb_associated_genes">
+<code class="descname">get_nb_associated_genes</code><span class="sig-paren">(</span><em>gene_mapping='intersection'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_nb_associated_genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_nb_associated_genes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of genes associated to every HPO term.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gene_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">'intersection'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cap\)</span> or <code class="docutils literal notranslate"><span class="pre">'union'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cup\)</span></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">array of number of genes associated to each HPO term</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">array-like</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_sub_interactome_ontology">
+<code class="descname">get_sub_interactome_ontology</code><span class="sig-paren">(</span><em>hpo_term</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_sub_interactome_ontology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_sub_interactome_ontology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the interactome subgraph induced by a HPO sub-hierarchy</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hpo_term</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the parent HPO term term</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the subinteractome induced by the set of genes that are associated to
+a HPO term that has <cite>hpo_term</cite> as parent somewhere in the hierarchy</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_term_depth">
+<code class="descname">get_term_depth</code><span class="sig-paren">(</span><em>term</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_term_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_term_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the depth of a given term in the hierarchy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>term</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the HPO term</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the depth of <cite>term</cite> in the HPO.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.iter_terms">
+<code class="descname">iter_terms</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.iter_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.iter_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all the HPO terms from lowest depth to highest depth</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.order_n_ontology">
+<code class="descname">order_n_ontology</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.order_n_ontology"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.order_n_ontology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the HPO terms of a given depth in the hierarchy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the depth to fetch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the set of all HPO terms of demanded depth</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.propagate_genes">
+<code class="descname">propagate_genes</code><span class="sig-paren">(</span><em>depth</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.propagate_genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.propagate_genes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Up propagate the HPO term -&gt; OMIM phenotype and HPO term -&gt; Entrez genes associations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of individual up-propagation to perform</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

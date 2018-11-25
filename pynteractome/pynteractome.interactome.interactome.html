@@ -452,6 +452,25 @@ and <cite>False</cite> if it is a set of vertex IDs.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_subinteractome">
+<code class="descname">get_subinteractome</code><span class="sig-paren">(</span><em>genes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_subinteractome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_subinteractome" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract a subinteractome and return it as an <a class="reference internal" href="#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a>
+object which is then usable for analyses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – the gene set inducing the subinteractome</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the subinteractome</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynteractome.interactome.interactome.Interactome.load_density_cache">
 <code class="descname">load_density_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.load_density_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.load_density_cache" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the cache of density simulations if exists, else creates an empty one.</p>

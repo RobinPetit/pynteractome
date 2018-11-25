@@ -186,7 +186,7 @@
 <span class="sd">        Save the progression in separation analysis.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            interactome (:class:`pynteractome.interactome.Interactome`):</span>
+<span class="sd">            interactome (:class:`Interactome &lt;pynteractome.interactome.Interactome&gt;`):</span>
 <span class="sd">                the interactome</span>
 <span class="sd">            separations (2D :class:`np.ndarray`):</span>
 <span class="sd">                matrix of :math:`s_{AB}` separation scores</span>
@@ -259,7 +259,10 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_nb_sims_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">load_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">load_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">):</span>
