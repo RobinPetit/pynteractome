@@ -401,7 +401,10 @@ class Interactome:
         lccs = np.empty(nb_sims, dtype=np.float)
         for i in range(nb_sims):
             lccs[i] = self.get_random_genes_lcc(size)
-        self.lcc_cache[size] = np.concatenate((self.lcc_cache[size], lccs))
+        if size in self.lcc_cache:
+            self.lcc_cache[size] = np.concatenate((self.lcc_cache[size], lccs))
+        else:
+            self.lcc_cache[size] = lccs
 
     def fill_density_cache(self, nb_sims, sizes):
         r'''

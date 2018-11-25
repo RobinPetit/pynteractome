@@ -71,7 +71,7 @@ def extract_isomorphism_classes(graphs):
     return classes
 
 def isomorphism_entropy_analysis(integrator, nb_sims):
-    nb_performed_sims = IO.get_nb_sims_entropy()
+    nb_performed_sims = IO.get_nb_sims_entropy(integrator.interactome)
     nb_sims -= nb_performed_sims
     if nb_sims <= 0:
         log('{} simulations already performed.'.format(nb_performed_sims))

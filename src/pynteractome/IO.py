@@ -115,7 +115,10 @@ class IO:
 
     @staticmethod
     def get_nb_sims_entropy(interactome):
-        return len(IO.load_entropy(interactome)[0])
+        try:
+            return len(IO.load_entropy(interactome)[0])
+        except KeyError:
+            return 0
 
     @staticmethod
     def __sep_key(prop_depth):
