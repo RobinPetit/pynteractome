@@ -17,7 +17,8 @@ def get_integrator(integrator_config, prop_depth=DEFAULT_PROP_DEPTH):
 
     if __integrator is None:
         print('loading interactome')
-        interactome = IO.load_interactome(integrator_config.interactome_path)
+        interactome = IO.load_interactome(integrator_config.interactome_path,
+                                          namecode=integrator_config.interactome_namecode)
         print('loading hpo')
         hpo = load_abnormal_phenotypes()
         print('loading mendeliome')
@@ -248,7 +249,7 @@ class LayersIntegrator:
                 :math:`\Delta_{\mathcal M}(\mathcal I)`
         '''
         genes = self.mendeliome.get_all_genes() & self.interactome.genes
-        return self.interactome.get_subinteractome(genes)
+        return self.interactome.get_subinteractome(genes, 'mendeliome')
 
     ##### Private methods
 

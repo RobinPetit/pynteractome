@@ -26,9 +26,11 @@ def _get_density(G):
 
 class Interactome:
     r'''
-    Args:
+    Attributes:
         interactome_path (str):
             the path to the tsv file containing the interactome per se
+        namecode (str):
+            the name used to recover the (sub)interactome later
         G (:class:`graph_tool.Graph`):
             the internal representation of the interactome as a graph
         genes2vertices (dict):
@@ -42,13 +44,18 @@ class Interactome:
         distances (2D :class:`np.ndarray`):
             matrix of shortest paths from gene :math:`i` to gene :math:`j`
     '''
-    def __init__(self, path):
+    def __init__(self, path, namecode=None):
         self.interactome_path = path
+        self.namecode = namecode
         self.distances = None
         log('Loading interactome')
         self.load_network(path)
         log('interactome loaded')
         self.lcc_cache = self.density_cache = None
+
+    def set_namecode(self, namecode):
+        assert isinstance(namecode, str)
+        self.namecode = namecode
 
     def get_lcc_cache(self):
         '''Return the cache of LCC sizes. WARNING: no copy is made.
@@ -413,13 +420,14 @@ class Interactome:
         print('')
         self._write_density_cache()
 
-    def get_subinteractome(self, genes):
+    def get_subinteractome(self, genes, namecode=None):
         '''
         Extract a subinteractome and return it as an :class:`Interactome`
         object which is then usable for analyses.
 
         Args:
             genes (set): the gene set inducing the subinteractome
+            namecode (str): the namecode to be given to the subinteractome
 
         Return:
             :class:`Interactome`:
@@ -427,12 +435,13 @@ class Interactome:
         '''
         genes &= self.genes
         genes_hash = md5(''.join(sorted(map(str, genes))).encode('utf-8')).hexdigest()
-        namecode = self.interactome_path + genes_hash
-        ret = IO.load_interactome(namecode, False)
+        path = self.interactome_path + genes_hash
+        ret = IO.load_interactome(path, False, namecode)
         if ret is not None:
             return ret
         ret = deepcopy(self)
-        ret.interactome_path = namecode
+        ret.namecode = namecode
+        ret.interactome_path = path
         ret.G = self.get_subgraph(genes, True)
         ret.genes2vertices = {
             gene: vert_id for (gene, vert_id) in self.genes2vertices.items() \

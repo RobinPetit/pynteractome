@@ -1,14 +1,16 @@
 # std
+from os.path import isdir
 import pickle
 import shelve
 # ext libs
 import numpy as np
 # local
 from .utils import log, hash_str
+from .warning import warning
+
+# TODO: Use os.path.join instead of manual concatenation
 
 __all__ = ['IO']
-
-SHELF_DIR = '/media/robin/DATA/Research/MA-Thesis/'
 
 def _save_to_shelf(d, path):
     with shelve.open(path) as shelf:
@@ -26,6 +28,26 @@ def _get_from_shelf(key, path):
 class IO:
     ''' Interface class whose goal is to provide store/fetch instructions
     for the rest of the code. '''
+
+    _SHELF_DIR = None
+
+    @staticmethod
+    def set_storage_dir(path):
+        if IO._SHELF_DIR is not None:
+            warning('(IO.set_storage_dir) --- previous storage [{}] is lost'.format(IO._SHELF_DIR))
+        assert isinstance(path, str) and isdir(path)
+        IO._SHELF_DIR = path
+        if IO._SHELF_DIR[-1] != '/':
+            IO._SHELF_DIR += '/'
+
+    @staticmethod
+    def get_storage_dir_or_die():
+        if IO._SHELF_DIR is None:
+            raise ValueError(
+                '[IO] Storage dir has not been set yet. ' + \
+                'Before asking for any IO operation, ' +
+                'set it by calling IO.set_storage_dir')
+        return IO._SHELF_DIR
 
     @staticmethod
     def load_sep(interactome, N, prop_depth=0):
@@ -126,21 +148,45 @@ class IO:
 
 
     @staticmethod
-    def load_interactome(path, create_if_not_found=True):
+    def load_interactome(path, create_if_not_found=True, namecode=None):
+        if namecode is not None:
+            try:
+                return IO.load_interactome_by_namecode(namecode)
+            except KeyError:
+                pass
         ret = None
         try:
-            ret = pickle.load(open(SHELF_DIR + hash_str(path) + '.pickle', 'rb'))
+            with open(IO.get_storage_dir_or_die() + hash_str(path) + '.pickle', 'rb') as f:
+                ret = pickle.load(f)
         except FileNotFoundError:
             if create_if_not_found:
                 from pynteractome.interactome import Interactome
-                ret = Interactome(path)
+                ret = Interactome(path, namecode=namecode)
                 IO.save_interactome(ret)
         return ret
 
     @staticmethod
+    def load_interactome_by_namecode(namecode):
+        filename = IO.get_existing_interactomes()[namecode]
+        with open(IO.get_storage_dir_or_die() + filename + '.pickle', 'rb') as f:
+            ret = pickle.load(f)
+        print('Loaded interactome with namecode:', namecode)
+        return ret
+
+    @staticmethod
     def save_interactome(interactome):
-        path = SHELF_DIR + IO.hash_interactome_path(interactome) + '.pickle'
-        pickle.dump(interactome, open(path, 'wb'))
+        path = IO.get_storage_dir_or_die() + IO.hash_interactome_path(interactome) + '.pickle'
+        with open(path, 'wb') as f:
+            pickle.dump(interactome, f)
+        IO._add_existing_interactome(interactome)
+
+    @staticmethod
+    def _add_existing_interactome(interactome):
+        with open(IO.get_storage_dir_or_die() + '.interactomes', 'a') as f:
+            key = interactome.namecode
+            filename = IO.hash_interactome_path(interactome)
+            f.write(key + ':' + filename + '\n')
+            print('Saved interactome as:', interactome.namecode)
 
     @staticmethod
     def hash_interactome_path(interactome):
@@ -148,4 +194,20 @@ class IO:
 
     @staticmethod
     def get_shelf_path(interactome):
-        return SHELF_DIR + IO.hash_interactome_path(interactome) + '.shelf'
+        return IO.get_storage_dir_or_die() + IO.hash_interactome_path(interactome) + '.shelf'
+
+    @staticmethod
+    def get_existing_interactomes():
+        shelf_dir = IO.get_storage_dir_or_die()
+        ret = dict()
+        try:
+            with open(shelf_dir + '.interactomes', 'r') as f:
+                for line in f:
+                    try:
+                        namecode, filename = line.strip().split(':')
+                        ret[namecode] = filename
+                    except ValueError:
+                        continue
+        except FileNotFoundError:
+            pass
+        return ret

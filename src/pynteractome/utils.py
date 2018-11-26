@@ -1,5 +1,8 @@
+# std
 from datetime import datetime as dt
 from hashlib import md5
+from sys import stdout
+# local
 import numpy as np
 
 def fmt_g(value):
@@ -27,8 +30,9 @@ def reverse_set_dict(d):
 def now():
     return dt.now().strftime('%Y-%m-%d %T.%f')
 
-def log(txt, end='\n'):
-    print('[{}]\t{}'.format(now(), txt), end=end, flush=True)
+def log(txt, end='\n', file_=stdout):
+    file_.write('[{}]\t{}'.format(now(), txt) + end)
+    file_.flush()
 
 def C_score(A, B):
     if not isinstance(A, set):
