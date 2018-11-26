@@ -169,14 +169,15 @@
 <span id="pynteractome-interactome-interactome-module"></span><h1>pynteractome.interactome.interactome module<a class="headerlink" href="#module-pynteractome.interactome.interactome" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynteractome.interactome.interactome.Interactome">
-<em class="property">class </em><code class="descclassname">pynteractome.interactome.interactome.</code><code class="descname">Interactome</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynteractome.interactome.interactome.</code><code class="descname">Interactome</code><span class="sig-paren">(</span><em>path</em>, <em>namecode=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
 <li><strong>interactome_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the path to the tsv file containing the interactome per se</li>
+<li><strong>namecode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the name used to recover the (sub)interactome later</li>
 <li><strong>G</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">graph_tool.Graph</span></code>) – the internal representation of the interactome as a graph</li>
 <li><strong>genes2vertices</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping Entrez gene <span class="math notranslate nohighlight">\(\rightarrow\)</span> set of vertices in <code class="docutils literal notranslate"><span class="pre">self.G</span></code></li>
 <li><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – set of Entrez names of genes present in <code class="docutils literal notranslate"><span class="pre">self.G</span></code></li>
@@ -453,18 +454,24 @@ and <cite>False</cite> if it is a set of vertex IDs.</li>
 
 <dl class="method">
 <dt id="pynteractome.interactome.interactome.Interactome.get_subinteractome">
-<code class="descname">get_subinteractome</code><span class="sig-paren">(</span><em>genes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_subinteractome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_subinteractome" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_subinteractome</code><span class="sig-paren">(</span><em>genes</em>, <em>namecode=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_subinteractome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_subinteractome" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract a subinteractome and return it as an <a class="reference internal" href="#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a>
 object which is then usable for analyses.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – the gene set inducing the subinteractome</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – the gene set inducing the subinteractome</li>
+<li><strong>namecode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the namecode to be given to the subinteractome</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the subinteractome</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the subinteractome</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a></p>
+</td>
 </tr>
 </tbody>
 </table>

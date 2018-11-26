@@ -27,4 +27,5 @@ Submodules
    pynteractome.config
    pynteractome.layers
    pynteractome.utils
+   pynteractome.warning
 

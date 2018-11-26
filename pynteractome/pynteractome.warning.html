@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynteractome.config module &mdash; pynteractome 0.0.0.0.0.1 documentation</title>
+  <title>pynteractome.warning module &mdash; pynteractome 0.0.0.0.0.1 documentation</title>
   
 
   
@@ -28,8 +28,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="pynteractome.layers module" href="pynteractome.layers.html" />
-    <link rel="prev" title="pynteractome.IO module" href="pynteractome.IO.html" /> 
+    <link rel="prev" title="pynteractome.utils module" href="pynteractome.utils.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -85,10 +84,10 @@
 <li class="toctree-l3"><a class="reference internal" href="pynteractome.html#subpackages">Subpackages</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="pynteractome.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.IO.html">pynteractome.IO module</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">pynteractome.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynteractome.config.html">pynteractome.config module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.layers.html">pynteractome.layers module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.utils.html">pynteractome.utils module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynteractome.warning.html">pynteractome.warning module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pynteractome.warning module</a></li>
 </ul>
 </li>
 </ul>
@@ -144,13 +143,13 @@
         
           <li><a href="pynteractome.html">pynteractome package</a> &raquo;</li>
         
-      <li>pynteractome.config module</li>
+      <li>pynteractome.warning module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/pynteractome/pynteractome.config.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/pynteractome/pynteractome.warning.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -163,8 +162,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-pynteractome.config">
-<span id="pynteractome-config-module"></span><h1>pynteractome.config module<a class="headerlink" href="#module-pynteractome.config" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-pynteractome.warning">
+<span id="pynteractome-warning-module"></span><h1>pynteractome.warning module<a class="headerlink" href="#module-pynteractome.warning" title="Permalink to this headline">¶</a></h1>
+<dl class="exception">
+<dt id="pynteractome.warning.WarningException">
+<em class="property">exception </em><code class="descclassname">pynteractome.warning.</code><code class="descname">WarningException</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/warning.html#WarningException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.warning.WarningException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pynteractome.warning.set_warning_mode">
+<code class="descclassname">pynteractome.warning.</code><code class="descname">set_warning_mode</code><span class="sig-paren">(</span><em>mode='log'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/warning.html#set_warning_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.warning.set_warning_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the behaviour of warnings. Available parameters:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">'log'</span></code>: log the warnings on <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">'stderr'</span></code>: log the warnings on <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">'raise'</span></code>: raise a <a class="reference internal" href="#pynteractome.warning.WarningException" title="pynteractome.warning.WarningException"><code class="xref py py-class docutils literal notranslate"><span class="pre">WarningException</span></code></a></li>
+<li><code class="docutils literal notranslate"><span class="pre">'ignore'</span></code>: to not do anything at all</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – mode of the warnings: determine what behaviour is chosen when a warning is set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -175,10 +200,8 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pynteractome.layers.html" class="btn btn-neutral float-right" title="pynteractome.layers module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="pynteractome.IO.html" class="btn btn-neutral" title="pynteractome.IO module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pynteractome.utils.html" class="btn btn-neutral" title="pynteractome.utils module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

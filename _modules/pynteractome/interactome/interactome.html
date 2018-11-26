@@ -170,9 +170,11 @@
 
 <div class="viewcode-block" id="Interactome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome">[docs]</a><span class="k">class</span> <span class="nc">Interactome</span><span class="p">:</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Args:</span>
+<span class="sd">    Attributes:</span>
 <span class="sd">        interactome_path (str):</span>
 <span class="sd">            the path to the tsv file containing the interactome per se</span>
+<span class="sd">        namecode (str):</span>
+<span class="sd">            the name used to recover the (sub)interactome later</span>
 <span class="sd">        G (:class:`graph_tool.Graph`):</span>
 <span class="sd">            the internal representation of the interactome as a graph</span>
 <span class="sd">        genes2vertices (dict):</span>
@@ -186,13 +188,18 @@
 <span class="sd">        distances (2D :class:`np.ndarray`):</span>
 <span class="sd">            matrix of shortest paths from gene :math:`i` to gene :math:`j`</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">namecode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">namecode</span> <span class="o">=</span> <span class="n">namecode</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distances</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Loading interactome&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_network</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;interactome loaded&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">set_namecode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namecode</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">namecode</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">namecode</span> <span class="o">=</span> <span class="n">namecode</span>
 
 <div class="viewcode-block" id="Interactome.get_lcc_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_lcc_cache">[docs]</a>    <span class="k">def</span> <span class="nf">get_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Return the cache of LCC sizes. WARNING: no copy is made.</span>
@@ -557,13 +564,14 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_density_cache</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Interactome.get_subinteractome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_subinteractome">[docs]</a>    <span class="k">def</span> <span class="nf">get_subinteractome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+<div class="viewcode-block" id="Interactome.get_subinteractome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_subinteractome">[docs]</a>    <span class="k">def</span> <span class="nf">get_subinteractome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">namecode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Extract a subinteractome and return it as an :class:`Interactome`</span>
 <span class="sd">        object which is then usable for analyses.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            genes (set): the gene set inducing the subinteractome</span>
+<span class="sd">            namecode (str): the namecode to be given to the subinteractome</span>
 
 <span class="sd">        Return:</span>
 <span class="sd">            :class:`Interactome`:</span>
@@ -571,12 +579,13 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">genes</span> <span class="o">&amp;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes</span>
         <span class="n">genes_hash</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">genes</span><span class="p">)))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
-        <span class="n">namecode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">+</span> <span class="n">genes_hash</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_interactome</span><span class="p">(</span><span class="n">namecode</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">+</span> <span class="n">genes_hash</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_interactome</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">namecode</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ret</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">=</span> <span class="n">namecode</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">namecode</span> <span class="o">=</span> <span class="n">namecode</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">=</span> <span class="n">path</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">genes2vertices</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">gene</span><span class="p">:</span> <span class="n">vert_id</span> <span class="k">for</span> <span class="p">(</span><span class="n">gene</span><span class="p">,</span> <span class="n">vert_id</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> \

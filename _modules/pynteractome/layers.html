@@ -161,7 +161,8 @@
 
     <span class="k">if</span> <span class="n">__integrator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;loading interactome&#39;</span><span class="p">)</span>
-        <span class="n">interactome</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_interactome</span><span class="p">(</span><span class="n">integrator_config</span><span class="o">.</span><span class="n">interactome_path</span><span class="p">)</span>
+        <span class="n">interactome</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_interactome</span><span class="p">(</span><span class="n">integrator_config</span><span class="o">.</span><span class="n">interactome_path</span><span class="p">,</span>
+                                          <span class="n">namecode</span><span class="o">=</span><span class="n">integrator_config</span><span class="o">.</span><span class="n">interactome_namecode</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;loading hpo&#39;</span><span class="p">)</span>
         <span class="n">hpo</span> <span class="o">=</span> <span class="n">load_abnormal_phenotypes</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;loading mendeliome&#39;</span><span class="p">)</span>
@@ -392,7 +393,7 @@
 <span class="sd">                :math:`\Delta_{\mathcal M}(\mathcal I)`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_all_genes</span><span class="p">()</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">genes</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_subinteractome</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_subinteractome</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="s1">&#39;mendeliome&#39;</span><span class="p">)</span></div>
 
     <span class="c1">##### Private methods</span>
 
