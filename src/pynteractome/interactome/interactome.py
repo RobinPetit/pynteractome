@@ -442,14 +442,17 @@ class Interactome:
         ret = deepcopy(self)
         ret.namecode = namecode
         ret.interactome_path = path
-        ret.G = self.get_subgraph(genes, True)
-        ret.genes2vertices = {
-            gene: vert_id for (gene, vert_id) in self.genes2vertices.items() \
-                if gene in genes
-        }
+        ret.G = Graph(self.get_subgraph(genes, True), prune=True)
+        all_items = sorted(ret.genes2vertices.items(), key=lambda e: e[1])
+        idx = 0
+        ret.genes2vertices = dict()
+        for gene, vert_id in enumerate(all_items):
+            if gene in genes:
+                ret.genes2vertices[gene] = idx
+                idx += 1
         ret.genes = set(ret.genes2vertices.keys())
         ret.lcc_cache = ret.density_cache = None
-        ret.distances = dict()
+        ret.distances = None
         ret.compute_spls()
         IO.save_interactome(ret)
         return ret
