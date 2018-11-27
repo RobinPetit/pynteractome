@@ -5,15 +5,56 @@ from scipy import stats
 # local
 from pynteractome.IO import IO
 from pynteractome.utils import extract_triangular, fmt_g, fmt_e
+from pynteractome.warning import warning
 
 #rc('text', usetex=True)  # Activate LaTeX rendering
-PLOT_DIR = '../plots/'
-rcParams['savefig.directory'] = PLOT_DIR
+DEFAULT_PLOT_DIR = '../plots/'
+
+AVAILABLE_FORMATS = (
+    'eps',
+    'png',
+)
 
 class Plotter:
+    _PLOT_DIR = None
+
+    @staticmethod
+    def _set_plot_dir(integrator):
+        plot_dir = DEFAULT_PLOT_DIR
+        namecode = integrator.interactome.namecode
+        if namecode is None:
+            warning('Plotting with unknown interactome. ' + \
+                    'Default plot dir is used: + "' + DEFAULT_PLOT_DIR + '"')
+        else:
+            plot_dir += namecode + '/'
+        Plotter._PLOT_DIR = plot_dir
+
+    @staticmethod
+    def _get_plot_dir_or_die():
+        if Plotter._PLOT_DIR is None:
+            raise ValueError(
+                '[Plotter] Plots dir has not been set yet. ' + \
+                'You are probably using :class:`Plotter` the wrong way. ' + \
+                'Only call existing methods from this')
+        return Plotter._PLOT_DIR
+
+    @staticmethod
+    def save_fig(fig, path):
+        plot_dir = Plotter._get_plot_dir_or_die()
+        path = plot_dir + filename
+        ridx = path.rfind('.')
+        if ridx > 0:
+            ext = path[ridx+1:]
+            if ext not in AVAILABLE_FORMATS:
+                warning('Unknown format: "{}". Setting default format ("{}").' \
+                        .format(ext, AVAILABLE_FORMATS[0]))
+            path += '.' + AVAILABLE_FORMATS[0]
+        plt.savefig(path, bbox_inches='tight')
+        plt.close(fig)
 
     @staticmethod
     def loc_hpo(integrator):
+        Plotter._set_plot_dir(integrator)
         interactome = integrator.interactome
         for depth in range(integrator.get_hpo_depth()):
             integrator.propagate_genes(depth)
@@ -23,6 +64,7 @@ class Plotter:
 
     @staticmethod
     def _loc_hpo(integrator, zs, prop_depth):
+        Plotter._set_plot_dir(integrator)
         integrator.propagate_genes(prop_depth)
         interactome = integrator.interactome
         xs, ys = list(), list()
@@ -47,7 +89,7 @@ class Plotter:
         Plotter.significance_bar_plot(
             ys, empirical_ps,
             'Significance via $p$ or $z$ (HPO terms)',
-            PLOT_DIR + 'barplot.significance.hpo.{}.eps'.format(prop_depth)
+            'barplot.significance.hpo.{}.eps'.format(prop_depth)
         )
         a = np.where(np.logical_and(ys >= 1.65, empirical_ps >= .05))[0]
         print(len(set(a)),
@@ -62,15 +104,16 @@ class Plotter:
             title = 'Significance of |LCC| (up-propagated by {})'.format(prop_depth)
         empirical_ps[empirical_ps < 1e-10] = 1e-10
         empirical_ps = np.log10(empirical_ps)
-        path = PLOT_DIR + 'loc/prop.depth.{}.z.eps'.format(prop_depth)
+        path = 'loc/prop.depth.{}.z.eps'.format(prop_depth)
         Plotter._plot_loc_zs(xs, ys, title, path, are_normal)
-        path = PLOT_DIR + 'loc/prop.depth.{}.empirical.p.eps'.format(prop_depth)
+        path = 'loc/prop.depth.{}.empirical.p.eps'.format(prop_depth)
         Plotter.plot_z_vs_empirical_p(ys, empirical_ps, title, path)
-        path = PLOT_DIR + 'loc/prop.depth.{}.p.eps'.format(prop_depth)
+        path = 'loc/prop.depth.{}.p.eps'.format(prop_depth)
         Plotter._plot_loc_ps(xs, empirical_ps, title, path, are_normal)
 
     @staticmethod
     def loc_omim(integrator):
+        Plotter._set_plot_dir(integrator)
         interactome = integrator.interactome
         omim2genes = integrator.alpha_prime
         xs, ys = list(), list()
@@ -96,16 +139,16 @@ class Plotter:
         Plotter.significance_bar_plot(
             ys, empirical_ps,
             r'Significance via $p$ or $z$ (OMIM diseases)',
-            PLOT_DIR + 'barplot.significance.omim.eps'
+            'barplot.significance.omim.eps'
         )
         empirical_ps[empirical_ps < 1e-10] = 1e-10
         empirical_ps = np.log10(empirical_ps)
         title = 'Significance of |LCC| (OMIM diseases)'
-        path = PLOT_DIR + 'loc/omim.z.eps'
+        path = 'loc/omim.z.eps'
         Plotter._plot_loc_zs(xs, ys, title, path, are_normal)
-        path = PLOT_DIR + 'loc/omim.empirical.p.eps'
+        path = 'loc/omim.empirical.p.eps'
         Plotter.plot_z_vs_empirical_p(ys, empirical_ps, title, path)
-        path = PLOT_DIR + 'loc/omim.p.eps'
+        path = 'loc/omim.p.eps'
         Plotter._plot_loc_ps(xs, empirical_ps, title, path, are_normal)
 
     @staticmethod
@@ -119,8 +162,7 @@ class Plotter:
         ax = axes[0]
         ax.plot([0, 1], [1.65]*2, 'k-.')
         ax.plot([0, 1], [-1.65]*2, 'k-.')
-        plt.savefig(path, bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, path)
 
     @staticmethod
     def plot_z_vs_empirical_p(zs, ps, title, path):
@@ -130,8 +172,7 @@ class Plotter:
         ylim = ax.get_ylim()
         ax.plot(xlim, [np.log10(.05)]*2, 'k-.')
         ax.plot([1.65, 1.65], ylim, 'k-.')
-        plt.savefig(path, bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, path)
 
     @staticmethod
     def _plot_loc_ps(xs, empirical_ps, title, path, are_normal):
@@ -143,8 +184,7 @@ class Plotter:
         ax = axes[0]
         xlim = ax.get_xlim()
         ax.plot(xlim, [np.log10(.05)]*2, 'k-.')
-        plt.savefig(path, bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, path)
 
     @staticmethod
     def significance_bar_plot(zs, empirical_ps, title, path):
@@ -173,11 +213,11 @@ class Plotter:
         ax.set_ylim(0, 100)
         ax.set_ylabel('Frequency')
         ax.grid(True)
-        plt.savefig(path, bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, path)
 
     @staticmethod
     def sep(integrator):
+        Plotter._set_plot_dir(integrator)
         integrator.reset_propagation()
         for prop_depth in [0, integrator.get_hpo_depth()]:
             integrator.propagate_genes(prop_depth)
@@ -232,14 +272,12 @@ class Plotter:
         ax.set_ylim((.9, y_max))
         ax.plot([0, 0], [.9, y_max], 'k-.')
         ax.set_yscale('log')
-        plt.savefig(
-            (PLOT_DIR + '../report/figs/sep-{}-{}-{}.eps') \
-            .format(min_nb_genes, prop, name.replace(' ', '-')),
-            bbox_inches='tight')
-        plt.close(fig)
+        path = 'sep-{}-{}-{}.eps'.format(min_nb_genes, prop, name.replace(' ', '-'))
+        Plotter.save_fig(fig, path)
 
     @staticmethod
     def gamma_density(integrator):
+        Plotter._set_plot_dir(integrator)
         non_empty_links = list()
         term2genes = integrator.get_hpo2genes()
         for term in term2genes:
@@ -250,11 +288,11 @@ class Plotter:
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.hist(non_empty_links, 200)
-        plt.savefig(PLOT_DIR + 'gamma_density.eps', bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, 'gamma_density;eps')
 
     @staticmethod
     def relation_degree_nb_terms(integrator, depth: int):
+        Plotter._set_plot_dir(integrator)
         integrator.propagate_genes(depth)
         degrees = list()
         terms_prop = list()
@@ -281,11 +319,11 @@ class Plotter:
             ax.set_xscale('log')
             ax.set_yscale('log')
             path = 'log-' + path
-        plt.savefig(PLOT_DIR + path)
-        plt.close(fig)
+        Plotter.save_fig(fig, path)
 
     @staticmethod
     def plot_deg_power_law(integrator):
+        Plotter._set_plot_dir(integrator)
         interactome = integrator.interactome
         degs = interactome.G.get_out_degrees(np.arange(interactome.G.num_vertices()))
         degrees = np.arange(degs.max())+1
@@ -301,11 +339,11 @@ class Plotter:
         ax.set_xlabel('Degree')
         ax.set_ylabel('Frequency')
         ax.set_title('Degree distribution of the interactome')
-        plt.savefig(PLOT_DIR + 'deg_power_law.eps', bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, 'deg_power_law.eps')
 
     @staticmethod
     def hpo_to_omim(integrator):
+        Plotter._set_plot_dir(integrator)
         hpo2omim = integrator.beta_prime
         depth = integrator.get_hpo_depth()
         print(depth)
@@ -316,7 +354,7 @@ class Plotter:
                                                    if term in hpo2omim]
             if len(nb_associations) == 0:
                 continue
-            ax = fig.add_subplot(4, 3, counter)
+            ax = fig.add_subplot(4, 4, counter)
             counter += 1
             ax.hist(nb_associations, bins=25, color='salmon',
                     weights=np.ones(len(nb_associations)) / len(nb_associations),
@@ -327,11 +365,11 @@ class Plotter:
             if counter // 3 == 3:
                 ax.set_xlabel('Number of OMIM phenotypes')
             ax.legend()
-        plt.savefig(PLOT_DIR + 'hpo_to_omim.eps', bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, 'hpo_to_omim.eps')
 
     @staticmethod
     def hpo_to_omim_mean_median(integrator):
+        Plotter._set_plot_dir(integrator)
         hpo2omim = integrator.beta_prime
         fig = plt.figure(figsize=(10, 6))
         ax = fig.add_subplot(111)
@@ -381,8 +419,7 @@ class Plotter:
         ax.set_xticks(indices)
         ax.legend(loc='upper right')
         ax.grid(True)
-        plt.savefig(PLOT_DIR + 'hpo_to_omim_mean_median.eps', bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, 'hpo_to_omim_mean_median.eps')
 
     @staticmethod
     def dot_plot_with_hists(xs, ys, xlabel, ylabel, title, grid=False, figsize=(12.5, 12.5),
@@ -467,6 +504,7 @@ class Plotter:
 
     @staticmethod
     def compare_gene_mappings(integrator):
+        Plotter._set_plot_dir(integrator)
         hpo2genes_cup = integrator.get_hpo2genes('union')
         hpo2genes_cap = integrator.get_hpo2genes('intersection')
         common_terms = set(hpo2genes_cup.keys()) & set(hpo2genes_cap.keys())
@@ -493,11 +531,11 @@ class Plotter:
         ax.set_title('Comparison # genes union-mapping vs intersection-mapping')
         plt.grid(True)
         plt.legend(loc='upper left')
-        plt.savefig(PLOT_DIR + 'compare_gene_mappings.eps', bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, 'compare_gene_mappings.eps')
 
     @staticmethod
     def plot_density(integrator):
+        Plotter._set_plot_dir(integrator)
         disease2genes = integrator.get_hpo2genes()
         interactome = integrator.interactome
         interactome.load_density_cache()
@@ -516,11 +554,11 @@ class Plotter:
         ax = fig.add_subplot(111)
         ax.plot([np.log10(.05)]*2, [0, 100], 'k-.', label=r'$p = .05$')
         Plotter.plot_pdf_and_cdf(ps, 20, 'salmon', 'r', 'log10(p)', ax=ax, remove_ticks=False)
-        plt.savefig(PLOT_DIR + 'density.eps', bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, 'density.eps')
 
     @staticmethod
     def plot_iso_entropy(integrator):
+        Plotter._set_plot_dir(integrator)
         hs, (H, n_classes) = IO.load_entropy(integrator.interactome)
         hs, ns = map(np.asarray, zip(*hs))
         fig = plt.figure()
@@ -565,8 +603,7 @@ class Plotter:
             'Distribution of isomorphism behaviour under uniform sampling in the interactome'
         )
         plt.gcf().set_size_inches(18, 10)
-        plt.savefig('../plots/entropy.eps', bbox_inches='tight')
-        plt.close(fig)
+        Plotter.save_fig(fig, 'entropy.eps')
         # Entropy values details
         print('Number of samples:', len(hs))
         print('Random Entropy  min/max: {:.4f}/{:.4f}'.format(np.min(hs), np.max(hs)))
