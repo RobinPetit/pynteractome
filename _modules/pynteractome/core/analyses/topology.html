@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynteractome.core.analyses.topology &mdash; pynteractome 0.0.0.0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pynteractome
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pynteractome/modules.html">pynteractome</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pynteractome</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynteractome.core.analyses.topology</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynteractome.core.analyses.topology</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">factorial</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">graph_tool</span> <span class="k">as</span> <span class="nn">gt</span>
+<span class="kn">import</span> <span class="nn">graph_tool.draw</span> <span class="k">as</span> <span class="nn">gt_draw</span>
+<span class="kn">from</span> <span class="nn">pynteractome.core.analyses.isomorphism</span> <span class="k">import</span> <span class="n">extract_isomorphism_classes</span><span class="p">,</span> <span class="n">are_isomorphic</span>
+<span class="kn">from</span> <span class="nn">pynteractome.IO</span> <span class="k">import</span> <span class="n">IO</span>
+<span class="kn">from</span> <span class="nn">pynteractome.utils</span> <span class="k">import</span> <span class="n">sec2date</span><span class="p">,</span> <span class="n">log</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pathogenic_topology_analysis&#39;</span><span class="p">]</span>
+
+<span class="n">_total_nb_subsets</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">_current_idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">_start_time</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="_binom"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology._binom">[docs]</a><span class="k">def</span> <span class="nf">_binom</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get the binomial factor :math:`\binom kn` defined as:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \binom nk := \frac {n!}{k!(n-k)!}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">//</span> <span class="p">(</span><span class="n">factorial</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="pathogenic_topology_analysis"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology.pathogenic_topology_analysis">[docs]</a><span class="k">def</span> <span class="nf">pathogenic_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Perform analysis of common subtopologies within disease modules.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        integrator (:class:`LayersIntegrator &lt;pynteractome.layers.LayersIntegrator&gt;`):</span>
+<span class="sd">            the integrator</span>
+<span class="sd">        size (int):</span>
+<span class="sd">            the size of sub-disease-modules to analyse</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">global</span> <span class="n">_total_nb_subsets</span><span class="p">,</span> <span class="n">_start_time</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">iso_counts</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">iso_counts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">all_dms</span><span class="p">,</span> <span class="n">all_terms</span> <span class="o">=</span> <span class="n">_extract_disease_modules</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">iter_leaves</span><span class="p">()),</span> <span class="n">size</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">dm</span> <span class="ow">in</span> <span class="n">all_dms</span><span class="p">:</span>
+        <span class="n">_total_nb_subsets</span> <span class="o">+=</span> <span class="n">_binom</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dm</span><span class="p">),</span> <span class="n">size</span><span class="p">)</span>
+    <span class="n">_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">dm</span><span class="p">,</span> <span class="n">term</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_dms</span><span class="p">,</span> <span class="n">all_terms</span><span class="p">)):</span>
+        <span class="n">_extract_all_subtopologies</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">interactome</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">dm</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="n">iso_counts</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">([[</span><span class="s1">&#39;G</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">iso_counts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()])]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">))])</span>
+    <span class="n">IO</span><span class="o">.</span><span class="n">save_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="_extract_all_subtopologies"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology._extract_all_subtopologies">[docs]</a><span class="k">def</span> <span class="nf">_extract_all_subtopologies</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">dm</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Extract he subtopologies of a disease module and add them to ``iso_counts``.</span>
+
+<span class="sd">    Structure of ``iso_counts``:</span>
+<span class="sd">        &gt;&gt;&gt; type(iso_counts)</span>
+<span class="sd">        &lt;class &#39;list&#39;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; type(iso_counts[0])</span>
+<span class="sd">        &lt;class &#39;list&#39;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; type(iso_counts[0][0]), type(iso_counts[0][1])</span>
+<span class="sd">        (&lt;class &#39;graph_tool.GraphView&#39;&gt;, &lt;class &#39;dict&#39;&gt;)</span>
+<span class="sd">        &gt;&gt;&gt; arbitrary_key = list(iso_counts[0][1].keys())[0]</span>
+<span class="sd">        &gt;&gt;&gt; type(iso_counts[0][1][arbitrary_key])</span>
+<span class="sd">        &lt;class &#39;list&#39;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; type(iso_counts[0][1][arbitrary_key][0])</span>
+<span class="sd">        &lt;class &#39;tuple&#39;&gt;</span>
+
+<span class="sd">        In other words, if we denote by :math:`N` the size of ``iso_counts``, :math:`T`</span>
+<span class="sd">        the set of HPO terms, :math:`\mu(t)` the disease module of :math:`t`:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            &amp;\forall 0 \leq i \lneqq N : \forall t \in T : \text{iso_counts}[i][1][t] \subset \mathcal P_{\text{size}}(\mu(t)) \\</span>
+<span class="sd">            &amp;\qquad\qquad \text{ and } \\</span>
+<span class="sd">            &amp;\forall \sigma \in \text{iso_counts}[i][1][t] : \Delta_\sigma(\mathcal I) \cong \text{iso_counts}[i][0]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        interactome (:class:`Interactome &lt;pynteractome.interactome.interactome.Interactome&gt;`):</span>
+<span class="sd">            the interactome</span>
+<span class="sd">        iso_counts (list):</span>
+<span class="sd">            the container of isomorphisms relations. Structure is detailed in the *Structure* subsection above.</span>
+<span class="sd">        dm (set):</span>
+<span class="sd">            set of genes associated to a HPO term</span>
+<span class="sd">        term (int):</span>
+<span class="sd">            the HPO term spanning ``dm``</span>
+<span class="sd">        size (int):</span>
+<span class="sd">            the size of the subsets to topologically analyse</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">global</span> <span class="n">_current_idx</span>
+    <span class="n">subsets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">dm</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">subsets</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">subsets</span><span class="p">:</span>
+        <span class="n">_current_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">_current_idx</span> <span class="o">%</span> <span class="mi">250</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">_current_idx</span><span class="o">/</span><span class="n">_total_nb_subsets</span>
+            <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">   (</span><span class="si">{:3.2f}</span><span class="s1">%)    eta: </span><span class="si">{}</span><span class="s1">     &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_current_idx</span><span class="p">,</span> <span class="n">_total_nb_subsets</span><span class="p">,</span> <span class="mi">100</span><span class="o">*</span><span class="n">prop</span><span class="p">,</span> <span class="n">sec2date</span><span class="p">((</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">_start_time</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prop</span><span class="p">)</span><span class="o">/</span><span class="n">prop</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">subgraph</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">genes</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">)):</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">iso_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">are_isomorphic</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">iso_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">iso_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">term</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">iso_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">term</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">subset</span><span class="p">]</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">iso_counts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="nb">dict</span><span class="p">()])</span></div>
+
+<div class="viewcode-block" id="_extract_disease_modules"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology._extract_disease_modules">[docs]</a><span class="k">def</span> <span class="nf">_extract_disease_modules</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">all_terms</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get the disease modules (DMs) of terms having a DM bigger than given size and not already present in iso_counts.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        integrator (:class:`LayersIntegrator &lt;pynteractome.layers.LayersIntegrator&gt;`):</span>
+<span class="sd">            the integrator</span>
+<span class="sd">        all_terms (set):</span>
+<span class="sd">            the HPO terms to extract the disease modules of</span>
+<span class="sd">        size (int):</span>
+<span class="sd">            minimum size of the disease modules</span>
+<span class="sd">        iso_counts (list):</span>
+<span class="sd">            see :func:`_extract_all_subtopologies` for details</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            - **all_dms** (:class:`list`): the disease modules of provided HPO terms</span>
+<span class="sd">            - **related_terms** (:class:`list`): the terms associated to the returned</span>
+<span class="sd">              DMs s.t. ``all_dms[i]`` is the disease module of HPO term ``related_terms[i]``</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">already_computed_terms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">G</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">iso_counts</span><span class="p">:</span>
+        <span class="n">already_computed_terms</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_terms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">already_computed_terms</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_terms</span> <span class="o">-</span> <span class="n">already_computed_terms</span><span class="p">))</span>
+    <span class="n">all_dms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">related_terms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">all_terms</span> <span class="o">-=</span> <span class="n">already_computed_terms</span>
+    <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">all_terms</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dm</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">get_associated_genes</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">dm</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">all_dms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dm</span><span class="p">)</span>
+            <span class="n">related_terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">continue</span>
+    <span class="k">return</span> <span class="n">all_dms</span><span class="p">,</span> <span class="n">related_terms</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Robin Petit
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

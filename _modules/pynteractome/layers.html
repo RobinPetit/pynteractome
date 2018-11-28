@@ -356,6 +356,17 @@
             <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">order_n_ontology</span><span class="p">(</span><span class="n">n</span><span class="p">)):</span>
                 <span class="k">yield</span> <span class="n">term</span></div>
 
+<div class="viewcode-block" id="LayersIntegrator.iter_leaves"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.iter_leaves">[docs]</a>    <span class="k">def</span> <span class="nf">iter_leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank_parents</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Iterate over the leaves in the HP Ontology.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rank_parents (int): the number of generations above the leaves to also consider</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo</span><span class="o">.</span><span class="n">out_degree</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">term</span></div>
+
 <div class="viewcode-block" id="LayersIntegrator.get_nb_associated_genes"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_nb_associated_genes">[docs]</a>    <span class="k">def</span> <span class="nf">get_nb_associated_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the number of genes associated to every HPO term.</span>
@@ -382,6 +393,55 @@
             <span class="k">if</span> <span class="n">values</span><span class="p">:</span>
                 <span class="n">nb_genes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">nb_genes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayersIntegrator.get_disease_modules"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_disease_modules">[docs]</a>    <span class="k">def</span> <span class="nf">get_disease_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get all the disease modules. See :meth:`get_disease_module`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gene_mapping (str):</span>
+<span class="sd">                ``&#39;intersection&#39;`` to get :math:`\gamma_\cap` or ``&#39;union&#39;`` to get :math:`\gamma_\cup`</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            generator:</span>
+<span class="sd">                iterable of subgraphs (disease modules)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">hpo2genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hpo2genes</span><span class="p">(</span><span class="n">gene_mapping</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_disease_module</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">hpo2genes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayersIntegrator.get_disease_module"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_disease_module">[docs]</a>    <span class="k">def</span> <span class="nf">get_disease_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get all the disease module of given HPO term.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            term (int):</span>
+<span class="sd">                HPO term</span>
+<span class="sd">            gene_mapping (str):</span>
+<span class="sd">                ``&#39;intersection&#39;`` to get :math:`\gamma_\cap` or ``&#39;union&#39;`` to get :math:`\gamma_\cup`</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            :class:`graph_tool.GraphView`:</span>
+<span class="sd">                the disease module of ``term``</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_associated_genes</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="p">),</span>
+            <span class="n">genes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LayersIntegrator.get_associated_genes"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_associated_genes">[docs]</a>    <span class="k">def</span> <span class="nf">get_associated_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the genes associated to given HPO term.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            term (int):</span>
+<span class="sd">                HPO term</span>
+<span class="sd">            gene_mapping (str):</span>
+<span class="sd">                ``&#39;intersection&#39;`` to get :math:`\gamma_\cap` or ``&#39;union&#39;`` to get :math:`\gamma_\cup`</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            set:</span>
+<span class="sd">                the gene set associated to given term</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hpo2genes</span><span class="p">(</span><span class="n">gene_mapping</span><span class="p">)[</span><span class="n">term</span><span class="p">]</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">genes</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.extract_mendeliome_from_interactome"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.extract_mendeliome_from_interactome">[docs]</a>    <span class="k">def</span> <span class="nf">extract_mendeliome_from_interactome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>

@@ -245,6 +245,72 @@ HPO terms of order i</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_associated_genes">
+<code class="descname">get_associated_genes</code><span class="sig-paren">(</span><em>term</em>, <em>gene_mapping='intersection'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_associated_genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_associated_genes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the genes associated to given HPO term.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>term</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – HPO term</li>
+<li><strong>gene_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">'intersection'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cap\)</span> or <code class="docutils literal notranslate"><span class="pre">'union'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cup\)</span></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the gene set associated to given term</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_disease_module">
+<code class="descname">get_disease_module</code><span class="sig-paren">(</span><em>term</em>, <em>gene_mapping='intersection'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_disease_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_disease_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the disease module of given HPO term.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>term</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – HPO term</li>
+<li><strong>gene_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">'intersection'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cap\)</span> or <code class="docutils literal notranslate"><span class="pre">'union'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cup\)</span></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the disease module of <code class="docutils literal notranslate"><span class="pre">term</span></code></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">graph_tool.GraphView</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.get_disease_modules">
+<code class="descname">get_disease_modules</code><span class="sig-paren">(</span><em>gene_mapping='intersection'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_disease_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_disease_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all the disease modules. See <a class="reference internal" href="#pynteractome.layers.LayersIntegrator.get_disease_module" title="pynteractome.layers.LayersIntegrator.get_disease_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_disease_module()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gene_mapping</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">'intersection'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cap\)</span> or <code class="docutils literal notranslate"><span class="pre">'union'</span></code> to get <span class="math notranslate nohighlight">\(\gamma_\cup\)</span></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">iterable of subgraphs (disease modules)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">generator</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynteractome.layers.LayersIntegrator.get_hpo2genes">
 <code class="descname">get_hpo2genes</code><span class="sig-paren">(</span><em>gene_mapping='intersection'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.get_hpo2genes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.get_hpo2genes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the mapping HPO terms -&gt; genes</p>
@@ -322,6 +388,20 @@ a HPO term that has <cite>hpo_term</cite> as parent somewhere in the hierarchy</
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the depth of <cite>term</cite> in the HPO.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.layers.LayersIntegrator.iter_leaves">
+<code class="descname">iter_leaves</code><span class="sig-paren">(</span><em>rank_parents=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/layers.html#LayersIntegrator.iter_leaves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.layers.LayersIntegrator.iter_leaves" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over the leaves in the HP Ontology.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rank_parents</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of generations above the leaves to also consider</td>
 </tr>
 </tbody>
 </table>

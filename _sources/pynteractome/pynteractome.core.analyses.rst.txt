@@ -16,4 +16,5 @@ Submodules
    pynteractome.core.analyses.isomorphism
    pynteractome.core.analyses.lcc
    pynteractome.core.analyses.separation
+   pynteractome.core.analyses.topology
 
