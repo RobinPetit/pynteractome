@@ -50,6 +50,16 @@ class IO:
         return IO._SHELF_DIR
 
     @staticmethod
+    def hash_interactome_path(interactome):
+        return hash_str(interactome.interactome_path)
+
+    @staticmethod
+    def get_shelf_path(interactome):
+        return IO.get_storage_dir_or_die() + IO.hash_interactome_path(interactome) + '.shelf'
+
+    ##### separation analysis
+
+    @staticmethod
     def load_sep(interactome, N, prop_depth=0):
         try:
             return _get_from_shelf(IO.__sep_key(prop_depth), IO.get_shelf_path(interactome))
@@ -86,66 +96,10 @@ class IO:
         _save_to_shelf(data, IO.get_shelf_path(interactome))
 
     @staticmethod
-    def load_density_cache(interactome):
-        log('[Loading Density cache]')
-        try:
-            return _get_from_shelf('density-cache', IO.get_shelf_path(interactome))
-        except KeyError:
-            return dict()
-
-    @staticmethod
-    def save_density_cache(interactome, cache):
-        log('[Saving density cache]')
-        _save_to_shelf({'density-cache': cache}, IO.get_shelf_path(interactome))
-
-    @staticmethod
-    def load_lcc_cache(interactome):
-        log('[Loading lcc_cache]')
-        try:
-            return _get_from_shelf('lcc-cache', IO.get_shelf_path(interactome))
-        except KeyError:
-            return dict()
-
-    @staticmethod
-    def save_lcc_cache(interactome, cache):
-        log('[Saving lcc_cache]')
-        _save_to_shelf({'lcc-cache': cache}, IO.get_shelf_path(interactome))
-
-    @staticmethod
-    def save_entropy(interactome, hs, H=None):
-        ''' Save the isomorphism entropy computed on random subgraphs. The
-        entropy of the disease modules is also saved if it is not None.
-
-        Args:
-            hs (list):
-                all the computed entropy values
-            H (float):
-                The entropy of the disease modules
-        '''
-        with shelve.open(IO.get_shelf_path(interactome), 'w') as shelf:
-            if H is None and 'H' not in shelf:
-                raise ValueError('Entropy of disease modules hasn\'t been computed yet.')
-            if 'hs' in shelf.keys():
-                hs = shelf['hs'] + hs
-            shelf['hs'] = hs
-            if H is not None:
-                shelf['H'] = H
-
-    @staticmethod
-    def load_entropy(interactome):
-        return _get_from_shelf(['hs', 'H'], IO.get_shelf_path(interactome))
-
-    @staticmethod
-    def get_nb_sims_entropy(interactome):
-        try:
-            return len(IO.load_entropy(interactome)[0])
-        except KeyError:
-            return 0
-
-    @staticmethod
     def __sep_key(prop_depth):
         return 'sep-{}prop'.format('' if prop_depth > 0 else 'no-')
 
+    ##### Interactome data
 
     @staticmethod
     def load_interactome(path, create_if_not_found=True, namecode=None):
@@ -189,14 +143,6 @@ class IO:
             print('Saved interactome as:', interactome.namecode)
 
     @staticmethod
-    def hash_interactome_path(interactome):
-        return hash_str(interactome.interactome_path)
-
-    @staticmethod
-    def get_shelf_path(interactome):
-        return IO.get_storage_dir_or_die() + IO.hash_interactome_path(interactome) + '.shelf'
-
-    @staticmethod
     def get_existing_interactomes():
         shelf_dir = IO.get_storage_dir_or_die()
         ret = dict()
@@ -211,3 +157,77 @@ class IO:
         except FileNotFoundError:
             pass
         return ret
+    @staticmethod
+    def load_density_cache(interactome):
+        log('[Loading Density cache]')
+        try:
+            return _get_from_shelf('density-cache', IO.get_shelf_path(interactome))
+        except KeyError:
+            return dict()
+
+    @staticmethod
+    def save_density_cache(interactome, cache):
+        log('[Saving density cache]')
+        _save_to_shelf({'density-cache': cache}, IO.get_shelf_path(interactome))
+
+    @staticmethod
+    def load_lcc_cache(interactome):
+        log('[Loading lcc_cache]')
+        try:
+            return _get_from_shelf('lcc-cache', IO.get_shelf_path(interactome))
+        except KeyError:
+            return dict()
+
+    @staticmethod
+    def save_lcc_cache(interactome, cache):
+        log('[Saving lcc_cache]')
+        _save_to_shelf({'lcc-cache': cache}, IO.get_shelf_path(interactome))
+
+    ##### entropy analysis
+
+    @staticmethod
+    def save_entropy(interactome, hs, H=None):
+        ''' Save the isomorphism entropy computed on random subgraphs. The
+        entropy of the disease modules is also saved if it is not None.
+
+        Args:
+            hs (list):
+                all the computed entropy values
+            H (float):
+                The entropy of the disease modules
+        '''
+        with shelve.open(IO.get_shelf_path(interactome), 'w') as shelf:
+            if H is None and 'H' not in shelf:
+                raise ValueError('Entropy of disease modules hasn\'t been computed yet.')
+            if 'hs' in shelf.keys():
+                hs = shelf['hs'] + hs
+            shelf['hs'] = hs
+            if H is not None:
+                shelf['H'] = H
+
+    @staticmethod
+    def load_entropy(interactome):
+        return _get_from_shelf(['hs', 'H'], IO.get_shelf_path(interactome))
+
+    @staticmethod
+    def get_nb_sims_entropy(interactome):
+        try:
+            return len(IO.load_entropy(interactome)[0])
+        except KeyError:
+            return 0
+
+    ##### topology
+
+    @staticmethod
+    def save_topology_analysis(integrator, iso_counts, size):
+        _save_to_shelf(
+            {'topology-{}'.format(size): iso_counts},
+            IO.get_shelf_path(integrator.interactome)
+        )
+
+    @staticmethod
+    def load_topology_analysis(integrator, size):
+        return _get_from_shelf(
+            'topology-{}'.format(size),
+            IO.get_shelf_path(integrator.interactome)
+        )

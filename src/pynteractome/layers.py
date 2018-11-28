@@ -212,6 +212,17 @@ class LayersIntegrator:
             for term in sorted(self.order_n_ontology(n)):
                 yield term
 
+    def iter_leaves(self, rank_parents=0):
+        '''
+        Iterate over the leaves in the HP Ontology.
+
+        Args:
+            rank_parents (int): the number of generations above the leaves to also consider
+        '''
+        for term in self.hpo.nodes():
+            if self.hpo.out_degree(term) == 0:
+                yield term
+
     def get_nb_associated_genes(self, gene_mapping='intersection'):
         '''
         Get the number of genes associated to every HPO term.
@@ -238,6 +249,55 @@ class LayersIntegrator:
             if values:
                 nb_genes.append(N)
         return np.asarray(nb_genes, dtype=np.int)
+
+    def get_disease_modules(self, gene_mapping='intersection'):
+        '''
+        Get all the disease modules. See :meth:`get_disease_module`.
+
+        Args:
+            gene_mapping (str):
+                ``'intersection'`` to get :math:`\gamma_\cap` or ``'union'`` to get :math:`\gamma_\cup`
+
+        Return:
+            generator:
+                iterable of subgraphs (disease modules)
+        '''
+        hpo2genes = self.get_hpo2genes(gene_mapping)
+        return (self.get_disease_module(term) for term in hpo2genes)
+
+    def get_disease_module(self, term, gene_mapping='intersection'):
+        '''
+        Get all the disease module of given HPO term.
+
+        Args:
+            term (int):
+                HPO term
+            gene_mapping (str):
+                ``'intersection'`` to get :math:`\gamma_\cap` or ``'union'`` to get :math:`\gamma_\cup`
+
+        Return:
+            :class:`graph_tool.GraphView`:
+                the disease module of ``term``
+        '''
+        return self.interactome.get_subgraph(
+            self.get_associated_genes(term, gene_mapping),
+            genes=True)
+
+    def get_associated_genes(self, term, gene_mapping='intersection'):
+        '''
+        Get the genes associated to given HPO term.
+
+        Args:
+            term (int):
+                HPO term
+            gene_mapping (str):
+                ``'intersection'`` to get :math:`\gamma_\cap` or ``'union'`` to get :math:`\gamma_\cup`
+
+        Return:
+            set:
+                the gene set associated to given term
+        '''
+        return self.get_hpo2genes(gene_mapping)[term] & self.interactome.genes
 
     def extract_mendeliome_from_interactome(self):
         '''

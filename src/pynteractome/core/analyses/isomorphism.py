@@ -8,7 +8,7 @@ from graph_tool.topology import isomorphism
 from pynteractome.utils import sec2date, log
 from pynteractome.IO import IO
 
-__all__ = ['isomorphism_entropy_analysis']
+__all__ = ['isomorphism_entropy_analysis', 'extract_isomorphism_classes', 'are_isomorphic']
 
 # In order to use Graph[View] in [frozen]sets
 # equality and hash functions must be defined properly
