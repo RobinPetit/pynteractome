@@ -1,8 +1,12 @@
-from math import factorial
-from time import time
+# std
 import itertools
+from math import factorial
+import multiprocessing as mp
+from time import time
+# ext libs
 import graph_tool as gt
 import graph_tool.draw as gt_draw
+# pynteractome
 from pynteractome.core.analyses.isomorphism import extract_isomorphism_classes, are_isomorphic
 from pynteractome.IO import IO
 from pynteractome.utils import sec2date, log
@@ -10,7 +14,7 @@ from pynteractome.utils import sec2date, log
 __all__ = ['pathogenic_topology_analysis']
 
 _total_nb_subsets = 0
-_current_idx = 0
+_current_idx = mp.Value('i', 0)
 _start_time = None
 
 def _binom(n, k):
@@ -22,7 +26,7 @@ def _binom(n, k):
     '''
     return factorial(n) // (factorial(k) * factorial(n-k))
 
-def pathogenic_topology_analysis(integrator, size=2):
+def pathogenic_topology_analysis(integrator, size=3, n_jobs=1):
     '''
     Perform analysis of common subtopologies within disease modules.
 
@@ -33,21 +37,49 @@ def pathogenic_topology_analysis(integrator, size=2):
             the size of sub-disease-modules to analyse
     '''
     global _total_nb_subsets, _start_time
+    log('Pathogenic topology analysis [size={}, n_jobs={}]'.format(size, n_jobs))
     try:
+        raise KeyError()  # TODO: remove
         iso_counts = IO.load_topology_analysis(integrator, size)
     except KeyError:
         iso_counts = list()
     idx = 0
     all_dms, all_terms = _extract_disease_modules(integrator, set(integrator.iter_leaves()), size, iso_counts)
+    _total_nb_subsets = 0
+    _current_idx.value = 0
     for dm in all_dms:
         _total_nb_subsets += _binom(len(dm), size)
     _start_time = time()
-    for idx, (dm, term) in enumerate(zip(all_dms, all_terms)):
-        _extract_all_subtopologies(integrator.interactome, iso_counts, dm, term, size)
-    print()
+    if n_jobs < 2 and False:
+        _pathogenic_topology_analysis_linear(integrator, iso_counts, size, all_dms, all_terms)
+    else:
+        _pathogenic_topology_analysis_parallel(integrator, iso_counts, size, all_dms, all_terms, n_jobs)
+    print('\nTotal comp time:', sec2date(time()-_start_time))
     iso_counts.sort(key=lambda e: len(e[1]), reverse=True)
     print([['G{}'.format(i+1), len(iso_counts[i][1]), sum([len(count) for count in iso_counts[i][1].values()])] for i in range(len(iso_counts))])
     IO.save_topology_analysis(integrator, iso_counts, size)
+
+def _pathogenic_topology_analysis_linear(integrator, iso_counts, size, all_dms, all_terms):
+    DELTA_T = 3600  #1h
+    last_save_time = time()
+    log('Going for: {} HPO terms'.format(len(all_dms)))
+    for dm, term in zip(all_dms, all_terms):
+        _extract_all_subtopologies(integrator.interactome, iso_counts, dm, term, size)
+        if time() - last_save_time > DELTA_T:
+            log('\n\tSaving iso_counts')
+            IO.save_topology_analysis(integrator, iso_counts, size)
+            last_save_time = time()
+    print()
+
+def _pathogenic_topology_analysis_parallel(integrator, iso_counts, size, all_dms, all_terms, n_jobs=2):
+    log('Going for: {} HPO terms'.format(len(all_dms)))
+    I2 = integrator.interactome.copy()
+    dms_terms = list(zip(all_dms, all_terms))
+    dms_terms.sort(key=lambda e: len(e[0]), reverse=True)
+    dms_terms[0], dms_terms[-1] = dms_terms[-1], dms_terms[0]
+    args = [(I2, list(), dm, term, size) for dm, term in dms_terms]
+    with mp.Pool(n_jobs) as pool:
+        iso_lists = pool.starmap(_extract_all_subtopologies_parallel, args)
 
 def _extract_all_subtopologies(interactome, iso_counts, dm, term, size):
     r'''
@@ -86,28 +118,48 @@ def _extract_all_subtopologies(interactome, iso_counts, dm, term, size):
         size (int):
             the size of the subsets to topologically analyse
     '''
-    global _current_idx
     subsets = list(itertools.combinations(dm, size))
     if not subsets:
         return
-    for subset in subsets:
-        _current_idx += 1
-        if _current_idx % 250 == 0:
-            prop = _current_idx/_total_nb_subsets
-            log('{}/{}   ({:3.2f}%)    eta: {}     '.format(_current_idx, _total_nb_subsets, 100*prop, sec2date((time()-_start_time)*(1-prop)/prop)), end='\r')
+    last_sent_idx = 0
+    for idx, subset in enumerate(subsets):
+        idx += 1
+        if idx % 50 == 0:
+            _update_current_idx(idx - last_sent_idx)
+            last_sent_idx = idx
         subgraph = gt.Graph(interactome.get_subgraph(subset, genes=True), prune=True)
         found = False
-        for idx in range(len(iso_counts)):
-            graph = iso_counts[idx][0]
+        for i in range(len(iso_counts)):
+            graph = iso_counts[i][0]
             if are_isomorphic(subgraph, graph):
-                if term in iso_counts[idx][1]:
-                    iso_counts[idx][1][term].append(subset)
+                if term in iso_counts[i][1]:
+                    iso_counts[i][1][term].append(subset)
                 else:
-                    iso_counts[idx][1][term] = [subset]
+                    iso_counts[i][1][term] = [subset]
                 found = True
                 break
         if not found:
             iso_counts.append([gt.Graph(subgraph, prune=True), dict()])
+    if last_sent_idx < idx:
+        _update_current_idx(idx - last_sent_idx)
+
+__last_printed_value = 0
+
+def _update_current_idx(value_to_add):
+    global __last_printed_value
+    with _current_idx.get_lock():
+        _current_idx.value += value_to_add
+        idx = _current_idx.value
+        if (idx - __last_printed_value) > 500:
+            prop = idx/_total_nb_subsets
+            log('{:,}/{:,}   ({:3.2f}%)    eta: {}     ' \
+                .format(
+                    idx, _total_nb_subsets, 100*prop,
+                    sec2date((time()-_start_time)*(1-prop)/prop)
+                ),
+                end='\r'
+            )
+            __last_printed_value = idx
 
 def _extract_disease_modules(integrator, all_terms, size, iso_counts):
     '''
@@ -146,3 +198,10 @@ def _extract_disease_modules(integrator, all_terms, size, iso_counts):
         except KeyError as e:
             continue
     return all_dms, related_terms
+
+def _extract_all_subtopologies_parallel(interactome, iso_counts, dm, term, size):
+    iso_counts = list()
+    _extract_all_subtopologies(interactome, iso_counts, dm, term, size)
+    if len(dm) == 75:
+        print('\nBiggest term finished')
+    return iso_counts

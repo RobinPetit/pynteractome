@@ -49,7 +49,8 @@ class Interactome:
         self.namecode = namecode
         self.distances = None
         log('Loading interactome')
-        self.load_network(path)
+        if path is not None:
+            self.load_network(path)
         log('interactome loaded')
         self.lcc_cache = self.density_cache = None
 
@@ -455,6 +456,14 @@ class Interactome:
         ret.distances = None
         ret.compute_spls()
         IO.save_interactome(ret)
+        return ret
+
+    def copy(self):
+        '''
+        Return a copy of the interactome
+        '''
+        ret = deepcopy(self)
+        ret.G = self.G.copy()  # watch out: deepcopy(self.G) returns None...
         return ret
 
     ##### Private methods
