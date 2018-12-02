@@ -26,7 +26,7 @@ def _binom(n, k):
     '''
     return factorial(n) // (factorial(k) * factorial(n-k))
 
-def pathogenic_topology_analysis(integrator, size=3, n_jobs=1):
+def pathogenic_topology_analysis(integrator, size=4, n_jobs=1):
     '''
     Perform analysis of common subtopologies within disease modules.
 
@@ -50,10 +50,7 @@ def pathogenic_topology_analysis(integrator, size=3, n_jobs=1):
     for dm in all_dms:
         _total_nb_subsets += _binom(len(dm), size)
     _start_time = time()
-    if n_jobs < 2 and False:
-        _pathogenic_topology_analysis_linear(integrator, iso_counts, size, all_dms, all_terms)
-    else:
-        _pathogenic_topology_analysis_parallel(integrator, iso_counts, size, all_dms, all_terms, n_jobs)
+    _pathogenic_topology_analysis_parallel(integrator, iso_counts, size, all_dms, all_terms, n_jobs)
     print('\nTotal comp time:', sec2date(time()-_start_time))
     iso_counts.sort(key=lambda e: len(e[1]), reverse=True)
     print([['G{}'.format(i+1), len(iso_counts[i][1]), sum([len(count) for count in iso_counts[i][1].values()])] for i in range(len(iso_counts))])
@@ -72,16 +69,19 @@ def _pathogenic_topology_analysis_linear(integrator, iso_counts, size, all_dms, 
     print()
 
 def _pathogenic_topology_analysis_parallel(integrator, iso_counts, size, all_dms, all_terms, n_jobs=2):
+    all_subsets = list()
+    for term, dm in zip(all_terms, all_dms):
+        all_subsets.extend([(term, x) for x in itertools.combinations(dm, size)])
     log('Going for: {} HPO terms'.format(len(all_dms)))
     I2 = integrator.interactome.copy()
-    dms_terms = list(zip(all_dms, all_terms))
-    dms_terms.sort(key=lambda e: len(e[0]), reverse=True)
-    dms_terms[0], dms_terms[-1] = dms_terms[-1], dms_terms[0]
-    args = [(I2, list(), dm, term, size) for dm, term in dms_terms]
+    args = list()
+    all_terms_dms = [all_subsets] if n_jobs == 1 else [all_subsets[i::n_jobs] for i in range(n_jobs)]
+    for terms_dms in all_terms_dms:
+        args.append((I2, terms_dms))
     with mp.Pool(n_jobs) as pool:
         iso_lists = pool.starmap(_extract_all_subtopologies_parallel, args)
 
-def _extract_all_subtopologies(interactome, iso_counts, dm, term, size):
+def _extract_all_subtopologies(interactome, iso_counts, terms_dms):
     r'''
     Extract he subtopologies of a disease module and add them to ``iso_counts``.
 
@@ -111,18 +111,13 @@ def _extract_all_subtopologies(interactome, iso_counts, dm, term, size):
             the interactome
         iso_counts (list):
             the container of isomorphisms relations. Structure is detailed in the *Structure* subsection above.
-        dm (set):
-            set of genes associated to a HPO term
-        term (int):
-            the HPO term spanning ``dm``
-        size (int):
-            the size of the subsets to topologically analyse
+        terms_dms (list):
+            TODO
     '''
-    subsets = list(itertools.combinations(dm, size))
-    if not subsets:
+    if not terms_dms:
         return
     last_sent_idx = 0
-    for idx, subset in enumerate(subsets):
+    for idx, (term, subset) in enumerate(terms_dms):
         idx += 1
         if idx % 50 == 0:
             _update_current_idx(idx - last_sent_idx)
@@ -199,9 +194,7 @@ def _extract_disease_modules(integrator, all_terms, size, iso_counts):
             continue
     return all_dms, related_terms
 
-def _extract_all_subtopologies_parallel(interactome, iso_counts, dm, term, size):
+def _extract_all_subtopologies_parallel(interactome, terms_dms):
     iso_counts = list()
-    _extract_all_subtopologies(interactome, iso_counts, dm, term, size)
-    if len(dm) == 75:
-        print('\nBiggest term finished')
+    _extract_all_subtopologies(interactome, iso_counts, terms_dms)
     return iso_counts
