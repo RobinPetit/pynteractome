@@ -8,14 +8,12 @@ from .mendeliome.parser import MendeliomeParser
 from .utils import reverse_set_dict, log
 from .IO import IO
 
-__integrator = None
+__integrators = dict()
 
 DEFAULT_PROP_DEPTH = 0
 
 def get_integrator(integrator_config, prop_depth=DEFAULT_PROP_DEPTH):
-    global __integrator
-
-    if __integrator is None:
+    if integrator_config.interactome_namecode not in __integrators:
         print('loading interactome')
         interactome = IO.load_interactome(integrator_config.interactome_path,
                                           namecode=integrator_config.interactome_namecode)
@@ -27,9 +25,9 @@ def get_integrator(integrator_config, prop_depth=DEFAULT_PROP_DEPTH):
             integrator_config.disease_names_path,
             integrator_config.gene2omim_path
         )
-        __integrator = LayersIntegrator(interactome, mendeliome, hpo, prop_depth)
+        __integrators[integrator_config.interactome_namecode] = LayersIntegrator(interactome, mendeliome, hpo, prop_depth)
         print('Got integrator')
-    return __integrator
+    return __integrators[integrator_config.interactome_namecode]
 
 class LayersIntegrator:
     r'''
@@ -97,6 +95,7 @@ class LayersIntegrator:
         self.beta = self.beta_prime = None
 
         self._compute_hpo_by_order()
+        self._compute_hpo_by_height()
         self._init_mappings(prop_depth)
 
     def get_hpo2genes(self, gene_mapping='intersection'):
@@ -192,7 +191,7 @@ class LayersIntegrator:
 
     def get_term_depth(self, term):
         '''
-        Get the depth of a given term in the hierarchy.
+        Get the depth (order) of a given term :math:`t` in the hierarchy.
 
         Args:
             term (int):
@@ -200,9 +199,23 @@ class LayersIntegrator:
 
         Return:
             int:
-                the depth of `term` in the HPO.
+                :math:`\omega(t)`
         '''
         return self.depths[term]
+
+    def get_term_height(self, term):
+        '''
+        Get the height of a given term :math:`t` in the hierarchy.
+
+        Args:
+            term (int):
+                the HPO term
+
+        Return:
+            int:
+                :math:`\lambda(t)`
+        '''
+
 
     def iter_terms(self):
         '''
@@ -343,7 +356,34 @@ class LayersIntegrator:
             self.terms_by_order[dist].add(term)
             self.depths[term] = dist
         for idx, sub_set in enumerate(self.terms_by_order):
-            self.terms_by_order[idx] = list(sorted(sub_set))
+            self.terms_by_order[idx] = sorted(sub_set)
+
+    def _compute_hpo_by_height(self):
+        '''
+        Create list such that the ith element is the set of all
+        HPO term of height i
+        '''
+        self.terms_by_height = list()
+        self.heights = dict()
+        self._get_term_height(118)  # abnormal phenotype is root of HPO
+        for term, height in self.heights.items():
+            while len(self.terms_by_height) <= height:
+                self.terms_by_height.append(set())
+            self.terms_by_height[height].add(term)
+        for idx, sub_set in enumerate(self.terms_by_height):
+            self.terms_by_height[idx] = sorted(sub_set)
+
+    def _get_term_height(self, t):
+        '''
+        Get the height :math:`\lambda(t)` and store it in `self.heights`
+        '''
+        if t in self.heights:
+            return self.heights[t]
+        if len(self.hpo[t]) == 0:
+            self.heights[t] = 0
+        else:
+            self.heights[t] = 1 + min([self._get_term_height(child) for child in self.hpo[t]])
+        return self.heights[t]
 
     def _propagate(self, term, depth):
         if depth == 0 or term not in self.beta_prime:
