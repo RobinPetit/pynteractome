@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynteractome.core.analyses.topology &mdash; pynteractome 0.0.0.0.0.1 documentation</title>
+  <title>pynteractome.core.analyses.topology &mdash; pynteractome alpha 0.1 documentation</title>
   
 
   
@@ -142,11 +142,15 @@
            <div itemprop="articleBody">
             
   <h1>Source code for pynteractome.core.analyses.topology</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">factorial</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+<span></span><span class="c1"># std</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">factorial</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+<span class="c1"># ext libs</span>
 <span class="kn">import</span> <span class="nn">graph_tool</span> <span class="k">as</span> <span class="nn">gt</span>
 <span class="kn">import</span> <span class="nn">graph_tool.draw</span> <span class="k">as</span> <span class="nn">gt_draw</span>
+<span class="c1"># pynteractome</span>
 <span class="kn">from</span> <span class="nn">pynteractome.core.analyses.isomorphism</span> <span class="k">import</span> <span class="n">extract_isomorphism_classes</span><span class="p">,</span> <span class="n">are_isomorphic</span>
 <span class="kn">from</span> <span class="nn">pynteractome.IO</span> <span class="k">import</span> <span class="n">IO</span>
 <span class="kn">from</span> <span class="nn">pynteractome.utils</span> <span class="k">import</span> <span class="n">sec2date</span><span class="p">,</span> <span class="n">log</span>
@@ -154,7 +158,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pathogenic_topology_analysis&#39;</span><span class="p">]</span>
 
 <span class="n">_total_nb_subsets</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">_current_idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">_current_idx</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="n">_start_time</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="_binom"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology._binom">[docs]</a><span class="k">def</span> <span class="nf">_binom</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
@@ -166,7 +170,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">//</span> <span class="p">(</span><span class="n">factorial</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="pathogenic_topology_analysis"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology.pathogenic_topology_analysis">[docs]</a><span class="k">def</span> <span class="nf">pathogenic_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<div class="viewcode-block" id="pathogenic_topology_analysis"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology.pathogenic_topology_analysis">[docs]</a><span class="k">def</span> <span class="nf">pathogenic_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Perform analysis of common subtopologies within disease modules.</span>
 
@@ -177,23 +181,51 @@
 <span class="sd">            the size of sub-disease-modules to analyse</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">global</span> <span class="n">_total_nb_subsets</span><span class="p">,</span> <span class="n">_start_time</span>
+    <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Pathogenic topology analysis [size=</span><span class="si">{}</span><span class="s1">, n_jobs=</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">))</span>
     <span class="k">try</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">()</span>  <span class="c1"># TODO: remove</span>
         <span class="n">iso_counts</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="n">iso_counts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">all_dms</span><span class="p">,</span> <span class="n">all_terms</span> <span class="o">=</span> <span class="n">_extract_disease_modules</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">iter_leaves</span><span class="p">()),</span> <span class="n">size</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">)</span>
+    <span class="n">_total_nb_subsets</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_current_idx</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">dm</span> <span class="ow">in</span> <span class="n">all_dms</span><span class="p">:</span>
         <span class="n">_total_nb_subsets</span> <span class="o">+=</span> <span class="n">_binom</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dm</span><span class="p">),</span> <span class="n">size</span><span class="p">)</span>
     <span class="n">_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">dm</span><span class="p">,</span> <span class="n">term</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">all_dms</span><span class="p">,</span> <span class="n">all_terms</span><span class="p">)):</span>
-        <span class="n">_extract_all_subtopologies</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">interactome</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">dm</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
+    <span class="n">_pathogenic_topology_analysis_parallel</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">all_dms</span><span class="p">,</span> <span class="n">all_terms</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Total comp time:&#39;</span><span class="p">,</span> <span class="n">sec2date</span><span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">_start_time</span><span class="p">))</span>
     <span class="n">iso_counts</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">([[</span><span class="s1">&#39;G</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">iso_counts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()])]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">))])</span>
     <span class="n">IO</span><span class="o">.</span><span class="n">save_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="_extract_all_subtopologies"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology._extract_all_subtopologies">[docs]</a><span class="k">def</span> <span class="nf">_extract_all_subtopologies</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">dm</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_pathogenic_topology_analysis_linear</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">all_dms</span><span class="p">,</span> <span class="n">all_terms</span><span class="p">):</span>
+    <span class="n">DELTA_T</span> <span class="o">=</span> <span class="mi">3600</span>  <span class="c1">#1h</span>
+    <span class="n">last_save_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Going for: </span><span class="si">{}</span><span class="s1"> HPO terms&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_dms</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">dm</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_dms</span><span class="p">,</span> <span class="n">all_terms</span><span class="p">):</span>
+        <span class="n">_extract_all_subtopologies</span><span class="p">(</span><span class="n">integrator</span><span class="o">.</span><span class="n">interactome</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">dm</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">last_save_time</span> <span class="o">&gt;</span> <span class="n">DELTA_T</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\t</span><span class="s1">Saving iso_counts&#39;</span><span class="p">)</span>
+            <span class="n">IO</span><span class="o">.</span><span class="n">save_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">last_save_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">_pathogenic_topology_analysis_parallel</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">all_dms</span><span class="p">,</span> <span class="n">all_terms</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">all_subsets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">term</span><span class="p">,</span> <span class="n">dm</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_terms</span><span class="p">,</span> <span class="n">all_dms</span><span class="p">):</span>
+        <span class="n">all_subsets</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">term</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">dm</span><span class="p">,</span> <span class="n">size</span><span class="p">)])</span>
+    <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Going for: </span><span class="si">{}</span><span class="s1"> HPO terms&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_dms</span><span class="p">)))</span>
+    <span class="n">I2</span> <span class="o">=</span> <span class="n">integrator</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">all_terms_dms</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_subsets</span><span class="p">]</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">[</span><span class="n">all_subsets</span><span class="p">[</span><span class="n">i</span><span class="p">::</span><span class="n">n_jobs</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">terms_dms</span> <span class="ow">in</span> <span class="n">all_terms_dms</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">I2</span><span class="p">,</span> <span class="n">terms_dms</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+        <span class="n">iso_lists</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_extract_all_subtopologies_parallel</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="_extract_all_subtopologies"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology._extract_all_subtopologies">[docs]</a><span class="k">def</span> <span class="nf">_extract_all_subtopologies</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">terms_dms</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Extract he subtopologies of a disease module and add them to ``iso_counts``.</span>
 
@@ -223,35 +255,50 @@
 <span class="sd">            the interactome</span>
 <span class="sd">        iso_counts (list):</span>
 <span class="sd">            the container of isomorphisms relations. Structure is detailed in the *Structure* subsection above.</span>
-<span class="sd">        dm (set):</span>
-<span class="sd">            set of genes associated to a HPO term</span>
-<span class="sd">        term (int):</span>
-<span class="sd">            the HPO term spanning ``dm``</span>
-<span class="sd">        size (int):</span>
-<span class="sd">            the size of the subsets to topologically analyse</span>
+<span class="sd">        terms_dms (list):</span>
+<span class="sd">            TODO</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">global</span> <span class="n">_current_idx</span>
-    <span class="n">subsets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">dm</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">subsets</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">terms_dms</span><span class="p">:</span>
         <span class="k">return</span>
-    <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">subsets</span><span class="p">:</span>
-        <span class="n">_current_idx</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="n">_current_idx</span> <span class="o">%</span> <span class="mi">250</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">prop</span> <span class="o">=</span> <span class="n">_current_idx</span><span class="o">/</span><span class="n">_total_nb_subsets</span>
-            <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">   (</span><span class="si">{:3.2f}</span><span class="s1">%)    eta: </span><span class="si">{}</span><span class="s1">     &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_current_idx</span><span class="p">,</span> <span class="n">_total_nb_subsets</span><span class="p">,</span> <span class="mi">100</span><span class="o">*</span><span class="n">prop</span><span class="p">,</span> <span class="n">sec2date</span><span class="p">((</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">_start_time</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prop</span><span class="p">)</span><span class="o">/</span><span class="n">prop</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">last_sent_idx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">terms_dms</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">%</span> <span class="mi">50</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">_update_current_idx</span><span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="n">last_sent_idx</span><span class="p">)</span>
+            <span class="n">last_sent_idx</span> <span class="o">=</span> <span class="n">idx</span>
         <span class="n">subgraph</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">genes</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">)):</span>
-            <span class="n">graph</span> <span class="o">=</span> <span class="n">iso_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">)):</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">iso_counts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">are_isomorphic</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">iso_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
-                    <span class="n">iso_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">term</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">iso_counts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">iso_counts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">term</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">iso_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">term</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">subset</span><span class="p">]</span>
+                    <span class="n">iso_counts</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">term</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">subset</span><span class="p">]</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">break</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-            <span class="n">iso_counts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="nb">dict</span><span class="p">()])</span></div>
+            <span class="n">iso_counts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">gt</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="nb">dict</span><span class="p">()])</span>
+    <span class="k">if</span> <span class="n">last_sent_idx</span> <span class="o">&lt;</span> <span class="n">idx</span><span class="p">:</span>
+        <span class="n">_update_current_idx</span><span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="n">last_sent_idx</span><span class="p">)</span></div>
+
+<span class="n">__last_printed_value</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">_update_current_idx</span><span class="p">(</span><span class="n">value_to_add</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">__last_printed_value</span>
+    <span class="k">with</span> <span class="n">_current_idx</span><span class="o">.</span><span class="n">get_lock</span><span class="p">():</span>
+        <span class="n">_current_idx</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="n">value_to_add</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">_current_idx</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="n">__last_printed_value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">idx</span><span class="o">/</span><span class="n">_total_nb_subsets</span>
+            <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:,}</span><span class="s1">/</span><span class="si">{:,}</span><span class="s1">   (</span><span class="si">{:3.2f}</span><span class="s1">%)    eta: </span><span class="si">{}</span><span class="s1">     &#39;</span> \
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">idx</span><span class="p">,</span> <span class="n">_total_nb_subsets</span><span class="p">,</span> <span class="mi">100</span><span class="o">*</span><span class="n">prop</span><span class="p">,</span>
+                    <span class="n">sec2date</span><span class="p">((</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">_start_time</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prop</span><span class="p">)</span><span class="o">/</span><span class="n">prop</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="n">__last_printed_value</span> <span class="o">=</span> <span class="n">idx</span>
 
 <div class="viewcode-block" id="_extract_disease_modules"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology._extract_disease_modules">[docs]</a><span class="k">def</span> <span class="nf">_extract_disease_modules</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">all_terms</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
@@ -290,6 +337,11 @@
         <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">continue</span>
     <span class="k">return</span> <span class="n">all_dms</span><span class="p">,</span> <span class="n">related_terms</span></div>
+
+<span class="k">def</span> <span class="nf">_extract_all_subtopologies_parallel</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">terms_dms</span><span class="p">):</span>
+    <span class="n">iso_counts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">_extract_all_subtopologies</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">iso_counts</span><span class="p">,</span> <span class="n">terms_dms</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">iso_counts</span>
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynteractome.core.analyses.topology module &mdash; pynteractome 0.0.0.0.0.1 documentation</title>
+  <title>pynteractome.core.analyses.topology module &mdash; pynteractome alpha 0.1 documentation</title>
   
 
   
@@ -179,7 +179,7 @@
 
 <dl class="function">
 <dt id="pynteractome.core.analyses.topology._extract_all_subtopologies">
-<code class="descclassname">pynteractome.core.analyses.topology.</code><code class="descname">_extract_all_subtopologies</code><span class="sig-paren">(</span><em>interactome</em>, <em>iso_counts</em>, <em>dm</em>, <em>term</em>, <em>size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/topology.html#_extract_all_subtopologies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.topology._extract_all_subtopologies" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynteractome.core.analyses.topology.</code><code class="descname">_extract_all_subtopologies</code><span class="sig-paren">(</span><em>interactome</em>, <em>iso_counts</em>, <em>terms_dms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/topology.html#_extract_all_subtopologies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.topology._extract_all_subtopologies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract he subtopologies of a disease module and add them to <code class="docutils literal notranslate"><span class="pre">iso_counts</span></code>.</p>
 <dl class="docutils">
 <dt>Structure of <code class="docutils literal notranslate"><span class="pre">iso_counts</span></code>:</dt>
@@ -211,9 +211,7 @@ the set of HPO terms, <span class="math notranslate nohighlight">\(\mu(t)\)</spa
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>interactome</strong> (<a class="reference internal" href="pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a>) – the interactome</li>
 <li><strong>iso_counts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – the container of isomorphisms relations. Structure is detailed in the <em>Structure</em> subsection above.</li>
-<li><strong>dm</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – set of genes associated to a HPO term</li>
-<li><strong>term</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the HPO term spanning <code class="docutils literal notranslate"><span class="pre">dm</span></code></li>
-<li><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the size of the subsets to topologically analyse</li>
+<li><strong>terms_dms</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – TODO</li>
 </ul>
 </td>
 </tr>
@@ -254,7 +252,7 @@ DMs s.t. <code class="docutils literal notranslate"><span class="pre">all_dms[i]
 
 <dl class="function">
 <dt id="pynteractome.core.analyses.topology.pathogenic_topology_analysis">
-<code class="descclassname">pynteractome.core.analyses.topology.</code><code class="descname">pathogenic_topology_analysis</code><span class="sig-paren">(</span><em>integrator</em>, <em>size=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/topology.html#pathogenic_topology_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.topology.pathogenic_topology_analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynteractome.core.analyses.topology.</code><code class="descname">pathogenic_topology_analysis</code><span class="sig-paren">(</span><em>integrator</em>, <em>size=4</em>, <em>n_jobs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/topology.html#pathogenic_topology_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.topology.pathogenic_topology_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform analysis of common subtopologies within disease modules.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
