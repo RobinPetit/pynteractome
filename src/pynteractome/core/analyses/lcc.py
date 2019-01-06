@@ -9,7 +9,7 @@ def lcc_analysis_omim(integrator, nb_sims):
     '''
     See :func:`pynteractome.core.analysis.lcc._lcc_analysis` with OMIM phenotypes as diseases.
     '''
-    _lcc_analysis(integrator, nb_sims, integrator.alpha_prime)
+    _lcc_analysis(integrator, nb_sims, integrator.get_omim2genes())
 
 def lcc_analysis_hpo(integrator, nb_sims):
     '''

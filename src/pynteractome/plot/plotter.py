@@ -115,7 +115,7 @@ class Plotter:
     def loc_omim(integrator):
         Plotter._set_plot_dir(integrator)
         interactome = integrator.interactome
-        omim2genes = integrator.alpha_prime
+        omim2genes = integrator.get_omim2genes()
         xs, ys = list(), list()
         are_normal = list()
         empirical_ps = list()
@@ -291,17 +291,18 @@ class Plotter:
         Plotter.save_fig(fig, 'gamma_density;eps')
 
     @staticmethod
-    def relation_degree_nb_terms(integrator, depth: int):
+    def relation_degree_nb_terms(integrator, depth, gene_mapping='intersection'):
         Plotter._set_plot_dir(integrator)
         integrator.propagate_genes(depth)
         degrees = list()
         terms_prop = list()
-        for gene in integrator.gamma:
+        gene2hpo = integrator.get_gene2hpo(gene_mapping)
+        for gene in gene2hpo:
             try:
                 vert_id = integrator.interactome.vert_id(gene)
             except:
                 continue
-            nb_terms_propagated = len(integrator.gamma[gene])
+            nb_terms_propagated = len(gene2hpo[gene])
             degree = integrator.interactome.G.get_out_degrees([vert_id])
             degrees.append(degree)
             terms_prop.append(nb_terms_propagated)
@@ -344,7 +345,7 @@ class Plotter:
     @staticmethod
     def hpo_to_omim(integrator):
         Plotter._set_plot_dir(integrator)
-        hpo2omim = integrator.beta_prime
+        hpo2omim = integrator.get_hpo2omim()
         depth = integrator.get_hpo_depth()
         print(depth)
         fig = plt.figure()
@@ -370,7 +371,7 @@ class Plotter:
     @staticmethod
     def hpo_to_omim_mean_median(integrator):
         Plotter._set_plot_dir(integrator)
-        hpo2omim = integrator.beta_prime
+        hpo2omim = integrator.get_hpo2omim()
         fig = plt.figure(figsize=(10, 6))
         ax = fig.add_subplot(111)
         all_values = [
@@ -392,7 +393,7 @@ class Plotter:
             marker='x', ms=15, label='mean (original)'
         )
         integrator.propagate_genes(integrator.get_hpo_depth())
-        hpo2omim = integrator.beta_prime
+        hpo2omim = integrator.get_hpo2omim()
         all_values = [
             [len(hpo2omim[term]) for term in integrator.order_n_ontology(n) if term in hpo2omim] \
                 for n in range(integrator.get_hpo_depth())
