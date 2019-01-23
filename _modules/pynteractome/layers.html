@@ -256,6 +256,26 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Hpo2Genes mapping can only be </span><span class="se">\&#39;</span><span class="s1">intersection</span><span class="se">\&#39;</span><span class="s1"> or </span><span class="se">\&#39;</span><span class="s1">union</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="LayersIntegrator.get_hpo2omim"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_hpo2omim">[docs]</a>    <span class="k">def</span> <span class="nf">get_hpo2omim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the mapping HPO terms :math:`\rightarrow` OMIM phenotypes</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                the mapping HPO term :math:`\rightarrow` OMIM phenotypes</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span></div>
+
+<div class="viewcode-block" id="LayersIntegrator.get_gene2omim"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_gene2omim">[docs]</a>    <span class="k">def</span> <span class="nf">get_gene2omim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the mapping Entrez gene :math:`\rightarrow` OMIM phenotypes</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            dict:</span>
+<span class="sd">                the mapping Entrez gene :math:`\rightarrow` OMIM phenotypes</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gene2omim</span></div>
+
 <div class="viewcode-block" id="LayersIntegrator.get_gene2hpo"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_gene2hpo">[docs]</a>    <span class="k">def</span> <span class="nf">get_gene2hpo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the mapping Entrez genes :math:`\rightarrow` HPO terms</span>
@@ -413,7 +433,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_propagate</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottom_up_hpo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">propagation_depth</span> <span class="o">=</span> <span class="n">depth</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omim2hpo</span> <span class="o">=</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omim2hpo</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_compute_gamma</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.get_sub_interactome_ontology"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_sub_interactome_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">get_sub_interactome_ontology</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hpo_term</span><span class="p">):</span>
@@ -515,8 +535,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">propagation_depth</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gene2omim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_gene2omim</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omim2gene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_omim2gene</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omim2hpo</span> <span class="o">=</span> <span class="n">get_omim2hpo</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omim2hpo</span><span class="p">)</span>
+        <span class="n">omim2hpo</span> <span class="o">=</span> <span class="n">get_omim2hpo</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="n">omim2hpo</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omim2hpo</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_compute_gamma</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">prop_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">propagate_genes</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">)</span></div>

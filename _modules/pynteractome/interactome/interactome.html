@@ -198,6 +198,22 @@
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;interactome loaded&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="kc">None</span>
 
+<div class="viewcode-block" id="Interactome.get_gene_degree"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_gene_degree">[docs]</a>    <span class="k">def</span> <span class="nf">get_gene_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the degree of a given gene within the interactome.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gene (int): Entrez ID of the gene</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            int:</span>
+<span class="sd">                `None` if the gene is not in :math:`\mathscr I` else the number of associated genes within the interactome</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">gene</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">vert_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vert_id</span><span class="p">(</span><span class="n">gene</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">vert_id</span><span class="p">)</span><span class="o">.</span><span class="n">out_degree</span><span class="p">()</span></div>
+
     <span class="k">def</span> <span class="nf">set_namecode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namecode</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">namecode</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">namecode</span> <span class="o">=</span> <span class="n">namecode</span>

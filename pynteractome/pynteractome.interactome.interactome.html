@@ -318,6 +318,24 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_gene_degree">
+<code class="descname">get_gene_degree</code><span class="sig-paren">(</span><em>gene</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_gene_degree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_gene_degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the degree of a given gene within the interactome.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gene</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Entrez ID of the gene</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><cite>None</cite> if the gene is not in <span class="math notranslate nohighlight">\(\mathscr I\)</span> else the number of associated genes within the interactome</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynteractome.interactome.interactome.Interactome.get_genes_density">
 <code class="descname">get_genes_density</code><span class="sig-paren">(</span><em>genes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_genes_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_genes_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the density of the subgraph induced by given genes.</p>
