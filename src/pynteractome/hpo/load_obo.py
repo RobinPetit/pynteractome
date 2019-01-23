@@ -85,9 +85,9 @@ def load_abnormal_phenotypes():
     return ret
 
 def main():
-    graph = get_hpo()
+    graph = load_abnormal_phenotypes()
     #draw_subtree(graph, [7068], True)
-    draw_subtree(graph, [6687], True)
+    draw_subtree(graph, [1195], True)
     plt.show()
 
 if __name__ == '__main__':

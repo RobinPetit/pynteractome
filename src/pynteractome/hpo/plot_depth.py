@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+from pynteractome.hpo.load_obo import load_abnormal_phenotypes
 
 def plot_depth(hpo):
     sp = nx.shortest_path_length(hpo, source=118)
@@ -22,3 +23,10 @@ def plot_depth(hpo):
     plt.ylabel('Frequency')
     plt.title('Distribution of HPO terms depth')
     plt.show()
+
+def plot_hpo_depth():
+    hpo = load_abnormal_phenotypes()
+    plot_depth(hpo)
+
+if __name__ == '__main__':
+    plot_hpo_depth()

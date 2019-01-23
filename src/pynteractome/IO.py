@@ -183,6 +183,19 @@ class IO:
         log('[Saving lcc_cache]')
         _save_to_shelf({'lcc-cache': cache}, IO.get_shelf_path(interactome))
 
+    @staticmethod
+    def load_clustering_cache(interactome):
+        log('[Loading clustering_cache]')
+        try:
+            return _get_from_shelf('clustering-cache', IO.get_shelf_path(interactome))
+        except KeyError:
+            return dict()
+
+    @staticmethod
+    def save_clustering_cache(interactome, cache):
+        log('[Saving clustering_cache]')
+        _save_to_shelf({'clustering-cache': cache}, IO.get_shelf_path(interactome))
+
     ##### entropy analysis
 
     @staticmethod

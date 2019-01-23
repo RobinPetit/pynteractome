@@ -41,14 +41,14 @@ class Plotter:
     @staticmethod
     def save_fig(fig, path):
         plot_dir = Plotter._get_plot_dir_or_die()
-        path = plot_dir + filename
+        path = plot_dir + path
         ridx = path.rfind('.')
         if ridx > 0:
             ext = path[ridx+1:]
             if ext not in AVAILABLE_FORMATS:
                 warning('Unknown format: "{}". Setting default format ("{}").' \
                         .format(ext, AVAILABLE_FORMATS[0]))
-            path += '.' + AVAILABLE_FORMATS[0]
+                path = path[:ridx+1] + AVAILABLE_FORMATS[0]
         plt.savefig(path, bbox_inches='tight')
         plt.close(fig)
 
@@ -59,7 +59,7 @@ class Plotter:
         for depth in range(integrator.get_hpo_depth()):
             integrator.propagate_genes(depth)
             zs = {term: interactome.get_lcc_score(genes, 0, shapiro=True) \
-                  for (term, genes) in integrator.get_hpo2genes().items()}
+                  for (term, genes) in integrator.get_hpo2genes().items() if genes}
             Plotter._loc_hpo(integrator, zs, depth)
 
     @staticmethod
@@ -74,7 +74,7 @@ class Plotter:
             if z_score is not None:
                 z = float(z_score)
                 genes = integrator.get_hpo2genes()[term] & interactome.genes
-                if len(genes) >= 10:
+                if len(genes) >= 1:
                     lcc = interactome.get_genes_lcc_size(interactome.verts_id(genes))
                     rel_size = lcc / len(genes)
                     xs.append(rel_size)
@@ -89,7 +89,7 @@ class Plotter:
         Plotter.significance_bar_plot(
             ys, empirical_ps,
             'Significance via $p$ or $z$ (HPO terms)',
-            'barplot.significance.hpo.{}.eps'.format(prop_depth)
+            'loc/barplot.significance.hpo.{}.eps'.format(prop_depth)
         )
         a = np.where(np.logical_and(ys >= 1.65, empirical_ps >= .05))[0]
         print(len(set(a)),
@@ -288,7 +288,7 @@ class Plotter:
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.hist(non_empty_links, 200)
-        Plotter.save_fig(fig, 'gamma_density;eps')
+        Plotter.save_fig(fig, 'gamma_density.eps')
 
     @staticmethod
     def relation_degree_nb_terms(integrator, depth, gene_mapping='intersection'):
@@ -373,16 +373,18 @@ class Plotter:
         Plotter._set_plot_dir(integrator)
         hpo2omim = integrator.get_hpo2omim()
         fig = plt.figure(figsize=(10, 6))
+        depth = integrator.get_hpo_depth()
+        print(depth)
         ax = fig.add_subplot(111)
         all_values = [
             [len(hpo2omim[term]) for term in integrator.order_n_ontology(n) if term in hpo2omim] \
-                for n in range(integrator.get_hpo_depth())
+                for n in range(depth)
         ]
         indices = list()
         vs = list()
         for i, v in enumerate(all_values):
             if len(v) != 0:
-                indices.append(i+1)
+                indices.append(i)
                 vs.append(v)
         ax.plot(
             indices, [np.median(v) for v in vs], 'r:',
@@ -402,7 +404,7 @@ class Plotter:
         vs = list()
         for i, v in enumerate(all_values):
             if len(v) != 0:
-                indices.append(i+1)
+                indices.append(i)
                 vs.append(v)
         ax.plot(
             indices, [np.median(v) for v in vs], 'r:',
@@ -427,6 +429,7 @@ class Plotter:
                             show=False, set_xticks_fmt_g=True, set_yticks_fmt_g=True,
                             hists_ylog=False):
         ''' Returns a list with the 3 axes: dot-plot, upper hist, right hist.
+        TODO: Write better description
         '''
         # Create axes
         fig = plt.figure(figsize=figsize)
@@ -460,10 +463,12 @@ class Plotter:
 
     @staticmethod
     def plot_pdf_and_cdf(xs, bins, color, cdf_color, xlabel='', ax=None, horizontal=False,
-                         grid=True, remove_ticks=True, xlim=None, ylog=False):
+                         grid=True, remove_ticks=True, xlim=None, ylog=False, xticks=None):
         if ax is None:
             ax = plt.gca()
         weights = 100*np.ones(len(xs)) / len(xs)
+        xs = np.asarray(xs)
+        assert weights.shape == xs.shape
         ns, xs_hist = ax.hist(xs, bins=bins, color=color, label='pdf', weights=weights,
                               orientation='horizontal' if horizontal else 'vertical')[:2]
         fmt_fn = fmt_g
@@ -499,6 +504,11 @@ class Plotter:
             if remove_ticks:
                 ax.set_xticklabels([''] * len(ax.get_xticks()))
             else:
+                if xticks is not None:
+                    if xticks == 'bins':
+                        ax.set_xticks(bins)
+                    else:
+                        ax.set_xticks(xticks)
                 ax.set_xticklabels(map(fmt_g, ax.get_xticks()))
         ax.legend(loc='best')
         ax.grid(grid)
@@ -532,7 +542,21 @@ class Plotter:
         ax.set_title('Comparison # genes union-mapping vs intersection-mapping')
         plt.grid(True)
         plt.legend(loc='upper left')
-        Plotter.save_fig(fig, 'compare_gene_mappings.eps')
+        Plotter.save_fig(fig, 'compare_gene_mappings_size.eps')
+        cap_sizes = list(filter(lambda x: x>0, map(len, [hpo2genes_cap[t] for t in set(integrator.iter_leaves()) & common_terms])))
+        cup_sizes = list(filter(lambda x: x>0, map(len, [hpo2genes_cup[t] for t in set(integrator.iter_leaves()) & common_terms])))
+        fig = plt.figure(figsize=(12, 8))
+        ax1 = fig.add_subplot(121)
+        ax2 = fig.add_subplot(122)
+        Plotter.plot_pdf_and_cdf(
+            cap_sizes, np.arange(1, max(cap_sizes)+1), 'salmon', 'red', xlabel='Nb of associated genes',
+            ax=ax1, remove_ticks=False, grid=True, ylog=True, xticks='bins')
+        Plotter.plot_pdf_and_cdf(
+            cup_sizes, np.arange(1, max(cup_sizes)+1), 'salmon', 'red', xlabel='Nb of associated genes',
+            ax=ax2, remove_ticks=False, grid=True, ylog=True, xticks=None)
+        ax1.set_title(r'$\gamma_\cap$')
+        ax2.set_title(r'$\gamma_\cup$')
+        Plotter.save_fig(fig, 'comparison_gene_mappings_size_hist.eps')
 
     @staticmethod
     def plot_density(integrator):
@@ -613,3 +637,17 @@ class Plotter:
               .format(stats.shapiro(hs)[1], stats.shapiro(ns)[1]))
         print('z-scores:        {:.3e}          {:.3e}' \
               .format((H - hs.mean()) / hs.std(), (n_classes - ns.mean()) / ns.std()))
+
+    @staticmethod
+    def plot_relation_degree_to_nb_omim_associations(integrator):
+        Plotter._set_plot_dir(integrator)
+        interactome = integrator.interactome
+        gene2omim = integrator.get_gene2omim()
+        xs, ys = list(), list()
+        for gene, phenotypes in gene2omim.items():
+            x = integrator.interactome.get_gene_degree(gene)
+            if x is not None:
+                xs.append(x)
+                ys.append(len(phenotypes))
+        fig, _ = Plotter.dot_plot_with_hists(xs, ys, 'Gene degree', '# associated OMIM phenotypes', 'title', grid=True, show=False, set_xticks_fmt_g=False, set_yticks_fmt_g=False)
+        Plotter.save_fig(fig, 'gene_degree_to_nb_omim_associations.eps')

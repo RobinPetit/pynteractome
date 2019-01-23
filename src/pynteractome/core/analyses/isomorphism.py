@@ -34,7 +34,7 @@ def are_isomorphic(G, H):
         return False
     return G.num_edges() == 0 or isomorphism(G, H)
 
-def extract_isomorphism_classes(graphs):
+def extract_isomorphism_classes(graphs, verbose=False):
     r'''
     Extract the isomorphism classes among the provided graphs.
 
@@ -54,9 +54,10 @@ def extract_isomorphism_classes(graphs):
     classes = list()
     indices = np.arange(len(graphs))
     while indices.any():
-        log('Building new isomorphism class {} out of {} remaining    [{:3.2f}%]     ' \
-             .format(len(indices), len(graphs), 100*(1 - len(indices)/len(graphs))),
-             end='\r')
+        if verbose:
+            log('Building new isomorphism class {} out of {} remaining    [{:3.2f}%]     ' \
+                .format(len(indices), len(graphs), 100*(1 - len(indices)/len(graphs))),
+                end='\r')
         to_remove = [0]
         G = graphs[indices[0]]
         classes.append([G])
@@ -94,9 +95,10 @@ def isomorphism_entropy_analysis(integrator, nb_sims):
         for genes in disease_modules_genes:
             disease_modules.append(interactome.get_subgraph(genes))
         H = isomorphism_entropy(disease_modules)
+    print('')
     IO.save_entropy(interactome, entropy_values, H)
 
-def get_entropy_values(nb_sims, nb_vertices, interactome):
+def get_entropy_values(nb_sims, nb_vertices, interactome, verbose=False):
     entropy_values = list()
     beg = time()
     for i in range(nb_sims):
@@ -106,10 +108,13 @@ def get_entropy_values(nb_sims, nb_vertices, interactome):
             prop = i/nb_sims
             nb_secs = el_time/prop * (1-prop)
             print('\t\teta: {}'.format(sec2date(nb_secs)), end='')
-        print('')
+        #print('')
         random_subgraphs = [interactome.get_random_subgraph(N) for N in nb_vertices]
-        entropy_values.append(isomorphism_entropy(random_subgraphs))
-        print('\n')
+        entropy_values.append(isomorphism_entropy(random_subgraphs, verbose))
+        if verbose:
+            print('\n')
+        else:
+            print('', end='\r')
     return entropy_values
 
 def entropy(S):
@@ -124,10 +129,10 @@ def entropy(S):
             :math:`(H(S), N)` where :math:`N` is the number of isomorphism classes and:
 
             .. math::
-                H(S) = K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},
+                H(S) = -K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},
 
             where :math:`T = \bigsqcup_{s \in S}s` is the set of which S is a partition
-            and :math:`K(|S|) = \frac 1{\log|S|}` is the constant normalizing the entropy
+            and :math:`K(|S|) = \frac 1{\log|T|}` is the constant normalizing the entropy
             in :math:`[0, 1]`.
 
             Note the following convention: :math:`H(\emptyset) := 0`.
@@ -139,9 +144,9 @@ def entropy(S):
     for s in S:
         p = len(s)/len_T
         ret += p*np.log(p)
-    return -ret/np.log(len(S)), len(S)
+    return -ret/np.log(len_T), len(S)
 
-def isomorphism_entropy(S):
+def isomorphism_entropy(S, verbose=False):
     r'''
     Compute the entropy H(S).
 
@@ -152,5 +157,5 @@ def isomorphism_entropy(S):
         tuple:
             :math:`(H(S/\sim), |S/\sim|)` where :math:`\sim` is the isomorphism equivalence relation.
     '''
-    return entropy(extract_isomorphism_classes(S))
+    return entropy(extract_isomorphism_classes(S, verbose))
 

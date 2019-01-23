@@ -8,6 +8,7 @@ import numpy as np
 from scipy import stats
 from graph_tool import Graph, GraphView
 from graph_tool.topology import shortest_distance, label_largest_component
+from graph_tool.clustering import global_clustering
 # local
 from pynteractome.utils import sec2date, log
 from pynteractome.IO import IO
@@ -23,6 +24,10 @@ def _get_lcc_size(G):
 def _get_density(G):
     '''Return the density of graph G.'''
     return G.num_edges()  / X(G.num_vertices())
+
+def _get_clustering_coefficient(G):
+    '''Return the clustering coefficient :math:`C(G)`.'''
+    return global_clustering(G)[0]
 
 class Interactome:
     r'''
@@ -41,6 +46,8 @@ class Interactome:
             mapping a number of genes to the LCC size of the uniformly sampled subgraphs of this size
         density_cache (dict):
             mapping a number of genes to the density of the uniformly sampled subgraphs of this size
+        clustering_cache (dict):
+            mapping a number of genes to the clustering coefficient of the uniformly sampled subgraphs of this size
         distances (2D :class:`np.ndarray`):
             matrix of shortest paths from gene :math:`i` to gene :math:`j`
     '''
@@ -52,15 +59,33 @@ class Interactome:
         if path is not None:
             self.load_network(path)
         log('interactome loaded')
-        self.lcc_cache = self.density_cache = None
+        self.lcc_cache = self.density_cache = self.clustering_cache = None
+
+    def get_gene_degree(self, gene):
+        '''
+        Get the degree of a given gene within the interactome.
+
+        Args:
+            gene (int): Entrez ID of the gene
+
+        Return:
+            int:
+                `None` if the gene is not in :math:`\mathscr I` else the number of associated genes within the interactome
+        '''
+        if gene not in self.genes:
+            return None
+        vert_id = self.vert_id(gene)
+        return self.G.vertex(vert_id).out_degree()
 
     def set_namecode(self, namecode):
         assert isinstance(namecode, str)
         self.namecode = namecode
 
     def get_lcc_cache(self):
-        '''Return the cache of LCC sizes. WARNING: no copy is made.
-        Modifying the returned cache can result in undefined behaviour'''
+        '''
+        Return the cache of LCC sizes. WARNING: no copy is made.
+        Modifying the returned cache can result in undefined behaviour.
+        '''
         self.load_lcc_cache()
         return self.lcc_cache
 
@@ -69,10 +94,31 @@ class Interactome:
         if self.lcc_cache is None:
             self.lcc_cache = IO.load_lcc_cache(self)
 
+    def get_density_cache(self):
+        '''
+        Return the cache of density. WARNING: no copy is made.
+        Modifying the returned cache can result in undefined behaviour.
+        '''
+        self.load_density_cache()
+        return self.density_cache
+
     def load_density_cache(self):
         '''Load the cache of density simulations if exists, else creates an empty one.'''
         if self.density_cache is None:
             self.density_cache = IO.load_density_cache(self)
+
+    def get_clustering_cache(self):
+        '''
+        Return the cache of clustering coefficients. WARNING: no copy is made.
+        Modifying the returned cache can result in undefined behaviour.
+        '''
+        self.load_clustering_cache()
+        return self.clustering_cache
+
+    def load_clustering_cache(self):
+        '''Load the cache of clustering coefficient simulations if exists, else creates an empty one.'''
+        if self.clustering_cache is None:
+            self.clustering_cache = IO.load_clustering_cache(self)
 
     def load_network(self, path):
         '''
@@ -292,6 +338,30 @@ class Interactome:
         '''
         return _get_density(self.get_subgraph(np.asarray(genes)))
 
+    def get_random_genes_clustering(self, size):
+        r'''
+        Return the clustering coefficient of a random subgraph of given size.
+
+        Args:
+            size (int): number of genes to sample
+
+        Returns:
+            :math:`C(\mathcal G(\text{size}, G))`
+        '''
+        return _get_clustering_coefficient(self.get_random_subgraph(size))
+
+    def get_genes_clustering(self, genes):
+        r'''
+        Return the clustering coefficient of the subgraph induced by given genes.
+
+        Args:
+            genes: an iterable of genes
+
+        Returns:
+            :math:`C(\Delta_{\text{genes}}(G))`
+        '''
+        return _get_clustering_coefficient(self.get_subgraph(np.asarray(genes)))
+
     def get_lcc_score(self, genes, nb_sims, shapiro=False, shapiro_threshold=.05):
         r'''
         Get the z-score and the empirical p-value of the LCC size of given genes.
@@ -375,6 +445,26 @@ class Interactome:
                      if size not in self.lcc_cache.keys() \
                      or len(self.lcc_cache[size]) < nb_sims}
 
+    def where_clustering_cache_nb_sims_lower_than(self, sizes, nb_sims):
+        r'''
+        Get the sizes whose clustering coefficient hasn't been simulated enough.
+
+        Args:
+            sizes (iterable): iterable of int values corresponding to sizes to test
+            nb_sims (int): minimal number of simulations
+
+        Returns:
+            set:
+                set of int values corresponding to sizes that haven't been simulated enough:
+
+                .. math::
+                    \{s \in \text{sizes} : |\text{clustering_cache}[s]| < \text{nb_sims}\}
+        '''
+        self.load_clustering_cache()
+        return {size for size in sizes \
+                     if size not in self.clustering_cache.keys() \
+                     or len(self.clustering_cache[size]) < nb_sims}
+
     def fill_lcc_cache(self, nb_sims, sizes):
         r'''
         Fill the lcc_cache such that:
@@ -389,7 +479,7 @@ class Interactome:
         self.load_lcc_cache()
         a = time()
         for idx, size in enumerate(sizes):
-            self._compute_lcc_dist(nb_sims, size)
+            self._compute_lcc_distribution(nb_sims, size)
             prop = (idx+1)/len(sizes)
             log('{} out of {}  ({:3.2f}%)    eta: {}' \
                 .format(idx+1, len(sizes), 100*prop,
@@ -420,6 +510,22 @@ class Interactome:
                 end='\r')
         print('')
         self._write_density_cache()
+
+    def fill_clustering_cache(self, nb_sims, sizes):
+        r'''
+        TODO: Write doc
+        '''
+        self.load_clustering_cache()
+        a = time()
+        for idx, size in enumerate(sizes):
+            self._compute_disease_modules_clustering(nb_sims, size)
+            prop = (idx+1)/len(sizes)
+            log('{} out of {}  ({:3.2f}%)    eta: {}' \
+                .format(idx+1, len(sizes), 100*prop,
+                        sec2date((time()-a)/prop*(1-prop))),
+                end='\r')
+        print('')
+        self._write_clustering_cache()
 
     def get_subinteractome(self, genes, namecode=None):
         '''
@@ -471,7 +577,7 @@ class Interactome:
 
     ##### Private methods
 
-    def _compute_lcc_dist(self, nb_sims, size):
+    def _compute_lcc_distribution(self, nb_sims, size):
         N = nb_sims
         if size in self.lcc_cache:
             nb_sims -= len(self.lcc_cache[size])
@@ -498,12 +604,36 @@ class Interactome:
             densities[i] = self.get_random_genes_density(size)
         try:
             densities = np.concatenate((self.density_cache[size], densities))
-        except KeyError:
+        except (KeyError, ValueError):
             pass
         self.density_cache[size] = densities
+
+    def _compute_disease_modules_clustering(self, nb_sims, size):
+        N = nb_sims
+        if size in self.clustering_cache:
+            nb_sims -= len(self.clustering_cache[size])
+        if size <= 0:
+            return
+        clustering_coeffs = np.empty(nb_sims, dtype=np.float)
+        for i in range(nb_sims):
+            clustering_coeffs[i] = self.get_random_genes_clustering(size)
+        try:
+            clustering_coeffs = np.concatenate((self.clustering_cache[size], clustering_coeffs))
+        except (KeyError, ValueError):
+            pass
+        self.clustering_cache[size] = clustering_coeffs
 
     def _write_lcc_cache(self):
         IO.save_lcc_cache(self, self.lcc_cache)
 
     def _write_density_cache(self):
         IO.save_density_cache(self, self.density_cache)
+
+    def _write_clustering_cache(self):
+        IO.save_clustering_cache(self, self.clustering_cache)
+
+    def save(self):
+        r'''
+        TODO: write doc
+        '''
+        IO.save_interactome(self)

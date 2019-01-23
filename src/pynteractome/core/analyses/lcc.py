@@ -15,9 +15,11 @@ def lcc_analysis_hpo(integrator, nb_sims):
     '''
     See :func:`pynteractome.core.analysis.lcc._lcc_analysis` with HPO terms as diseases.
     '''
+    integrator.reset_propagation()
     for depth in range(integrator.get_hpo_depth()):
         log('Propagation == {}'.format(depth))
         integrator.propagate_genes(depth)
+        assert integrator.get_hpo_propagation_depth() == depth
         _lcc_analysis(integrator, nb_sims, integrator.get_hpo2genes())
         print('')
 

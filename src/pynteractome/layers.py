@@ -112,6 +112,26 @@ class LayersIntegrator:
         else:
             raise ValueError('Hpo2Genes mapping can only be \'intersection\' or \'union\'')
 
+    def get_hpo2omim(self):
+        r'''
+        Get the mapping HPO terms :math:`\rightarrow` OMIM phenotypes
+
+        Return:
+            dict:
+                the mapping HPO term :math:`\rightarrow` OMIM phenotypes
+        '''
+        return self.hpo2omim
+
+    def get_gene2omim(self):
+        r'''
+        Get the mapping Entrez gene :math:`\rightarrow` OMIM phenotypes
+
+        Return:
+            dict:
+                the mapping Entrez gene :math:`\rightarrow` OMIM phenotypes
+        '''
+        return self.gene2omim
+
     def get_gene2hpo(self, gene_mapping='intersection'):
         r'''
         Get the mapping Entrez genes :math:`\rightarrow` HPO terms
@@ -269,7 +289,7 @@ class LayersIntegrator:
                 self._propagate(term, depth)
         del self.bottom_up_hpo
         self.propagation_depth = depth
-        self.omim2hpo = reversed(self.hpo2omim)
+        self.omim2hpo = reverse_set_dict(self.hpo2omim)
         self._compute_gamma()
 
     def get_sub_interactome_ontology(self, hpo_term):
@@ -319,6 +339,7 @@ class LayersIntegrator:
         Args:
             rank_parents (int): the number of generations above the leaves to also consider
         '''
+        # TODO: implement parents scanning
         for term in self.hpo.nodes():
             if self.hpo.out_degree(term) == 0:
                 yield term
@@ -369,10 +390,11 @@ class LayersIntegrator:
         Create mapping representing :math:`\mathcal M`, :math:`\mathcal H`, :math:`\gamma_\cap` and :math:`\gamma_\cup`.
         '''
         self.propagation_depth = 0
-        self.gene2omim = self.mendeliome.get_gene2omim()
-        self.omim2gene = self.mendeliome.get_omim2gene()
-        self.omim2hpo = get_omim2hpo()
-        self.hpo2omim = reverse_set_dict(self.omim2hpo)
+        self.gene2omim = {k: v for (k, v) in self.mendeliome.get_gene2omim().items() if k in self.interactome.genes}
+        self.omim2gene = reverse_set_dict(self.gene2omim)
+        omim2hpo = get_omim2hpo()
+        self.hpo2omim = {k: v for (k, v) in reverse_set_dict(omim2hpo).items() if k in self.hpo}
+        self.omim2hpo = reverse_set_dict(self.hpo2omim)
         self._compute_gamma()
         if prop_depth > 0:
             self.propagate_genes(prop_depth)
