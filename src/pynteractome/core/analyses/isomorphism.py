@@ -1,5 +1,6 @@
 # std libs
 from time import time
+from multiprocessing import Pool, Value
 # ext libs
 import numpy as np
 from graph_tool import GraphView, Graph
@@ -98,24 +99,41 @@ def isomorphism_entropy_analysis(integrator, nb_sims):
     print('')
     IO.save_entropy(interactome, entropy_values, H)
 
-def get_entropy_values(nb_sims, nb_vertices, interactome, verbose=False):
-    entropy_values = list()
-    beg = time()
-    for i in range(nb_sims):
-        log('Running simulation {}/{}'.format(i+1, nb_sims), end='')
-        if i > 0:
-            el_time = time()-beg
-            prop = i/nb_sims
-            nb_secs = el_time/prop * (1-prop)
-            print('\t\teta: {}'.format(sec2date(nb_secs)), end='')
-        #print('')
-        random_subgraphs = [interactome.get_random_subgraph(N) for N in nb_vertices]
-        entropy_values.append(isomorphism_entropy(random_subgraphs, verbose))
-        if verbose:
-            print('\n')
-        else:
-            print('', end='\r')
+_idx = Value('i', 0)
+_beg = 0
+_nb_sims = 0
+
+def get_entropy_values(nb_sims, nb_vertices, interactome, n_jobs=4, verbose=False):
+    global _beg, _nb_sims
+    assert n_jobs > 0
+    _beg = time()
+    _nb_sims = nb_sims
+    _idx.value = 0
+    if n_jobs == 1:
+        entropy_values = list()
+        for i in range(nb_sims):
+            entropy_values.append(_process_entropy(interactome, nb_vertices, nb_sims, verbose))
+    else:
+        I2 = interactome.copy()
+        args = [(I2, nb_vertices)] * nb_sims
+        with Pool(n_jobs) as pool:
+            entropy_values = pool.starmap(_process_entropy, args)
     return entropy_values
+
+def _process_entropy(interactome, nb_vertices):
+    with _idx.get_lock():
+        _idx.value += 1
+        n = _idx.value
+    if n % 50 == 0:
+        el_time = time()-_beg
+        prop = n/_nb_sims
+        nb_secs = el_time/prop * (1-prop)
+        eta_str = '\t\teta: {}'.format(sec2date(nb_secs))
+        log('Running simulation {:3.2f}% {}'.format(100*prop, eta_str), end='')
+    random_subgraphs = [interactome.get_random_subgraph(N) for N in nb_vertices]
+    ret = isomorphism_entropy(random_subgraphs, False)
+    print('', end='\r')
+    return ret
 
 def entropy(S):
     r'''
