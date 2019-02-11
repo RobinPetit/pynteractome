@@ -12,6 +12,7 @@ Submodules
 
 .. toctree::
 
+   pynteractome.core.analyses.clustering
    pynteractome.core.analyses.density
    pynteractome.core.analyses.isomorphism
    pynteractome.core.analyses.lcc

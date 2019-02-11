@@ -85,4 +85,5 @@ def _print_sep_proportion(start_time, counter, initial_counter, nb_steps):
     nb_secs = elapsed/proportion*(1-proportion)
     log('{} out of {}  ({:.3f}% of remaining and {:.3f}% of total)\teta: {:.2f}s ({})' \
         .format(counter, nb_steps, 100*proportion,
-                100*counter/nb_steps, nb_secs, sec2date(int(nb_secs))))
+                100*counter/nb_steps, nb_secs, sec2date(int(nb_secs))),
+        end='\r')

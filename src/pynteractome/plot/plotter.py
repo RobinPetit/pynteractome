@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 # local
 from pynteractome.IO import IO
-from pynteractome.utils import extract_triangular, fmt_g, fmt_e
+from pynteractome.utils import extract_triangular, fmt_g, fmt_e, log
 from pynteractome.warning import warning
 
 #rc('text', usetex=True)  # Activate LaTeX rendering
@@ -49,6 +49,7 @@ class Plotter:
                 warning('Unknown format: "{}". Setting default format ("{}").' \
                         .format(ext, AVAILABLE_FORMATS[0]))
                 path = path[:ridx+1] + AVAILABLE_FORMATS[0]
+        log('Saving figure to path "{}"'.format(path))
         plt.savefig(path, bbox_inches='tight')
         plt.close(fig)
 
