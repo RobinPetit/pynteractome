@@ -483,6 +483,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            rank_parents (int): the number of generations above the leaves to also consider</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># TODO: implement parents scanning</span>
         <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo</span><span class="o">.</span><span class="n">out_degree</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">yield</span> <span class="n">term</span></div>
@@ -533,8 +534,8 @@
 <span class="sd">        Create mapping representing :math:`\mathcal M`, :math:`\mathcal H`, :math:`\gamma_\cap` and :math:`\gamma_\cup`.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">propagation_depth</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gene2omim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_gene2omim</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omim2gene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_omim2gene</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gene2omim</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_gene2omim</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">genes</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omim2gene</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gene2omim</span><span class="p">)</span>
         <span class="n">omim2hpo</span> <span class="o">=</span> <span class="n">get_omim2hpo</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="n">omim2hpo</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omim2hpo</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span><span class="p">)</span>
@@ -647,7 +648,8 @@
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

@@ -152,6 +152,7 @@
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
 <span class="kn">from</span> <span class="nn">graph_tool</span> <span class="k">import</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">GraphView</span>
 <span class="kn">from</span> <span class="nn">graph_tool.topology</span> <span class="k">import</span> <span class="n">shortest_distance</span><span class="p">,</span> <span class="n">label_largest_component</span>
+<span class="kn">from</span> <span class="nn">graph_tool.clustering</span> <span class="k">import</span> <span class="n">global_clustering</span>
 <span class="c1"># local</span>
 <span class="kn">from</span> <span class="nn">pynteractome.utils</span> <span class="k">import</span> <span class="n">sec2date</span><span class="p">,</span> <span class="n">log</span>
 <span class="kn">from</span> <span class="nn">pynteractome.IO</span> <span class="k">import</span> <span class="n">IO</span>
@@ -167,6 +168,10 @@
 <div class="viewcode-block" id="_get_density"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome._get_density">[docs]</a><span class="k">def</span> <span class="nf">_get_density</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Return the density of graph G.&#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="n">G</span><span class="o">.</span><span class="n">num_edges</span><span class="p">()</span>  <span class="o">/</span> <span class="n">X</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="_get_clustering_coefficient"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome._get_clustering_coefficient">[docs]</a><span class="k">def</span> <span class="nf">_get_clustering_coefficient</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Return the clustering coefficient :math:`C(G)`.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">global_clustering</span><span class="p">(</span><span class="n">G</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Interactome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome">[docs]</a><span class="k">class</span> <span class="nc">Interactome</span><span class="p">:</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
@@ -185,6 +190,8 @@
 <span class="sd">            mapping a number of genes to the LCC size of the uniformly sampled subgraphs of this size</span>
 <span class="sd">        density_cache (dict):</span>
 <span class="sd">            mapping a number of genes to the density of the uniformly sampled subgraphs of this size</span>
+<span class="sd">        clustering_cache (dict):</span>
+<span class="sd">            mapping a number of genes to the clustering coefficient of the uniformly sampled subgraphs of this size</span>
 <span class="sd">        distances (2D :class:`np.ndarray`):</span>
 <span class="sd">            matrix of shortest paths from gene :math:`i` to gene :math:`j`</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -196,7 +203,7 @@
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">load_network</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;interactome loaded&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Interactome.get_gene_degree"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_gene_degree">[docs]</a>    <span class="k">def</span> <span class="nf">get_gene_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -219,8 +226,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">namecode</span> <span class="o">=</span> <span class="n">namecode</span>
 
 <div class="viewcode-block" id="Interactome.get_lcc_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_lcc_cache">[docs]</a>    <span class="k">def</span> <span class="nf">get_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Return the cache of LCC sizes. WARNING: no copy is made.</span>
-<span class="sd">        Modifying the returned cache can result in undefined behaviour&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the cache of LCC sizes. WARNING: no copy is made.</span>
+<span class="sd">        Modifying the returned cache can result in undefined behaviour.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_lcc_cache</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span></div>
 
@@ -229,10 +238,31 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Interactome.get_density_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_density_cache">[docs]</a>    <span class="k">def</span> <span class="nf">get_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the cache of density. WARNING: no copy is made.</span>
+<span class="sd">        Modifying the returned cache can result in undefined behaviour.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_density_cache</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span></div>
+
 <div class="viewcode-block" id="Interactome.load_density_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.load_density_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Load the cache of density simulations if exists, else creates an empty one.&#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Interactome.get_clustering_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_clustering_cache">[docs]</a>    <span class="k">def</span> <span class="nf">get_clustering_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the cache of clustering coefficients. WARNING: no copy is made.</span>
+<span class="sd">        Modifying the returned cache can result in undefined behaviour.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_clustering_cache</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span></div>
+
+<div class="viewcode-block" id="Interactome.load_clustering_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.load_clustering_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_clustering_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Load the cache of clustering coefficient simulations if exists, else creates an empty one.&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_clustering_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Interactome.load_network"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.load_network">[docs]</a>    <span class="k">def</span> <span class="nf">load_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -452,6 +482,30 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">_get_density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">genes</span><span class="p">)))</span></div>
 
+<div class="viewcode-block" id="Interactome.get_random_genes_clustering"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_random_genes_clustering">[docs]</a>    <span class="k">def</span> <span class="nf">get_random_genes_clustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the clustering coefficient of a random subgraph of given size.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size (int): number of genes to sample</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :math:`C(\mathcal G(\text{size}, G))`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">_get_clustering_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_random_subgraph</span><span class="p">(</span><span class="n">size</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Interactome.get_genes_clustering"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_genes_clustering">[docs]</a>    <span class="k">def</span> <span class="nf">get_genes_clustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the clustering coefficient of the subgraph induced by given genes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            genes: an iterable of genes</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            :math:`C(\Delta_{\text{genes}}(G))`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">_get_clustering_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">genes</span><span class="p">)))</span></div>
+
 <div class="viewcode-block" id="Interactome.get_lcc_score"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_lcc_score">[docs]</a>    <span class="k">def</span> <span class="nf">get_lcc_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">shapiro</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">shapiro_threshold</span><span class="o">=.</span><span class="mi">05</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the z-score and the empirical p-value of the LCC size of given genes.</span>
@@ -535,6 +589,26 @@
                      <span class="k">if</span> <span class="n">size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> \
                      <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">nb_sims</span><span class="p">}</span></div>
 
+<div class="viewcode-block" id="Interactome.where_clustering_cache_nb_sims_lower_than"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.where_clustering_cache_nb_sims_lower_than">[docs]</a>    <span class="k">def</span> <span class="nf">where_clustering_cache_nb_sims_lower_than</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the sizes whose clustering coefficient hasn&#39;t been simulated enough.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sizes (iterable): iterable of int values corresponding to sizes to test</span>
+<span class="sd">            nb_sims (int): minimal number of simulations</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            set:</span>
+<span class="sd">                set of int values corresponding to sizes that haven&#39;t been simulated enough:</span>
+
+<span class="sd">                .. math::</span>
+<span class="sd">                    \{s \in \text{sizes} : |\text{clustering_cache}[s]| &lt; \text{nb_sims}\}</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_clustering_cache</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">size</span> <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">sizes</span> \
+                     <span class="k">if</span> <span class="n">size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> \
+                     <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">nb_sims</span><span class="p">}</span></div>
+
 <div class="viewcode-block" id="Interactome.fill_lcc_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.fill_lcc_cache">[docs]</a>    <span class="k">def</span> <span class="nf">fill_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">sizes</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Fill the lcc_cache such that:</span>
@@ -549,7 +623,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">load_lcc_cache</span><span class="p">()</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sizes</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_compute_lcc_dist</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_compute_lcc_distribution</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
             <span class="n">prop</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
             <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> out of </span><span class="si">{}</span><span class="s1">  (</span><span class="si">{:3.2f}</span><span class="s1">%)    eta: </span><span class="si">{}</span><span class="s1">&#39;</span> \
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">),</span> <span class="mi">100</span><span class="o">*</span><span class="n">prop</span><span class="p">,</span>
@@ -580,6 +654,22 @@
                 <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_density_cache</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Interactome.fill_clustering_cache"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.fill_clustering_cache">[docs]</a>    <span class="k">def</span> <span class="nf">fill_clustering_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">sizes</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        TODO: Write doc</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_clustering_cache</span><span class="p">()</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sizes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_compute_disease_modules_clustering</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> out of </span><span class="si">{}</span><span class="s1">  (</span><span class="si">{:3.2f}</span><span class="s1">%)    eta: </span><span class="si">{}</span><span class="s1">&#39;</span> \
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizes</span><span class="p">),</span> <span class="mi">100</span><span class="o">*</span><span class="n">prop</span><span class="p">,</span>
+                        <span class="n">sec2date</span><span class="p">((</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="n">prop</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prop</span><span class="p">))),</span>
+                <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_clustering_cache</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Interactome.get_subinteractome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_subinteractome">[docs]</a>    <span class="k">def</span> <span class="nf">get_subinteractome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">namecode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -631,7 +721,7 @@
 
     <span class="c1">##### Private methods</span>
 
-    <span class="k">def</span> <span class="nf">_compute_lcc_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_compute_lcc_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
         <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">:</span>
             <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
@@ -658,15 +748,39 @@
             <span class="n">densities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_genes_density</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">],</span> <span class="n">densities</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
             <span class="k">pass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">densities</span>
+
+    <span class="k">def</span> <span class="nf">_compute_disease_modules_clustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="p">:</span>
+            <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">clustering_coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
+            <span class="n">clustering_coeffs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_genes_clustering</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">clustering_coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="p">[</span><span class="n">size</span><span class="p">],</span> <span class="n">clustering_coeffs</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">=</span> <span class="n">clustering_coeffs</span>
 
     <span class="k">def</span> <span class="nf">_write_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">IO</span><span class="o">.</span><span class="n">save_lcc_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcc_cache</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_write_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">IO</span><span class="o">.</span><span class="n">save_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">)</span></div>
+        <span class="n">IO</span><span class="o">.</span><span class="n">save_density_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_clustering_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">IO</span><span class="o">.</span><span class="n">save_clustering_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Interactome.save"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        TODO: write doc</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">IO</span><span class="o">.</span><span class="n">save_interactome</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
@@ -704,7 +818,8 @@
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

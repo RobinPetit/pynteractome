@@ -25,6 +25,7 @@ Submodules
 
    pynteractome.IO
    pynteractome.config
+   pynteractome.isomorphism_counts
    pynteractome.layers
    pynteractome.utils
    pynteractome.warning

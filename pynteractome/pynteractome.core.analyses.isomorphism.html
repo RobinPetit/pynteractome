@@ -201,9 +201,9 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>S</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – a list of isomorphism classes</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><span class="math notranslate nohighlight">\((H(S), N)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of isomorphism classes and:<div class="math notranslate nohighlight">
-\[H(S) = K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},\]</div>
+\[H(S) = -K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},\]</div>
 <p>where <span class="math notranslate nohighlight">\(T = \bigsqcup_{s \in S}s\)</span> is the set of which S is a partition
-and <span class="math notranslate nohighlight">\(K(|S|) = \frac 1{\log|S|}\)</span> is the constant normalizing the entropy
+and <span class="math notranslate nohighlight">\(K(|S|) = \frac 1{\log|T|}\)</span> is the constant normalizing the entropy
 in <span class="math notranslate nohighlight">\([0, 1]\)</span>.</p>
 <p>Note the following convention: <span class="math notranslate nohighlight">\(H(\emptyset) := 0\)</span>.</p>
 </td>
@@ -216,7 +216,7 @@ in <span class="math notranslate nohighlight">\([0, 1]\)</span>.</p>
 
 <dl class="function">
 <dt id="pynteractome.core.analyses.isomorphism.extract_isomorphism_classes">
-<code class="descclassname">pynteractome.core.analyses.isomorphism.</code><code class="descname">extract_isomorphism_classes</code><span class="sig-paren">(</span><em>graphs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/isomorphism.html#extract_isomorphism_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.isomorphism.extract_isomorphism_classes" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynteractome.core.analyses.isomorphism.</code><code class="descname">extract_isomorphism_classes</code><span class="sig-paren">(</span><em>graphs</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/isomorphism.html#extract_isomorphism_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.isomorphism.extract_isomorphism_classes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the isomorphism classes among the provided graphs.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -236,7 +236,7 @@ isomorphisms are looked at.</td>
 
 <dl class="function">
 <dt id="pynteractome.core.analyses.isomorphism.isomorphism_entropy">
-<code class="descclassname">pynteractome.core.analyses.isomorphism.</code><code class="descname">isomorphism_entropy</code><span class="sig-paren">(</span><em>S</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/isomorphism.html#isomorphism_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.isomorphism.isomorphism_entropy" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynteractome.core.analyses.isomorphism.</code><code class="descname">isomorphism_entropy</code><span class="sig-paren">(</span><em>S</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/isomorphism.html#isomorphism_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.isomorphism.isomorphism_entropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the entropy H(S).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -299,7 +299,8 @@ isomorphisms are looked at.</td>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

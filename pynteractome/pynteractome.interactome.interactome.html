@@ -183,6 +183,7 @@
 <li><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – set of Entrez names of genes present in <code class="docutils literal notranslate"><span class="pre">self.G</span></code></li>
 <li><strong>lcc_cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping a number of genes to the LCC size of the uniformly sampled subgraphs of this size</li>
 <li><strong>density_cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping a number of genes to the density of the uniformly sampled subgraphs of this size</li>
+<li><strong>clustering_cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – mapping a number of genes to the clustering coefficient of the uniformly sampled subgraphs of this size</li>
 <li><strong>distances</strong> (2D <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>) – matrix of shortest paths from gene <span class="math notranslate nohighlight">\(i\)</span> to gene <span class="math notranslate nohighlight">\(j\)</span></li>
 </ul>
 </td>
@@ -213,6 +214,12 @@
 <dt id="pynteractome.interactome.interactome.Interactome.copy">
 <code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a copy of the interactome</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.fill_clustering_cache">
+<code class="descname">fill_clustering_cache</code><span class="sig-paren">(</span><em>nb_sims</em>, <em>sizes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.fill_clustering_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.fill_clustering_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: Write doc</p>
 </dd></dl>
 
 <dl class="method">
@@ -277,6 +284,13 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_clustering_cache">
+<code class="descname">get_clustering_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_clustering_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_clustering_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the cache of clustering coefficients. WARNING: no copy is made.
+Modifying the returned cache can result in undefined behaviour.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynteractome.interactome.interactome.Interactome.get_d_A">
 <code class="descname">get_d_A</code><span class="sig-paren">(</span><em>A</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_d_A"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_d_A" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the inner distance of the disease module A as defined in [1].</p>
@@ -318,6 +332,13 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_density_cache">
+<code class="descname">get_density_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_density_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_density_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the cache of density. WARNING: no copy is made.
+Modifying the returned cache can result in undefined behaviour.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynteractome.interactome.interactome.Interactome.get_gene_degree">
 <code class="descname">get_gene_degree</code><span class="sig-paren">(</span><em>gene</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_gene_degree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_gene_degree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the degree of a given gene within the interactome.</p>
@@ -330,6 +351,22 @@
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><cite>None</cite> if the gene is not in <span class="math notranslate nohighlight">\(\mathscr I\)</span> else the number of associated genes within the interactome</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_genes_clustering">
+<code class="descname">get_genes_clustering</code><span class="sig-paren">(</span><em>genes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_genes_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_genes_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the clustering coefficient of the subgraph induced by given genes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>genes</strong> – an iterable of genes</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><span class="math notranslate nohighlight">\(C(\Delta_{\text{genes}}(G))\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -371,7 +408,7 @@
 <dt id="pynteractome.interactome.interactome.Interactome.get_lcc_cache">
 <code class="descname">get_lcc_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_lcc_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_lcc_cache" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the cache of LCC sizes. WARNING: no copy is made.
-Modifying the returned cache can result in undefined behaviour</p>
+Modifying the returned cache can result in undefined behaviour.</p>
 </dd></dl>
 
 <dl class="method">
@@ -401,6 +438,22 @@ p-value &gt;= shapiro_threshold and False otherwise</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – if not enough simulations have been performed</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.get_random_genes_clustering">
+<code class="descname">get_random_genes_clustering</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_random_genes_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_random_genes_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the clustering coefficient of a random subgraph of given size.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – number of genes to sample</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><span class="math notranslate nohighlight">\(C(\mathcal G(\text{size}, G))\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -502,6 +555,12 @@ object which is then usable for analyses.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.load_clustering_cache">
+<code class="descname">load_clustering_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.load_clustering_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.load_clustering_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the cache of clustering coefficient simulations if exists, else creates an empty one.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynteractome.interactome.interactome.Interactome.load_density_cache">
 <code class="descname">load_density_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.load_density_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.load_density_cache" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the cache of density simulations if exists, else creates an empty one.</p>
@@ -525,6 +584,12 @@ object which is then usable for analyses.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.save">
+<code class="descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: write doc</p>
 </dd></dl>
 
 <dl class="method">
@@ -563,6 +628,33 @@ object which is then usable for analyses.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.7)"><strong>KeyError</strong></a> – if any of the genes is not in the interactome</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynteractome.interactome.interactome.Interactome.where_clustering_cache_nb_sims_lower_than">
+<code class="descname">where_clustering_cache_nb_sims_lower_than</code><span class="sig-paren">(</span><em>sizes</em>, <em>nb_sims</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.where_clustering_cache_nb_sims_lower_than"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.where_clustering_cache_nb_sims_lower_than" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the sizes whose clustering coefficient hasn’t been simulated enough.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sizes</strong> (<em>iterable</em>) – iterable of int values corresponding to sizes to test</li>
+<li><strong>nb_sims</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – minimal number of simulations</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>set of int values corresponding to sizes that haven’t been simulated enough:</p>
+<div class="math notranslate nohighlight">
+\[\{s \in \text{sizes} : |\text{clustering_cache}[s]| &lt; \text{nb_sims}\}\]</div>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)">set</a></p>
 </td>
 </tr>
 </tbody>
@@ -632,6 +724,12 @@ object which is then usable for analyses.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pynteractome.interactome.interactome._get_clustering_coefficient">
+<code class="descclassname">pynteractome.interactome.interactome.</code><code class="descname">_get_clustering_coefficient</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#_get_clustering_coefficient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome._get_clustering_coefficient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the clustering coefficient <span class="math notranslate nohighlight">\(C(G)\)</span>.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="pynteractome.interactome.interactome._get_density">
 <code class="descclassname">pynteractome.interactome.interactome.</code><code class="descname">_get_density</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#_get_density"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome._get_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the density of graph G.</p>
@@ -690,7 +788,8 @@ object which is then usable for analyses.</p>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

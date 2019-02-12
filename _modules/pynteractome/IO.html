@@ -327,6 +327,19 @@
         <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Saving lcc_cache]&#39;</span><span class="p">)</span>
         <span class="n">_save_to_shelf</span><span class="p">({</span><span class="s1">&#39;lcc-cache&#39;</span><span class="p">:</span> <span class="n">cache</span><span class="p">},</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_clustering_cache</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Loading clustering_cache]&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">(</span><span class="s1">&#39;clustering-cache&#39;</span><span class="p">,</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">save_clustering_cache</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">cache</span><span class="p">):</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;[Saving clustering_cache]&#39;</span><span class="p">)</span>
+        <span class="n">_save_to_shelf</span><span class="p">({</span><span class="s1">&#39;clustering-cache&#39;</span><span class="p">:</span> <span class="n">cache</span><span class="p">},</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
+
     <span class="c1">##### entropy analysis</span>
 
 <div class="viewcode-block" id="IO.save_entropy"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.save_entropy">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -412,7 +425,8 @@
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

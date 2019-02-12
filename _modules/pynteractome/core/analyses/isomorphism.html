@@ -144,6 +144,7 @@
   <h1>Source code for pynteractome.core.analyses.isomorphism</h1><div class="highlight"><pre>
 <span></span><span class="c1"># std libs</span>
 <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">Value</span>
 <span class="c1"># ext libs</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">graph_tool</span> <span class="k">import</span> <span class="n">GraphView</span><span class="p">,</span> <span class="n">Graph</span>
@@ -178,7 +179,7 @@
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="n">G</span><span class="o">.</span><span class="n">num_edges</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">isomorphism</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="extract_isomorphism_classes"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.isomorphism.html#pynteractome.core.analyses.isomorphism.extract_isomorphism_classes">[docs]</a><span class="k">def</span> <span class="nf">extract_isomorphism_classes</span><span class="p">(</span><span class="n">graphs</span><span class="p">):</span>
+<div class="viewcode-block" id="extract_isomorphism_classes"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.isomorphism.html#pynteractome.core.analyses.isomorphism.extract_isomorphism_classes">[docs]</a><span class="k">def</span> <span class="nf">extract_isomorphism_classes</span><span class="p">(</span><span class="n">graphs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Extract the isomorphism classes among the provided graphs.</span>
 
@@ -198,9 +199,10 @@
     <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">graphs</span><span class="p">))</span>
     <span class="k">while</span> <span class="n">indices</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Building new isomorphism class </span><span class="si">{}</span><span class="s1"> out of </span><span class="si">{}</span><span class="s1"> remaining    [</span><span class="si">{:3.2f}</span><span class="s1">%]     &#39;</span> \
-             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">graphs</span><span class="p">),</span> <span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">graphs</span><span class="p">))),</span>
-             <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Building new isomorphism class </span><span class="si">{}</span><span class="s1"> out of </span><span class="si">{}</span><span class="s1"> remaining    [</span><span class="si">{:3.2f}</span><span class="s1">%]     &#39;</span> \
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">graphs</span><span class="p">),</span> <span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">graphs</span><span class="p">))),</span>
+                <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">G</span> <span class="o">=</span> <span class="n">graphs</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
         <span class="n">classes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">G</span><span class="p">])</span>
@@ -238,23 +240,44 @@
         <span class="k">for</span> <span class="n">genes</span> <span class="ow">in</span> <span class="n">disease_modules_genes</span><span class="p">:</span>
             <span class="n">disease_modules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">genes</span><span class="p">))</span>
         <span class="n">H</span> <span class="o">=</span> <span class="n">isomorphism_entropy</span><span class="p">(</span><span class="n">disease_modules</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="n">IO</span><span class="o">.</span><span class="n">save_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">entropy_values</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">get_entropy_values</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">nb_vertices</span><span class="p">,</span> <span class="n">interactome</span><span class="p">):</span>
-    <span class="n">entropy_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="n">beg</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
-        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Running simulation </span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">el_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">beg</span>
-            <span class="n">prop</span> <span class="o">=</span> <span class="n">i</span><span class="o">/</span><span class="n">nb_sims</span>
-            <span class="n">nb_secs</span> <span class="o">=</span> <span class="n">el_time</span><span class="o">/</span><span class="n">prop</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prop</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">eta: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sec2date</span><span class="p">(</span><span class="n">nb_secs</span><span class="p">)),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">random_subgraphs</span> <span class="o">=</span> <span class="p">[</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_random_subgraph</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="n">nb_vertices</span><span class="p">]</span>
-        <span class="n">entropy_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">isomorphism_entropy</span><span class="p">(</span><span class="n">random_subgraphs</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">_idx</span> <span class="o">=</span> <span class="n">Value</span><span class="p">(</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">_beg</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">_nb_sims</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">get_entropy_values</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">nb_vertices</span><span class="p">,</span> <span class="n">interactome</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">_beg</span><span class="p">,</span> <span class="n">_nb_sims</span>
+    <span class="k">assert</span> <span class="n">n_jobs</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">_beg</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">_nb_sims</span> <span class="o">=</span> <span class="n">nb_sims</span>
+    <span class="n">_idx</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">entropy_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
+            <span class="n">entropy_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_process_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">nb_vertices</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">I2</span> <span class="o">=</span> <span class="n">interactome</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[(</span><span class="n">I2</span><span class="p">,</span> <span class="n">nb_vertices</span><span class="p">)]</span> <span class="o">*</span> <span class="n">nb_sims</span>
+        <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+            <span class="n">entropy_values</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">_process_entropy</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">entropy_values</span>
+
+<span class="k">def</span> <span class="nf">_process_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">nb_vertices</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">_idx</span><span class="o">.</span><span class="n">get_lock</span><span class="p">():</span>
+        <span class="n">_idx</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">_idx</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">50</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">el_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">_beg</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="n">_nb_sims</span>
+        <span class="n">nb_secs</span> <span class="o">=</span> <span class="n">el_time</span><span class="o">/</span><span class="n">prop</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prop</span><span class="p">)</span>
+        <span class="n">eta_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">eta: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sec2date</span><span class="p">(</span><span class="n">nb_secs</span><span class="p">))</span>
+        <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Running simulation </span><span class="si">{:3.2f}</span><span class="s1">% </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">prop</span><span class="p">,</span> <span class="n">eta_str</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">random_subgraphs</span> <span class="o">=</span> <span class="p">[</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_random_subgraph</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="n">nb_vertices</span><span class="p">]</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">isomorphism_entropy</span><span class="p">(</span><span class="n">random_subgraphs</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ret</span>
 
 <div class="viewcode-block" id="entropy"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.isomorphism.html#pynteractome.core.analyses.isomorphism.entropy">[docs]</a><span class="k">def</span> <span class="nf">entropy</span><span class="p">(</span><span class="n">S</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
@@ -268,10 +291,10 @@
 <span class="sd">            :math:`(H(S), N)` where :math:`N` is the number of isomorphism classes and:</span>
 
 <span class="sd">            .. math::</span>
-<span class="sd">                H(S) = K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},</span>
+<span class="sd">                H(S) = -K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},</span>
 
 <span class="sd">            where :math:`T = \bigsqcup_{s \in S}s` is the set of which S is a partition</span>
-<span class="sd">            and :math:`K(|S|) = \frac 1{\log|S|}` is the constant normalizing the entropy</span>
+<span class="sd">            and :math:`K(|S|) = \frac 1{\log|T|}` is the constant normalizing the entropy</span>
 <span class="sd">            in :math:`[0, 1]`.</span>
 
 <span class="sd">            Note the following convention: :math:`H(\emptyset) := 0`.</span>
@@ -283,9 +306,9 @@
     <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">S</span><span class="p">:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">/</span><span class="n">len_T</span>
         <span class="n">ret</span> <span class="o">+=</span> <span class="n">p</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-    <span class="k">return</span> <span class="o">-</span><span class="n">ret</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">S</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">S</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="o">-</span><span class="n">ret</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">len_T</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">S</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="isomorphism_entropy"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.isomorphism.html#pynteractome.core.analyses.isomorphism.isomorphism_entropy">[docs]</a><span class="k">def</span> <span class="nf">isomorphism_entropy</span><span class="p">(</span><span class="n">S</span><span class="p">):</span>
+<div class="viewcode-block" id="isomorphism_entropy"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.isomorphism.html#pynteractome.core.analyses.isomorphism.isomorphism_entropy">[docs]</a><span class="k">def</span> <span class="nf">isomorphism_entropy</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compute the entropy H(S).</span>
 
@@ -296,7 +319,7 @@
 <span class="sd">        tuple:</span>
 <span class="sd">            :math:`(H(S/\sim), |S/\sim|)` where :math:`\sim` is the isomorphism equivalence relation.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">entropy</span><span class="p">(</span><span class="n">extract_isomorphism_classes</span><span class="p">(</span><span class="n">S</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">entropy</span><span class="p">(</span><span class="n">extract_isomorphism_classes</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span></div>
 
 </pre></div>
 
@@ -335,7 +358,8 @@
         <script type="text/javascript" src="../../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   

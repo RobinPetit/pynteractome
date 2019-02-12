@@ -172,7 +172,7 @@
 <dl class="function">
 <dt id="pynteractome.core.analyses.topology._binom">
 <code class="descclassname">pynteractome.core.analyses.topology.</code><code class="descname">_binom</code><span class="sig-paren">(</span><em>n</em>, <em>k</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/topology.html#_binom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.topology._binom" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the binomial factor <span class="math notranslate nohighlight">\(\binom kn\)</span> defined as:</p>
+<dd><p>Get the binomial factor <span class="math notranslate nohighlight">\(\binom nk\)</span> defined as:</p>
 <div class="math notranslate nohighlight">
 \[\binom nk := \frac {n!}{k!(n-k)!}\]</div>
 </dd></dl>
@@ -181,36 +181,13 @@
 <dt id="pynteractome.core.analyses.topology._extract_all_subtopologies">
 <code class="descclassname">pynteractome.core.analyses.topology.</code><code class="descname">_extract_all_subtopologies</code><span class="sig-paren">(</span><em>interactome</em>, <em>iso_counts</em>, <em>terms_dms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/topology.html#_extract_all_subtopologies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.topology._extract_all_subtopologies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract he subtopologies of a disease module and add them to <code class="docutils literal notranslate"><span class="pre">iso_counts</span></code>.</p>
-<dl class="docutils">
-<dt>Structure of <code class="docutils literal notranslate"><span class="pre">iso_counts</span></code>:</dt>
-<dd><div class="first highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">)</span>
-<span class="go">&lt;class &#39;list&#39;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="go">&lt;class &#39;list&#39;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">type</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-<span class="go">(&lt;class &#39;graph_tool.GraphView&#39;&gt;, &lt;class &#39;dict&#39;&gt;)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arbitrary_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">arbitrary_key</span><span class="p">])</span>
-<span class="go">&lt;class &#39;list&#39;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">iso_counts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="n">arbitrary_key</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-<span class="go">&lt;class &#39;tuple&#39;&gt;</span>
-</pre></div>
-</div>
-<p>In other words, if we denote by <span class="math notranslate nohighlight">\(N\)</span> the size of <code class="docutils literal notranslate"><span class="pre">iso_counts</span></code>, <span class="math notranslate nohighlight">\(T\)</span>
-the set of HPO terms, <span class="math notranslate nohighlight">\(\mu(t)\)</span> the disease module of <span class="math notranslate nohighlight">\(t\)</span>:</p>
-<div class="last math notranslate nohighlight">
-\[\begin{split}&amp;\forall 0 \leq i \lneqq N : \forall t \in T : \text{iso_counts}[i][1][t] \subset \mathcal P_{\text{size}}(\mu(t)) \\
-&amp;\qquad\qquad \text{ and } \\
-&amp;\forall \sigma \in \text{iso_counts}[i][1][t] : \Delta_\sigma(\mathcal I) \cong \text{iso_counts}[i][0]\end{split}\]</div>
-</dd>
-</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>interactome</strong> (<a class="reference internal" href="pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a>) – the interactome</li>
-<li><strong>iso_counts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – the container of isomorphisms relations. Structure is detailed in the <em>Structure</em> subsection above.</li>
+<li><strong>iso_counts</strong> (<a class="reference internal" href="pynteractome.isomorphism_counts.html#pynteractome.isomorphism_counts.IsomorphismCounts" title="pynteractome.isomorphism_counts.IsomorphismCounts"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsomorphismCounts</span></code></a>) – the container of isomorphisms relations.</li>
 <li><strong>terms_dms</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – TODO</li>
 </ul>
 </td>
@@ -231,7 +208,7 @@ the set of HPO terms, <span class="math notranslate nohighlight">\(\mu(t)\)</spa
 <li><strong>integrator</strong> (<a class="reference internal" href="pynteractome.layers.html#pynteractome.layers.LayersIntegrator" title="pynteractome.layers.LayersIntegrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayersIntegrator</span></code></a>) – the integrator</li>
 <li><strong>all_terms</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – the HPO terms to extract the disease modules of</li>
 <li><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – minimum size of the disease modules</li>
-<li><strong>iso_counts</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – see <a class="reference internal" href="#pynteractome.core.analyses.topology._extract_all_subtopologies" title="pynteractome.core.analyses.topology._extract_all_subtopologies"><code class="xref py py-func docutils literal notranslate"><span class="pre">_extract_all_subtopologies()</span></code></a> for details</li>
+<li><strong>iso_counts</strong> (<a class="reference internal" href="pynteractome.isomorphism_counts.html#pynteractome.isomorphism_counts.IsomorphismCounts" title="pynteractome.isomorphism_counts.IsomorphismCounts"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsomorphismCounts</span></code></a>) – TODO</li>
 </ul>
 </td>
 </tr>
@@ -254,6 +231,22 @@ DMs s.t. <code class="docutils literal notranslate"><span class="pre">all_dms[i]
 <dt id="pynteractome.core.analyses.topology.pathogenic_topology_analysis">
 <code class="descclassname">pynteractome.core.analyses.topology.</code><code class="descname">pathogenic_topology_analysis</code><span class="sig-paren">(</span><em>integrator</em>, <em>size=4</em>, <em>n_jobs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/topology.html#pathogenic_topology_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.topology.pathogenic_topology_analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform analysis of common subtopologies within disease modules.</p>
+<p><strong>Details</strong></p>
+<p>Consider a graph <span class="math notranslate nohighlight">\(\mathscr G\)</span> on <span class="math notranslate nohighlight">\(\mathcal G\)</span> (e.g. <span class="math notranslate nohighlight">\(\mathscr I\)</span> or <span class="math notranslate nohighlight">\(\mathscr M\)</span>).
+Let <span class="math notranslate nohighlight">\(\Lambda_\alpha\)</span> be the set of couples <span class="math notranslate nohighlight">\((t, \sigma)\)</span> where <span class="math notranslate nohighlight">\(t \in \mathcal T\)</span> and
+<span class="math notranslate nohighlight">\(\sigma \in \mathcal P_\alpha(\mu(t))\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\Lambda_\alpha := \bigcup_{t \in \mathcal T}\left\{(t, \sigma)\right\}_{\sigma \in \mathcal P_\alpha(\mu(t)}.\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\Gamma(\alpha) := \mathcal G(\alpha)/\cong\)</span> be the set of non-isomorphic graphs with <span class="math notranslate nohighlight">\(\alpha\)</span>
+vertices, and define the canonical mapping:</p>
+<div class="math notranslate nohighlight">
+\[\Xi_\alpha : \mathcal P_\alpha(\mathcal G) \to \Gamma(\alpha) : \sigma = \{g_i\}_{i=1}^n \mapsto [\Delta_\sigma(\mathscr G)].\]</div>
+<p>Let <span class="math notranslate nohighlight">\(\sim_\alpha\)</span> be an equivalence relation onto <span class="math notranslate nohighlight">\(\Lambda_\alpha\)</span> defined by:</p>
+<div class="math notranslate nohighlight">
+\[(t, \sigma) \sim_\alpha (t', \sigma') \; \iff \; \Xi_\alpha(\sigma) \cong \Xi_\alpha(\sigma').\]</div>
+<p>Finally consider <span class="math notranslate nohighlight">\(\Omega_\alpha\)</span>, the canonical extension of <span class="math notranslate nohighlight">\(\Lambda_\alpha/\sim_\alpha\)</span> defined by:</p>
+<div class="math notranslate nohighlight">
+\[\Omega_\alpha := \left\{(\Xi_\alpha(\sigma), [(t, \sigma)])\right\}_{[(t, \sigma)] \in \Lambda_\alpha/\sim_\alpha}.\]</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -315,7 +308,8 @@ DMs s.t. <code class="docutils literal notranslate"><span class="pre">all_dms[i]
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
 
   
