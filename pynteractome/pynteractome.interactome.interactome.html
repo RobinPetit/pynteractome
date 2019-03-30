@@ -358,7 +358,7 @@ Modifying the returned cache can result in undefined behaviour.</p>
 
 <dl class="method">
 <dt id="pynteractome.interactome.interactome.Interactome.get_genes_clustering">
-<code class="descname">get_genes_clustering</code><span class="sig-paren">(</span><em>genes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_genes_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_genes_clustering" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_genes_clustering</code><span class="sig-paren">(</span><em>genes</em>, <em>entrez=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_genes_clustering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_genes_clustering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the clustering coefficient of the subgraph induced by given genes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -531,16 +531,38 @@ and <cite>False</cite> if it is a set of vertex IDs.</li>
 
 <dl class="method">
 <dt id="pynteractome.interactome.interactome.Interactome.get_subinteractome">
-<code class="descname">get_subinteractome</code><span class="sig-paren">(</span><em>genes</em>, <em>namecode=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_subinteractome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_subinteractome" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_subinteractome</code><span class="sig-paren">(</span><em>genes</em>, <em>neighbourhood='none'</em>, <em>namecode=None</em>, <em>neighb_count=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/interactome/interactome.html#Interactome.get_subinteractome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.interactome.interactome.Interactome.get_subinteractome" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract a subinteractome and return it as an <a class="reference internal" href="#pynteractome.interactome.interactome.Interactome" title="pynteractome.interactome.interactome.Interactome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interactome</span></code></a>
 object which is then usable for analyses.</p>
+<p>For <span class="math notranslate nohighlight">\(H\)</span> a subgraph of <span class="math notranslate nohighlight">\(G\)</span>, the first neighbourhood of <span class="math notranslate nohighlight">\(H\)</span>
+within <span class="math notranslate nohighlight">\(G\)</span> is defined by the graph:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal N_G(H) = \Delta_{\mathcal N_G(V(H))}(G),\]</div>
+<p>where for every <span class="math notranslate nohighlight">\(W \subset V(G)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal N_G(W) = W \cup \left\{v \in V(G) : \exists w \in V(H) \text{ s.t. } \{v, w\} \in E(G)\right\} \subset V(G).\]</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>genes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – the gene set inducing the subinteractome</li>
+<li><strong>neighbourhood</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>one of the following: <cite>‘none’</cite>, <cite>‘first’</cite>, <cite>‘first-joined’</cite> where:</p>
+<ul>
+<li><cite>’none’</cite> for no neighbouring gene</li>
+<li><cite>’first’</cite> for the first neighbourhood <span class="math notranslate nohighlight">\(\mathcal N_G(H)\)</span> with <span class="math notranslate nohighlight">\(G\)</span> being <cite>self</cite> and <span class="math notranslate nohighlight">\(H\)</span> being <cite>genes</cite></li>
+<li><cite>’first-joined’</cite> for the first neighbourhood with restriction that every neighbourhood gene must be associated to at least ``</li>
+</ul>
+</li>
 <li><strong>namecode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the namecode to be given to the subinteractome</li>
+<li><strong>neighb_count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>(only if <cite>neighbourhood == ‘first-joined’</cite>) determines the minimum number of adjacent genes to be extracted:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal N_G^{(k)}(H) := \Delta_{\mathcal N_G^{(k)}}(H),\]</div>
+<p>with:</p>
+<div class="math notranslate nohighlight">
+\[\mathcal N_G^{(k)}(W) := W \cup \left\{v \in V(G) : \exists \{v_1, \ldots, v_k\} \in \binom {V(H)}k \text{ s.t. } \{v, v_i\} \in E(G)
+    \quad (i=1, \ldots, k)\right\} \subset V(G).\]</div>
+</li>
 </ul>
 </td>
 </tr>

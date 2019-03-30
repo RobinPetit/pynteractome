@@ -201,9 +201,9 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>S</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – a list of isomorphism classes</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><span class="math notranslate nohighlight">\((H(S), N)\)</span> where <span class="math notranslate nohighlight">\(N\)</span> is the number of isomorphism classes and:<div class="math notranslate nohighlight">
-\[H(S) = -K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},\]</div>
+\[H(S) = -K(S)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},\]</div>
 <p>where <span class="math notranslate nohighlight">\(T = \bigsqcup_{s \in S}s\)</span> is the set of which S is a partition
-and <span class="math notranslate nohighlight">\(K(|S|) = \frac 1{\log|T|}\)</span> is the constant normalizing the entropy
+and <span class="math notranslate nohighlight">\(K(S) = \frac 1{\log|T|}\)</span> is the constant normalizing the entropy
 in <span class="math notranslate nohighlight">\([0, 1]\)</span>.</p>
 <p>Note the following convention: <span class="math notranslate nohighlight">\(H(\emptyset) := 0\)</span>.</p>
 </td>

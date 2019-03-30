@@ -151,7 +151,6 @@
 <span class="kn">import</span> <span class="nn">graph_tool</span> <span class="k">as</span> <span class="nn">gt</span>
 <span class="kn">import</span> <span class="nn">graph_tool.draw</span> <span class="k">as</span> <span class="nn">gt_draw</span>
 <span class="c1"># pynteractome</span>
-<span class="kn">from</span> <span class="nn">pynteractome.core.analyses.isomorphism</span> <span class="k">import</span> <span class="n">extract_isomorphism_classes</span><span class="p">,</span> <span class="n">are_isomorphic</span>
 <span class="kn">from</span> <span class="nn">pynteractome.isomorphism_counts</span> <span class="k">import</span> <span class="n">IsomorphismCounts</span>
 <span class="kn">from</span> <span class="nn">pynteractome.IO</span> <span class="k">import</span> <span class="n">IO</span>
 <span class="kn">from</span> <span class="nn">pynteractome.utils</span> <span class="k">import</span> <span class="n">sec2date</span><span class="p">,</span> <span class="n">log</span>
@@ -173,7 +172,7 @@
 
 <div class="viewcode-block" id="pathogenic_topology_analysis"><a class="viewcode-back" href="../../../../pynteractome/pynteractome.core.analyses.topology.html#pynteractome.core.analyses.topology.pathogenic_topology_analysis">[docs]</a><span class="k">def</span> <span class="nf">pathogenic_topology_analysis</span><span class="p">(</span><span class="n">integrator</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Perform analysis of common subtopologies within disease modules.</span>
+<span class="sd">    Perform analysis of common subtopologies within disease modules. Compute :math:`\Omega_\alpha` as defined below for :math:`\alpha` = ``size``.</span>
 
 <span class="sd">    **Details**</span>
 
@@ -193,7 +192,7 @@
 <span class="sd">    Let :math:`\sim_\alpha` be an equivalence relation onto :math:`\Lambda_\alpha` defined by:</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        (t, \sigma) \sim_\alpha (t&#39;, \sigma&#39;) \; \iff \; \Xi_\alpha(\sigma) \cong \Xi_\alpha(\sigma&#39;).</span>
+<span class="sd">        (t, \sigma) \sim_\alpha (t&#39;, \sigma&#39;) \; \iff \; \Xi_\alpha(\sigma) = \Xi_\alpha(\sigma&#39;) \qquad (\text{i.e. }\Delta_\sigma(\mathscr G) \cong \Delta_{\sigma&#39;}(\mathscr G)).</span>
 
 <span class="sd">    Finally consider :math:`\Omega_\alpha`, the canonical extension of :math:`\Lambda_\alpha/\sim_\alpha` defined by:</span>
 

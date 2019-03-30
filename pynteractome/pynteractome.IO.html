@@ -86,6 +86,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="pynteractome.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">pynteractome.IO module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.config.html">pynteractome.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynteractome.isomorphism_counts.html">pynteractome.isomorphism_counts module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.layers.html">pynteractome.layers module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.utils.html">pynteractome.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynteractome.warning.html">pynteractome.warning module</a></li>
@@ -172,8 +173,45 @@
 <p>Interface class whose goal is to provide store/fetch instructions
 for the rest of the code.</p>
 <dl class="staticmethod">
+<dt id="pynteractome.IO.IO.load_entropy">
+<em class="property">static </em><code class="descname">load_entropy</code><span class="sig-paren">(</span><em>interactome</em>, <em>gene_mapping</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/IO.html#IO.load_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.IO.IO.load_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>…</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pynteractome.IO.IO.load_sep">
+<em class="property">static </em><code class="descname">load_sep</code><span class="sig-paren">(</span><em>interactome</em>, <em>N</em>, <em>prop_depth=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/IO.html#IO.load_sep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.IO.IO.load_sep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the progression in separation for separation analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>N</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – only used in case no such data is found</li>
+<li><strong>prop_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – propagation depth of the HPO terms -&gt; Entrez genes associations.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>separations</strong> (2D <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>)</li>
+<li><strong>Cs</strong> (2D <code class="xref py py-class docutils literal notranslate"><span class="pre">np.ndarray</span></code>)</li>
+<li><strong>i</strong> (int)</li>
+<li><strong>j</strong> (int)</li>
+</ul>
+<p>See <a class="reference internal" href="#pynteractome.IO.IO.save_sep" title="pynteractome.IO.IO.save_sep"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_sep</span></code></a> for meaning of return values.</p>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
 <dt id="pynteractome.IO.IO.save_entropy">
-<em class="property">static </em><code class="descname">save_entropy</code><span class="sig-paren">(</span><em>interactome</em>, <em>hs</em>, <em>H=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/IO.html#IO.save_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.IO.IO.save_entropy" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">save_entropy</code><span class="sig-paren">(</span><em>interactome</em>, <em>gene_mapping</em>, <em>hs</em>, <em>H=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/IO.html#IO.save_entropy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.IO.IO.save_entropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the isomorphism entropy computed on random subgraphs. The
 entropy of the disease modules is also saved if it is not None.</p>
 <table class="docutils field-list" frame="void" rules="none">

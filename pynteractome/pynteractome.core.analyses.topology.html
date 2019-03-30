@@ -230,7 +230,7 @@ DMs s.t. <code class="docutils literal notranslate"><span class="pre">all_dms[i]
 <dl class="function">
 <dt id="pynteractome.core.analyses.topology.pathogenic_topology_analysis">
 <code class="descclassname">pynteractome.core.analyses.topology.</code><code class="descname">pathogenic_topology_analysis</code><span class="sig-paren">(</span><em>integrator</em>, <em>size=4</em>, <em>n_jobs=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pynteractome/core/analyses/topology.html#pathogenic_topology_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynteractome.core.analyses.topology.pathogenic_topology_analysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform analysis of common subtopologies within disease modules.</p>
+<dd><p>Perform analysis of common subtopologies within disease modules. Compute <span class="math notranslate nohighlight">\(\Omega_\alpha\)</span> as defined below for <span class="math notranslate nohighlight">\(\alpha\)</span> = <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p>
 <p><strong>Details</strong></p>
 <p>Consider a graph <span class="math notranslate nohighlight">\(\mathscr G\)</span> on <span class="math notranslate nohighlight">\(\mathcal G\)</span> (e.g. <span class="math notranslate nohighlight">\(\mathscr I\)</span> or <span class="math notranslate nohighlight">\(\mathscr M\)</span>).
 Let <span class="math notranslate nohighlight">\(\Lambda_\alpha\)</span> be the set of couples <span class="math notranslate nohighlight">\((t, \sigma)\)</span> where <span class="math notranslate nohighlight">\(t \in \mathcal T\)</span> and
@@ -243,7 +243,7 @@ vertices, and define the canonical mapping:</p>
 \[\Xi_\alpha : \mathcal P_\alpha(\mathcal G) \to \Gamma(\alpha) : \sigma = \{g_i\}_{i=1}^n \mapsto [\Delta_\sigma(\mathscr G)].\]</div>
 <p>Let <span class="math notranslate nohighlight">\(\sim_\alpha\)</span> be an equivalence relation onto <span class="math notranslate nohighlight">\(\Lambda_\alpha\)</span> defined by:</p>
 <div class="math notranslate nohighlight">
-\[(t, \sigma) \sim_\alpha (t', \sigma') \; \iff \; \Xi_\alpha(\sigma) \cong \Xi_\alpha(\sigma').\]</div>
+\[(t, \sigma) \sim_\alpha (t', \sigma') \; \iff \; \Xi_\alpha(\sigma) = \Xi_\alpha(\sigma') \qquad (\text{i.e. }\Delta_\sigma(\mathscr G) \cong \Delta_{\sigma'}(\mathscr G)).\]</div>
 <p>Finally consider <span class="math notranslate nohighlight">\(\Omega_\alpha\)</span>, the canonical extension of <span class="math notranslate nohighlight">\(\Lambda_\alpha/\sim_\alpha\)</span> defined by:</p>
 <div class="math notranslate nohighlight">
 \[\Omega_\alpha := \left\{(\Xi_\alpha(\sigma), [(t, \sigma)])\right\}_{[(t, \sigma)] \in \Lambda_\alpha/\sim_\alpha}.\]</div>

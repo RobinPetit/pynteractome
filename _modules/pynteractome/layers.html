@@ -230,6 +230,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hpo_terms</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">hpo</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">propagation_depth</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span> <span class="o">=</span> <span class="n">mendeliome</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma_union</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma_union_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter_prime</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omim2hpo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bottom_up_hpo</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_compute_hpo_by_order</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_compute_hpo_by_height</span><span class="p">()</span>
@@ -328,7 +331,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terms_by_order</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.get_term_depth"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_term_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_term_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the depth (order) of a given term :math:`t` in the hierarchy.</span>
 
 <span class="sd">        Args:</span>
@@ -342,7 +345,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">depths</span><span class="p">[</span><span class="n">term</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.get_term_height"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_term_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_term_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the height of a given term :math:`t` in the hierarchy.</span>
 
 <span class="sd">        Args:</span>
@@ -353,10 +356,10 @@
 <span class="sd">            int:</span>
 <span class="sd">                :math:`\lambda(t)`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">heights</span><span class="p">[</span><span class="n">t</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">heights</span><span class="p">[</span><span class="n">term</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.get_disease_modules"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_disease_modules">[docs]</a>    <span class="k">def</span> <span class="nf">get_disease_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get all the disease modules. See :meth:`get_disease_module`.</span>
 
 <span class="sd">        Args:</span>
@@ -371,7 +374,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_disease_module</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">hpo2genes</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.get_disease_module"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_disease_module">[docs]</a>    <span class="k">def</span> <span class="nf">get_disease_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get all the disease module of given HPO term.</span>
 
 <span class="sd">        Args:</span>
@@ -390,7 +393,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.get_associated_genes"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_associated_genes">[docs]</a>    <span class="k">def</span> <span class="nf">get_associated_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the genes associated to given HPO term.</span>
 
 <span class="sd">        Args:</span>
@@ -421,6 +424,9 @@
 <span class="sd">            depth (int):</span>
 <span class="sd">                the number of individual up-propagation to perform</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Propagating genes&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">depth</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hpo_depth</span><span class="p">()</span>
         <span class="n">new_depth</span> <span class="o">=</span> <span class="n">depth</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagation_depth</span>
         <span class="k">if</span> <span class="n">new_depth</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">log</span><span class="p">(</span><span class="s1">&#39;Unable to up-propagate by </span><span class="si">{}</span><span class="s1"> since already propagated of </span><span class="si">{}</span><span class="s1">&#39;</span> \
@@ -489,7 +495,7 @@
                 <span class="k">yield</span> <span class="n">term</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.get_nb_associated_genes"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.get_nb_associated_genes">[docs]</a>    <span class="k">def</span> <span class="nf">get_nb_associated_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="o">=</span><span class="s1">&#39;intersection&#39;</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the number of genes associated to every HPO term.</span>
 
 <span class="sd">        Args:</span>
@@ -516,7 +522,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">nb_genes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator.extract_mendeliome_from_interactome"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator.extract_mendeliome_from_interactome">[docs]</a>    <span class="k">def</span> <span class="nf">extract_mendeliome_from_interactome</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the sub-interactome induced by taking only the genes of the Mendeliome</span>
 <span class="sd">        (associated to at least one phenotype)</span>
 
@@ -525,23 +531,24 @@
 <span class="sd">                :math:`\Delta_{\mathcal M}(\mathcal I)`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_all_genes</span><span class="p">()</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">genes</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_subinteractome</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="s1">&#39;mendeliome&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">get_subinteractome</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="n">namecode</span><span class="o">=</span><span class="s1">&#39;mendeliome&#39;</span><span class="p">)</span></div>
 
     <span class="c1">##### Private methods</span>
 
 <div class="viewcode-block" id="LayersIntegrator._init_mappings"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator._init_mappings">[docs]</a>    <span class="k">def</span> <span class="nf">_init_mappings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop_depth</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Create mapping representing :math:`\mathcal M`, :math:`\mathcal H`, :math:`\gamma_\cap` and :math:`\gamma_\cup`.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">propagation_depth</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gene2omim</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_gene2omim</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">genes</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gene2omim</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mendeliome</span><span class="o">.</span><span class="n">get_gene2omim</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome</span><span class="o">.</span><span class="n">genes</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omim2gene</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gene2omim</span><span class="p">)</span>
         <span class="n">omim2hpo</span> <span class="o">=</span> <span class="n">get_omim2hpo</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="n">omim2hpo</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="n">omim2hpo</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hpo</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omim2hpo</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hpo2omim</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_gamma</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">prop_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">propagate_genes</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">propagate_genes</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_compute_gamma</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator._compute_hpo_by_order"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator._compute_hpo_by_order">[docs]</a>    <span class="k">def</span> <span class="nf">_compute_hpo_by_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -575,7 +582,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">terms_by_height</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sub_set</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LayersIntegrator._get_term_height"><a class="viewcode-back" href="../../pynteractome/pynteractome.layers.html#pynteractome.layers.LayersIntegrator._get_term_height">[docs]</a>    <span class="k">def</span> <span class="nf">_get_term_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the height :math:`\lambda(t)` and store it in `self.heights`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">heights</span><span class="p">:</span>
@@ -608,6 +615,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">gamma_union</span><span class="p">[</span><span class="n">term</span><span class="p">]</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">omim2gene</span><span class="p">[</span><span class="n">phenotype</span><span class="p">]</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter</span><span class="p">[</span><span class="n">term</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omim2gene</span><span class="p">[</span><span class="n">phenotype</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="p">[]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter_prime</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma_inter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma_union_prime</span> <span class="o">=</span> <span class="n">reverse_set_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma_union</span><span class="p">)</span></div>
 

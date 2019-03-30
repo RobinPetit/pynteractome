@@ -203,14 +203,32 @@
 
     <span class="c1">##### separation analysis</span>
 
-    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="IO.load_sep"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.load_sep">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">load_sep</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">prop_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Load the progression in separation for separation analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            N (int):</span>
+<span class="sd">                only used in case no such data is found</span>
+<span class="sd">            prop_depth (int):</span>
+<span class="sd">                propagation depth of the HPO terms -&gt; Entrez genes associations.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            tuple:</span>
+<span class="sd">                - **separations** (2D :class:`np.ndarray`)</span>
+<span class="sd">                - **Cs** (2D :class:`np.ndarray`)</span>
+<span class="sd">                - **i** (int)</span>
+<span class="sd">                - **j** (int)</span>
+
+<span class="sd">                See :func:`save_sep &lt;pynteractome.IO.IO.save_sep&gt;` for meaning of return values.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">__sep_key</span><span class="p">(</span><span class="n">prop_depth</span><span class="p">),</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="n">separations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
             <span class="n">Cs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="IO.save_sep"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.save_sep">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">save_sep</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">separations</span><span class="p">,</span> <span class="n">Cs</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">prop_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -249,7 +267,7 @@
     <span class="k">def</span> <span class="nf">load_interactome</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">create_if_not_found</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">namecode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">namecode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_interactome_by_namecode</span><span class="p">(</span><span class="n">namecode</span><span class="p">)</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">load_interactome_by_namecode</span><span class="p">(</span><span class="n">namecode</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="kc">None</span>
@@ -273,6 +291,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">save_interactome</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;Saving interactome&#39;</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_storage_dir_or_die</span><span class="p">()</span> <span class="o">+</span> <span class="n">IO</span><span class="o">.</span><span class="n">hash_interactome_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.pickle&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
@@ -343,7 +362,7 @@
     <span class="c1">##### entropy analysis</span>
 
 <div class="viewcode-block" id="IO.save_entropy"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.save_entropy">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">save_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">hs</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">save_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="p">,</span> <span class="n">hs</span><span class="p">,</span> <span class="n">H</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Save the isomorphism entropy computed on random subgraphs. The</span>
 <span class="sd">        entropy of the disease modules is also saved if it is not None.</span>
 
@@ -353,23 +372,35 @@
 <span class="sd">            H (float):</span>
 <span class="sd">                The entropy of the disease modules</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">H_key</span> <span class="o">=</span> <span class="s1">&#39;H-&#39;</span> <span class="o">+</span> <span class="n">gene_mapping</span>
+        <span class="n">hs_key</span> <span class="o">=</span> <span class="s1">&#39;hs-&#39;</span> <span class="o">+</span> <span class="n">gene_mapping</span>
         <span class="k">with</span> <span class="n">shelve</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">shelf</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">H</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;H&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shelf</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">H</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">H_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shelf</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Entropy of disease modules hasn</span><span class="se">\&#39;</span><span class="s1">t been computed yet.&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;hs&#39;</span> <span class="ow">in</span> <span class="n">shelf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">hs</span> <span class="o">=</span> <span class="n">shelf</span><span class="p">[</span><span class="s1">&#39;hs&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">hs</span>
-            <span class="n">shelf</span><span class="p">[</span><span class="s1">&#39;hs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hs</span>
+            <span class="k">if</span> <span class="n">hs_key</span> <span class="ow">in</span> <span class="n">shelf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">hs</span> <span class="o">=</span> <span class="n">shelf</span><span class="p">[</span><span class="n">hs_key</span><span class="p">]</span> <span class="o">+</span> <span class="n">hs</span>
+            <span class="n">shelf</span><span class="p">[</span><span class="n">hs_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">hs</span>
             <span class="k">if</span> <span class="n">H</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">shelf</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span></div>
+                <span class="n">shelf</span><span class="p">[</span><span class="n">H_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">H</span></div>
+
+<div class="viewcode-block" id="IO.load_entropy"><a class="viewcode-back" href="../../pynteractome/pynteractome.IO.html#pynteractome.IO.IO.load_entropy">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;...</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hs-&#39;</span><span class="o">+</span><span class="n">gene_mapping</span><span class="p">,</span> <span class="s1">&#39;H-&#39;</span><span class="o">+</span><span class="n">gene_mapping</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">([</span><span class="s1">&#39;hs&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_nb_sims_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">is_isomorphism_entropy_computed</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">load_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">_get_from_shelf</span><span class="p">(</span><span class="s1">&#39;H-&#39;</span><span class="o">+</span><span class="n">gene_mapping</span><span class="p">,</span> <span class="n">IO</span><span class="o">.</span><span class="n">get_shelf_path</span><span class="p">(</span><span class="n">interactome</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_nb_sims_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">IO</span><span class="o">.</span><span class="n">load_entropy</span><span class="p">(</span><span class="n">interactome</span><span class="p">,</span> <span class="n">gene_mapping</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span>
 

@@ -492,9 +492,11 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            :math:`C(\mathcal G(\text{size}, G))`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="n">_get_clustering_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_random_subgraph</span><span class="p">(</span><span class="n">size</span><span class="p">))</span></div>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_random_subgraph</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">_get_clustering_coefficient</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="Interactome.get_genes_clustering"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_genes_clustering">[docs]</a>    <span class="k">def</span> <span class="nf">get_genes_clustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+<div class="viewcode-block" id="Interactome.get_genes_clustering"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_genes_clustering">[docs]</a>    <span class="k">def</span> <span class="nf">get_genes_clustering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">entrez</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Return the clustering coefficient of the subgraph induced by given genes.</span>
 
@@ -504,6 +506,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            :math:`C(\Delta_{\text{genes}}(G))`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">entrez</span><span class="p">:</span>
+            <span class="n">genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verts_id</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_get_clustering_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">genes</span><span class="p">)))</span></div>
 
 <div class="viewcode-block" id="Interactome.get_lcc_score"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_lcc_score">[docs]</a>    <span class="k">def</span> <span class="nf">get_lcc_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">nb_sims</span><span class="p">,</span> <span class="n">shapiro</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">shapiro_threshold</span><span class="o">=.</span><span class="mi">05</span><span class="p">):</span>
@@ -545,7 +549,7 @@
         <span class="n">z</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">std</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">float</span><span class="p">((</span><span class="n">genes_lcc</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span><span class="p">)</span>
         <span class="n">empirical_p</span> <span class="o">=</span> <span class="p">(</span><span class="n">lccs</span> <span class="o">&gt;=</span> <span class="n">genes_lcc</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">lccs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">shapiro</span><span class="p">:</span>
-            <span class="n">is_normal</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">shapiro</span><span class="p">(</span><span class="n">lccs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">shapiro_threshold</span>
+            <span class="n">is_normal</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">shapiro</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">lccs</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5000</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">shapiro_threshold</span>
             <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">empirical_p</span><span class="p">,</span> <span class="n">is_normal</span>
         <span class="k">return</span> <span class="n">z</span><span class="p">,</span> <span class="n">empirical_p</span></div>
 
@@ -671,19 +675,47 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_clustering_cache</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Interactome.get_subinteractome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_subinteractome">[docs]</a>    <span class="k">def</span> <span class="nf">get_subinteractome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">namecode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Interactome.get_subinteractome"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.get_subinteractome">[docs]</a>    <span class="k">def</span> <span class="nf">get_subinteractome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span>  <span class="n">neighbourhood</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">namecode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neighb_count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Extract a subinteractome and return it as an :class:`Interactome`</span>
 <span class="sd">        object which is then usable for analyses.</span>
 
+<span class="sd">        For :math:`H` a subgraph of :math:`G`, the first neighbourhood of :math:`H`</span>
+<span class="sd">        within :math:`G` is defined by the graph:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \mathcal N_G(H) = \Delta_{\mathcal N_G(V(H))}(G),</span>
+
+<span class="sd">        where for every :math:`W \subset V(G)`:</span>
+
+<span class="sd">        .. math::</span>
+<span class="sd">            \mathcal N_G(W) = W \cup \left\{v \in V(G) : \exists w \in V(H) \text{ s.t. } \{v, w\} \in E(G)\right\} \subset V(G).</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            genes (set): the gene set inducing the subinteractome</span>
+<span class="sd">            neighbourhood (str):</span>
+<span class="sd">                one of the following: `&#39;none&#39;`, `&#39;first&#39;`, `&#39;first-joined&#39;` where:</span>
+
+<span class="sd">                * `&#39;none&#39;` for no neighbouring gene</span>
+<span class="sd">                * `&#39;first&#39;` for the first neighbourhood :math:`\mathcal N_G(H)` with :math:`G` being `self` and :math:`H` being `genes`</span>
+<span class="sd">                * `&#39;first-joined&#39;` for the first neighbourhood with restriction that every neighbourhood gene must be associated to at least ``</span>
 <span class="sd">            namecode (str): the namecode to be given to the subinteractome</span>
+<span class="sd">            neighb_count (int): (only if `neighbourhood == &#39;first-joined&#39;`) determines the minimum number of adjacent genes to be extracted:</span>
+
+<span class="sd">                .. math::</span>
+<span class="sd">                    \mathcal N_G^{(k)}(H) := \Delta_{\mathcal N_G^{(k)}}(H),</span>
+
+<span class="sd">                with:</span>
+
+<span class="sd">                .. math::</span>
+<span class="sd">                    \mathcal N_G^{(k)}(W) := W \cup \left\{v \in V(G) : \exists \{v_1, \ldots, v_k\} \in \binom {V(H)}k \text{ s.t. } \{v, v_i\} \in E(G)</span>
+<span class="sd">                        \quad (i=1, \ldots, k)\right\} \subset V(G).</span>
 
 <span class="sd">        Return:</span>
 <span class="sd">            :class:`Interactome`:</span>
 <span class="sd">                the subinteractome</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1">#TODO: implement neighbourhood extraction</span>
         <span class="n">genes</span> <span class="o">&amp;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes</span>
         <span class="n">genes_hash</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">genes</span><span class="p">)))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">+</span> <span class="n">genes_hash</span>
@@ -693,23 +725,53 @@
         <span class="n">ret</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">namecode</span> <span class="o">=</span> <span class="n">namecode</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">interactome_path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="n">genes_l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
-        <span class="n">genes_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verts_id</span><span class="p">(</span><span class="n">genes_l</span><span class="p">)</span>
-        <span class="n">vorder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">new_vp</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">genes_idx</span><span class="p">):</span>
-            <span class="n">vorder</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
-        <span class="n">ret</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vorder</span><span class="o">=</span><span class="n">vorder</span><span class="p">)</span>
+
+        <span class="n">ret</span><span class="o">.</span><span class="n">genes</span><span class="p">,</span> <span class="n">ret</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_subinteractome_graph</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="n">closure</span><span class="p">)</span>  <span class="c1">#TODO: fix</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;So </span><span class="si">{}</span><span class="s1"> vertices, </span><span class="si">{}</span><span class="s1"> edges (density == </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">(),</span> <span class="n">ret</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">num_edges</span><span class="p">(),</span> <span class="mi">2</span><span class="o">*</span><span class="n">ret</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">num_edges</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="p">))</span>
+        <span class="n">genes_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">genes</span><span class="p">))</span>
+        <span class="c1"># Compute the mappings gene -&gt; idx</span>
         <span class="n">all_items</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">genes2vertices</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">genes2vertices</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">genes_l</span><span class="p">):</span>
             <span class="n">ret</span><span class="o">.</span><span class="n">genes2vertices</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">genes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">genes2vertices</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">genes2vertices</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">lcc_cache</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">density_cache</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">distances</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">ret</span><span class="o">.</span><span class="n">compute_spls</span><span class="p">()</span>
         <span class="n">IO</span><span class="o">.</span><span class="n">save_interactome</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_subinteractome_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">closure</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initially: </span><span class="si">{}</span><span class="s1"> genes&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">genes</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">closure</span><span class="p">:</span>
+            <span class="n">genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_genes_closure</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;After closure: </span><span class="si">{}</span><span class="s1"> genes&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">genes</span><span class="p">)))</span>
+        <span class="n">genes_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">genes</span><span class="p">))</span>
+        <span class="c1"># Extract subgraph with ``genes``</span>
+        <span class="n">genes_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verts_id</span><span class="p">(</span><span class="n">genes_l</span><span class="p">)</span>
+        <span class="n">vorder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">new_vp</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">genes_idx</span><span class="p">):</span>
+            <span class="n">vorder</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vorder</span><span class="o">=</span><span class="n">vorder</span><span class="p">)</span>
+        <span class="c1"># Ignore genes of degree 0</span>
+        <span class="n">genes_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">get_out_degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">()))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">vorder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">new_vp</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">genes_idx</span><span class="p">):</span>
+            <span class="n">vorder</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="n">genes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">genes_l</span><span class="p">[</span><span class="n">genes_idx</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;After removing isolated vertices: </span><span class="si">{}</span><span class="s1"> genes&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">genes</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">genes</span><span class="p">,</span> <span class="n">Graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_subgraph</span><span class="p">(</span><span class="n">genes</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">prune</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vorder</span><span class="o">=</span><span class="n">vorder</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_genes_closure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">):</span>
+        <span class="n">vert2genes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">vert2genes</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="n">closure_genes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+            <span class="n">gene_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">genes2vertices</span><span class="p">[</span><span class="n">gene</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">neighbour</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">get_out_neighbours</span><span class="p">(</span><span class="n">gene_idx</span><span class="p">):</span>
+                <span class="n">closure_genes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vert2genes</span><span class="p">[</span><span class="n">neighbour</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">closure_genes</span> <span class="o">|</span> <span class="n">genes</span>
 
 <div class="viewcode-block" id="Interactome.copy"><a class="viewcode-back" href="../../../pynteractome/pynteractome.interactome.interactome.html#pynteractome.interactome.interactome.Interactome.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
@@ -741,7 +803,7 @@
         <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
         <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">:</span>
             <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">density_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">nb_sims</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
@@ -756,7 +818,7 @@
         <span class="n">N</span> <span class="o">=</span> <span class="n">nb_sims</span>
         <span class="k">if</span> <span class="n">size</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="p">:</span>
             <span class="n">nb_sims</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clustering_cache</span><span class="p">[</span><span class="n">size</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">nb_sims</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">clustering_coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_sims</span><span class="p">):</span>
