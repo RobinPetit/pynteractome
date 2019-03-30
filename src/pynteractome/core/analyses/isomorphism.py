@@ -1,6 +1,7 @@
 # std libs
 from time import time
 from multiprocessing import Pool, Value
+from itertools import starmap
 # ext libs
 import numpy as np
 from graph_tool import GraphView, Graph
@@ -72,8 +73,9 @@ def extract_isomorphism_classes(graphs, verbose=False):
         indices = np.delete(indices, to_remove)
     return classes
 
-def isomorphism_entropy_analysis(integrator, nb_sims):
-    nb_performed_sims = IO.get_nb_sims_entropy(integrator.interactome)
+def isomorphism_entropy_analysis(integrator, nb_sims, gene_mapping='intersection', n_jobs=4):
+    print('[[{}]]'.format(gene_mapping))
+    nb_performed_sims = IO.get_nb_sims_entropy(integrator.interactome, gene_mapping)
     nb_sims -= nb_performed_sims
     if nb_sims <= 0:
         log('{} simulations already performed.'.format(nb_performed_sims))
@@ -84,35 +86,34 @@ def isomorphism_entropy_analysis(integrator, nb_sims):
     nb_vertices = list()
     disease_modules = list()
     disease_modules_genes = list()
-    for hpo_term in sorted(integrator.get_hpo2genes().keys()):
-        genes = integrator.get_hpo2genes()[hpo_term] & interactome.genes
+    hpo2genes = integrator.get_hpo2genes(gene_mapping)
+    for hpo_term in sorted(hpo2genes.keys()):
+        genes = hpo2genes[hpo_term] & interactome.genes
         if len(genes) > 1:
             nb_vertices.append(len(genes))
             genes = np.asarray(interactome.verts_id(genes))
             disease_modules_genes.append(genes)
-    entropy_values = get_entropy_values(nb_sims, nb_vertices, interactome)
+    entropy_values = get_entropy_values(nb_sims, nb_vertices, interactome, n_jobs=n_jobs)
     H = None
-    if nb_performed_sims == 0:
+    if not IO.is_isomorphism_entropy_computed(integrator.interactome, gene_mapping):
         for genes in disease_modules_genes:
             disease_modules.append(interactome.get_subgraph(genes))
         H = isomorphism_entropy(disease_modules)
     print('')
-    IO.save_entropy(interactome, entropy_values, H)
+    IO.save_entropy(interactome, gene_mapping, entropy_values, H)
 
 _idx = Value('i', 0)
 _beg = 0
 _nb_sims = 0
 
-def get_entropy_values(nb_sims, nb_vertices, interactome, n_jobs=4, verbose=False):
+def get_entropy_values(nb_sims, nb_vertices, interactome, n_jobs=4):
     global _beg, _nb_sims
     assert n_jobs > 0
     _beg = time()
     _nb_sims = nb_sims
     _idx.value = 0
     if n_jobs == 1:
-        entropy_values = list()
-        for i in range(nb_sims):
-            entropy_values.append(_process_entropy(interactome, nb_vertices, nb_sims, verbose))
+        entropy_values = list(starmap(_process_entropy, [(interactome, nb_vertices)]*nb_sims))
     else:
         I2 = interactome.copy()
         args = [(I2, nb_vertices)] * nb_sims
@@ -124,16 +125,38 @@ def _process_entropy(interactome, nb_vertices):
     with _idx.get_lock():
         _idx.value += 1
         n = _idx.value
-    if n % 50 == 0:
+    if True:
         el_time = time()-_beg
         prop = n/_nb_sims
         nb_secs = el_time/prop * (1-prop)
         eta_str = '\t\teta: {}'.format(sec2date(nb_secs))
-        log('Running simulation {:3.2f}% {}'.format(100*prop, eta_str), end='')
+        log('Running simulation {:3.2f}% {}'.format(100*prop, eta_str), end='\r')
+    #return _process_entropy_naive(interactome, nb_vertices)
+    return _process_entropy_optimized(interactome, nb_vertices)
+
+def _process_entropy_naive(interactome, nb_vertices):
     random_subgraphs = [interactome.get_random_subgraph(N) for N in nb_vertices]
     ret = isomorphism_entropy(random_subgraphs, False)
-    print('', end='\r')
     return ret
+
+def _process_entropy_optimized(interactome, nb_vertices):
+    H = 0
+    N = 0
+    values, inverse = np.unique(nb_vertices, return_inverse=True)
+    for v, count in zip(values, np.bincount(inverse)):
+        if v == 1:
+            H += count*np.log(count)
+            N += 1
+            continue
+        if count == 1:
+            N += 1
+        else:
+            random_subgraphs = [interactome.get_random_subgraph(v) for _ in range(count)]
+            for iso_class in extract_isomorphism_classes(random_subgraphs):
+                N += 1
+                if len(iso_class) > 1:
+                    H += len(iso_class)*np.log(len(iso_class))
+    return 1 - H/(np.log(len(nb_vertices))*len(nb_vertices)), N
 
 def entropy(S):
     r'''
@@ -147,10 +170,10 @@ def entropy(S):
             :math:`(H(S), N)` where :math:`N` is the number of isomorphism classes and:
 
             .. math::
-                H(S) = -K(|S|)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},
+                H(S) = -K(S)\sum_{s \in S}\frac {|s|}{|T|}\log_2\frac {|s|}{|T|},
 
             where :math:`T = \bigsqcup_{s \in S}s` is the set of which S is a partition
-            and :math:`K(|S|) = \frac 1{\log|T|}` is the constant normalizing the entropy
+            and :math:`K(S) = \frac 1{\log|T|}` is the constant normalizing the entropy
             in :math:`[0, 1]`.
 
             Note the following convention: :math:`H(\emptyset) := 0`.

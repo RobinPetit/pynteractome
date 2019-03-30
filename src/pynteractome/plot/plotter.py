@@ -54,13 +54,45 @@ class Plotter:
         plt.close(fig)
 
     @staticmethod
+    def plot_clustering(integrator):
+        Plotter._set_plot_dir(integrator)
+        cache = integrator.interactome.get_clustering_cache()
+        ps = list()
+        hpo2genes = integrator.get_hpo2genes()
+        for term, genes in hpo2genes.items():
+            genes &= integrator.interactome.genes
+            N = len(genes)
+            if N < 3:
+                continue
+            c = integrator.interactome.get_genes_clustering(genes, entrez=True)
+            if np.isnan(c):
+                print('C is ill defined on HPO term {}'.format(term))
+                continue
+            k = np.isnan(cache[N]).sum()
+            cache[N][np.isnan(cache[N])] = 0
+            if np.isnan(cache[N]).any():
+                print('Still NaN')
+            p = (cache[N] >= c).sum() / len(cache[N])
+            ps.append(p)
+        print('{} ps are still available'.format(len(ps)))
+        print(np.unique(ps))
+        ps = np.asarray(ps)
+        logps = np.log10(ps)
+        logps[ps == 0] = -10
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot([np.log10(.05)]*2, [0, 100], 'k-.', label=r'$p = .05$')
+        Plotter.plot_pdf_and_cdf(logps, 20, 'salmon', 'r', 'log10(p)', ax=ax, remove_ticks=False)
+        Plotter.save_fig(fig, 'clustering.eps')
+
+    @staticmethod
     def loc_hpo(integrator):
         Plotter._set_plot_dir(integrator)
         interactome = integrator.interactome
         for depth in range(integrator.get_hpo_depth()):
             integrator.propagate_genes(depth)
             zs = {term: interactome.get_lcc_score(genes, 0, shapiro=True) \
-                  for (term, genes) in integrator.get_hpo2genes().items() if genes}
+                  for (term, genes) in integrator.get_hpo2genes().items() if len(genes) > 1}
             Plotter._loc_hpo(integrator, zs, depth)
 
     @staticmethod
@@ -72,10 +104,12 @@ class Plotter:
         are_normal = list()
         empirical_ps = list()
         for term, (z_score, empirical_p, is_normal) in zs.items():
+            if term not in integrator.get_hpo2genes():
+                continue
             if z_score is not None:
                 z = float(z_score)
                 genes = integrator.get_hpo2genes()[term] & interactome.genes
-                if len(genes) >= 1:
+                if len(genes) > 1:
                     lcc = interactome.get_genes_lcc_size(interactome.verts_id(genes))
                     rel_size = lcc / len(genes)
                     xs.append(rel_size)
@@ -92,8 +126,7 @@ class Plotter:
             'Significance via $p$ or $z$ (HPO terms)',
             'loc/barplot.significance.hpo.{}.eps'.format(prop_depth)
         )
-        a = np.where(np.logical_and(ys >= 1.65, empirical_ps >= .05))[0]
-        print(len(set(a)),
+        print(len(set(np.where(np.logical_and(ys >= 1.65, empirical_ps >= .05))[0])),
               'terms have significant z but non-significant p')
         print(len(set(np.where(np.logical_and(ys < 1.65, empirical_ps < .05))[0])),
               'terms have non-significant z but significant p')
@@ -122,7 +155,7 @@ class Plotter:
         empirical_ps = list()
         for genes in omim2genes.values():
             genes &= interactome.genes
-            if not genes:
+            if not genes or len(genes) <= 1:
                 continue
             z, empirical_p, shapiro_p = interactome.get_lcc_score(genes, 0, shapiro=True)
             if z is None:
@@ -321,18 +354,22 @@ class Plotter:
             ax.set_xscale('log')
             ax.set_yscale('log')
             path = 'log-' + path
+        if not path.endswith('.eps'):
+            path += '.eps'
         Plotter.save_fig(fig, path)
 
     @staticmethod
-    def plot_deg_power_law(integrator):
+    def plot_deg_distribution(integrator):
         Plotter._set_plot_dir(integrator)
         interactome = integrator.interactome
         degs = interactome.G.get_out_degrees(np.arange(interactome.G.num_vertices()))
         degrees = np.arange(degs.max())+1
         counts = np.zeros(degrees.shape, dtype=np.float)
         for d in degs:
+            if d == 0:
+                continue
             counts[int(d)-1] += 1
-        counts /= degrees.shape[0]
+        counts /= counts.sum()
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.plot(degrees[counts != 0], counts[counts != 0], 'ro', mec='red')
@@ -515,11 +552,15 @@ class Plotter:
         ax.grid(grid)
 
     @staticmethod
-    def compare_gene_mappings(integrator):
+    def compare_gene_mappings(integrator, prop_depth=0, leaves_only=False):
         Plotter._set_plot_dir(integrator)
+        integrator.propagate_genes(prop_depth)
+        prop_depth = integrator.propagation_depth
         hpo2genes_cup = integrator.get_hpo2genes('union')
         hpo2genes_cap = integrator.get_hpo2genes('intersection')
         common_terms = set(hpo2genes_cup.keys()) & set(hpo2genes_cap.keys())
+        if leaves_only:
+            common_terms &= set(integrator.iter_leaves())
         x, y, depths = map(lambda l: np.asarray(l, dtype=np.int), zip(*[
             (len(hpo2genes_cup[t]), len(hpo2genes_cap[t]), integrator.get_term_depth(t)) \
             for t in common_terms]))
@@ -532,20 +573,22 @@ class Plotter:
             if (depths == depth).sum() == 0:
                 continue
             col = [cm.jet(depth/depths.max())] * (depths == depth).sum()
+            col = 'b'
             ax.scatter(x[depths == depth], y[depths == depth], c=col,
                        edgecolors=col, label='HPO terms [depth {:d}]'.format(depth))
-        xlim = (0, ax.get_xlim()[1])
-        ax.plot(xlim, xlim, 'k-.')
-        ax.set_xlim(xlim)
-        ax.set_ylim(xlim)
+        M = max(ax.get_xlim()[1], ax.get_ylim()[1])
+        ax.plot([0, M], [0, M], 'k-.')
+        ax.set_xlim([0, M])
+        ax.set_ylim([0, M])
         ax.set_xlabel('Nb of genes associated w/ HPO terms [union]')
         ax.set_ylabel('Nb of genes associated w/ HPO terms [intersection]')
         ax.set_title('Comparison # genes union-mapping vs intersection-mapping')
         plt.grid(True)
-        plt.legend(loc='upper left')
-        Plotter.save_fig(fig, 'compare_gene_mappings_size.eps')
-        cap_sizes = list(filter(lambda x: x>0, map(len, [hpo2genes_cap[t] for t in set(integrator.iter_leaves()) & common_terms])))
-        cup_sizes = list(filter(lambda x: x>0, map(len, [hpo2genes_cup[t] for t in set(integrator.iter_leaves()) & common_terms])))
+        #plt.legend(loc='upper left')
+        Plotter.save_fig(fig, 'compare_gene_mappings_size.{}{}.eps'.format(prop_depth, '.leaves' if leaves_only else ''))
+        cap_sizes = list(filter(lambda x: x>0, map(len, [hpo2genes_cap[t] for t in common_terms])))
+        cup_sizes = list(filter(lambda x: x>0, map(len, [hpo2genes_cup[t] for t in common_terms])))
+        print(len(cap_sizes), len(cup_sizes))
         fig = plt.figure(figsize=(12, 8))
         ax1 = fig.add_subplot(121)
         ax2 = fig.add_subplot(122)
@@ -557,7 +600,7 @@ class Plotter:
             ax=ax2, remove_ticks=False, grid=True, ylog=True, xticks=None)
         ax1.set_title(r'$\gamma_\cap$')
         ax2.set_title(r'$\gamma_\cup$')
-        Plotter.save_fig(fig, 'comparison_gene_mappings_size_hist.eps')
+        Plotter.save_fig(fig, 'comparison_gene_mappings_size_hist.{}{}.eps'.format(prop_depth, '.leaves' if leaves_only else ''))
 
     @staticmethod
     def plot_density(integrator):
@@ -584,13 +627,19 @@ class Plotter:
 
     @staticmethod
     def plot_iso_entropy(integrator):
+        for gene_mapping in ['intersection', 'union']:
+            Plotter._plot_iso_entropy(integrator, gene_mapping)
+
+    @staticmethod
+    def _plot_iso_entropy(integrator, gene_mapping):
         Plotter._set_plot_dir(integrator)
-        hs, (H, n_classes) = IO.load_entropy(integrator.interactome)
+        hs, (H, n_classes) = IO.load_entropy(integrator.interactome, gene_mapping)
         hs, ns = map(np.asarray, zip(*hs))
+        cheb_p_H, cheb_p_n = (hs.std() / (H - hs.mean()))**2, (ns.std() / (n_classes - ns.mean()))**2
         fig = plt.figure()
         #---
         ax = fig.add_subplot(121)
-        ax.hist(hs, bins=20, label='Random', weights=np.ones(len(hs))/len(hs))
+        ax.hist(hs, bins=20, label='Random', weights=100*np.ones(len(hs))/len(hs))
         ylim = ax.get_ylim()
         ax.plot([H]*2, ylim, 'r-', lw=2, label='Observed')
         ax.set_ylim(ylim)
@@ -605,12 +654,12 @@ class Plotter:
         new_tick = ax.get_xticklabels()[xticks.index(H)]
         new_tick.set_rotation(90)
         new_tick.set_color('red')
-        ax.set_ylabel('P(H)')
+        ax.set_ylabel('Frequency (%)')
         ax.legend(loc='upper center')
-        ax.set_title('Distribution of H under uniform sampling')
+        ax.set_title(r'Distribution of H under uniform sampling (p $\leq$' + ('{:.3e})'.format(cheb_p_H)))
         #---
         ax = fig.add_subplot(122)
-        ax.hist(ns, bins=20, label='Random', weights=np.ones(len(ns))/len(ns))
+        ax.hist(ns, bins=20, label='Random', weights=100*np.ones(len(ns))/len(ns))
         ylim = ax.get_ylim()
         ax.plot([n_classes]*2, ylim, 'r-', lw=2, label='Observed')
         ax.set_ylim(ylim)
@@ -622,14 +671,14 @@ class Plotter:
         new_tick = ax.get_xticklabels()[xticks.index(n_classes)]
         new_tick.set_rotation(90)
         new_tick.set_color('red')
-        ax.set_ylabel('P(n)')
+        ax.set_ylabel('Frequency (%)')
         ax.legend(loc='upper center')
-        ax.set_title('Distribution of #classes under uniform sampling')
+        ax.set_title(r'Distribution of #classes under uniform sampling (p $\leq$' + ('{:.3e})'.format(cheb_p_n)))
         fig.suptitle(
-            'Distribution of isomorphism behaviour under uniform sampling in the interactome'
+            'Distribution of isomorphism behaviour under uniform sampling in the interactome  [{}]'.format(gene_mapping)
         )
         plt.gcf().set_size_inches(18, 10)
-        Plotter.save_fig(fig, 'entropy.eps')
+        Plotter.save_fig(fig, 'entropy.{}.eps'.format(gene_mapping))
         # Entropy values details
         print('Number of samples:', len(hs))
         print('Random Entropy  min/max: {:.4f}/{:.4f}'.format(np.min(hs), np.max(hs)))
@@ -638,6 +687,8 @@ class Plotter:
               .format(stats.shapiro(hs)[1], stats.shapiro(ns)[1]))
         print('z-scores:        {:.3e}          {:.3e}' \
               .format((H - hs.mean()) / hs.std(), (n_classes - ns.mean()) / ns.std()))
+        print('Chebyshev (♥):   {:.3e}          {:.3e}' \
+              .format(cheb_p_H, cheb_p_n))
 
     @staticmethod
     def plot_relation_degree_to_nb_omim_associations(integrator):
@@ -646,9 +697,50 @@ class Plotter:
         gene2omim = integrator.get_gene2omim()
         xs, ys = list(), list()
         for gene, phenotypes in gene2omim.items():
-            x = integrator.interactome.get_gene_degree(gene)
+            x = interactome.get_gene_degree(gene)
             if x is not None:
                 xs.append(x)
                 ys.append(len(phenotypes))
-        fig, _ = Plotter.dot_plot_with_hists(xs, ys, 'Gene degree', '# associated OMIM phenotypes', 'title', grid=True, show=False, set_xticks_fmt_g=False, set_yticks_fmt_g=False)
+        fig, _ = Plotter.dot_plot_with_hists(
+            xs, ys, 'Gene degree', '# associated OMIM phenotypes', 'title', grid=True,
+            show=False, set_xticks_fmt_g=False, set_yticks_fmt_g=False
+        )
         Plotter.save_fig(fig, 'gene_degree_to_nb_omim_associations.eps')
+
+    @staticmethod
+    def plot_relation_degree_to_nb_hpo_associations(integrator):
+        Plotter._set_plot_dir(integrator)
+        interactome = integrator.interactome
+        for mapping in ('intersection', 'union'):
+            gene2hpo = integrator.get_gene2hpo()
+            xs, ys = list(), list()
+            for gene, terms in gene2hpo.items():
+                x = interactome.get_gene_degree(gene)
+                if x is not None:
+                    xs.append(x)
+                    ys.append(len(terms))
+            fig, _ = Plotter.dot_plot_with_hists(
+                xs, ys, 'Gene degree', '# associated HPO terms (' + mapping + ')',
+                'title', grid=True, show=False, set_xticks_fmt_g=False, set_yticks_fmt_g=False
+            )
+            Plotter.save_fig(fig, 'gene_degree_to_nb_hpo_terms (' + mapping + ').eps')
+
+    @staticmethod
+    def plot_pathogenic_topologies(integrator):
+        size = 5
+        Plotter._set_plot_dir(integrator)
+        iso_counts = IO.load_topology_analysis(integrator, size)
+        keys = iso_counts.keys
+        mappings = iso_counts.values
+        gene_subset_counts = [sum(map(len, mappings[i].values())) for i in range(len(mappings))]
+        s = sum(gene_subset_counts)
+        gene_subset_counts = [(i, x/s, x) for (i, x) in enumerate(gene_subset_counts)]
+        gene_subset_counts.sort(key=lambda t: t[1], reverse=True)
+        print(gene_subset_counts)
+        print(len(gene_subset_counts))
+        counter = 0
+        s = 0
+        while counter < len(gene_subset_counts) and s < .9:
+            s += gene_subset_counts[counter][1]
+            counter += 1
+        print(counter, s)

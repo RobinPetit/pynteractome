@@ -61,6 +61,24 @@ class IO:
 
     @staticmethod
     def load_sep(interactome, N, prop_depth=0):
+        '''
+        Load the progression in separation for separation analysis.
+
+        Args:
+            N (int):
+                only used in case no such data is found
+            prop_depth (int):
+                propagation depth of the HPO terms -> Entrez genes associations.
+
+        Return:
+            tuple:
+                - **separations** (2D :class:`np.ndarray`)
+                - **Cs** (2D :class:`np.ndarray`)
+                - **i** (int)
+                - **j** (int)
+
+                See :func:`save_sep <pynteractome.IO.IO.save_sep>` for meaning of return values.
+        '''
         try:
             return _get_from_shelf(IO.__sep_key(prop_depth), IO.get_shelf_path(interactome))
         except KeyError:
@@ -105,7 +123,8 @@ class IO:
     def load_interactome(path, create_if_not_found=True, namecode=None):
         if namecode is not None:
             try:
-                return IO.load_interactome_by_namecode(namecode)
+                ret = IO.load_interactome_by_namecode(namecode)
+                return ret
             except KeyError:
                 pass
         ret = None
@@ -129,6 +148,7 @@ class IO:
 
     @staticmethod
     def save_interactome(interactome):
+        print('\t\t' + 'Saving interactome')
         path = IO.get_storage_dir_or_die() + IO.hash_interactome_path(interactome) + '.pickle'
         with open(path, 'wb') as f:
             pickle.dump(interactome, f)
@@ -199,7 +219,7 @@ class IO:
     ##### entropy analysis
 
     @staticmethod
-    def save_entropy(interactome, hs, H=None):
+    def save_entropy(interactome, gene_mapping, hs, H=None):
         ''' Save the isomorphism entropy computed on random subgraphs. The
         entropy of the disease modules is also saved if it is not None.
 
@@ -209,23 +229,35 @@ class IO:
             H (float):
                 The entropy of the disease modules
         '''
+        H_key = 'H-' + gene_mapping
+        hs_key = 'hs-' + gene_mapping
         with shelve.open(IO.get_shelf_path(interactome), 'w') as shelf:
-            if H is None and 'H' not in shelf:
+            if H is None and H_key not in shelf:
                 raise ValueError('Entropy of disease modules hasn\'t been computed yet.')
-            if 'hs' in shelf.keys():
-                hs = shelf['hs'] + hs
-            shelf['hs'] = hs
+            if hs_key in shelf.keys():
+                hs = shelf[hs_key] + hs
+            shelf[hs_key] = hs
             if H is not None:
-                shelf['H'] = H
+                shelf[H_key] = H
 
     @staticmethod
-    def load_entropy(interactome):
-        return _get_from_shelf(['hs', 'H'], IO.get_shelf_path(interactome))
+    def load_entropy(interactome, gene_mapping):
+        '''...
+        '''
+        keys = ['hs-'+gene_mapping, 'H-'+gene_mapping]
+        return _get_from_shelf(keys, IO.get_shelf_path(interactome))
 
     @staticmethod
-    def get_nb_sims_entropy(interactome):
+    def is_isomorphism_entropy_computed(interactome, gene_mapping):
         try:
-            return len(IO.load_entropy(interactome)[0])
+            return _get_from_shelf('H-'+gene_mapping, IO.get_shelf_path(interactome)) is not None
+        except KeyError:
+            return False
+
+    @staticmethod
+    def get_nb_sims_entropy(interactome, gene_mapping):
+        try:
+            return len(IO.load_entropy(interactome, gene_mapping)[0])
         except KeyError:
             return 0
 

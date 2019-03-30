@@ -137,6 +137,7 @@ class Interactome:
                 self.add_vertex(gene2)
                 self.G.add_edge(self.vert_id(gene1), self.vert_id(gene2))
         self.genes = set(self.genes2vertices.keys())
+        self.vertices2genes = {v: g for g, v in self.genes2vertices.items()}
         self.compute_spls()
 
     def add_vertex(self, gene):
@@ -348,9 +349,11 @@ class Interactome:
         Returns:
             :math:`C(\mathcal G(\text{size}, G))`
         '''
-        return _get_clustering_coefficient(self.get_random_subgraph(size))
+        G = self.get_random_subgraph(size)
+        ret = _get_clustering_coefficient(G)
+        return ret
 
-    def get_genes_clustering(self, genes):
+    def get_genes_clustering(self, genes, entrez=False):
         r'''
         Return the clustering coefficient of the subgraph induced by given genes.
 
@@ -360,6 +363,8 @@ class Interactome:
         Returns:
             :math:`C(\Delta_{\text{genes}}(G))`
         '''
+        if entrez:
+            genes = self.verts_id(genes)
         return _get_clustering_coefficient(self.get_subgraph(np.asarray(genes)))
 
     def get_lcc_score(self, genes, nb_sims, shapiro=False, shapiro_threshold=.05):
@@ -401,7 +406,7 @@ class Interactome:
         z = None if std == 0 else float((genes_lcc - mean) / std)
         empirical_p = (lccs >= genes_lcc).sum() / len(lccs)
         if shapiro:
-            is_normal = stats.shapiro(lccs)[1] >= shapiro_threshold
+            is_normal = stats.shapiro(np.random.choice(lccs, size=5000))[1] >= shapiro_threshold
             return z, empirical_p, is_normal
         return z, empirical_p
 
@@ -490,10 +495,10 @@ class Interactome:
 
     def fill_density_cache(self, nb_sims, sizes):
         r'''
-        Fill the density_cache such that:
+        Fill the density cache such that:
 
         .. math::
-            \forall s \in \text{sizes} : |\text{density_cache[n]}| >= \text{nb_sims}
+            \forall s \in \text{sizes} : |\text{density_cache[n]}| \geq \text{nb_sims}
 
         Args:
             nb_sims (int): minimal number of simulations to be performed
@@ -513,7 +518,14 @@ class Interactome:
 
     def fill_clustering_cache(self, nb_sims, sizes):
         r'''
-        TODO: Write doc
+        Fill the clustering cache such that:
+
+        .. math::
+            \forall s \in \text{ßizes} : |\text{clustering_cache[n]}| \geq \text{nb_sims}
+
+        Args:
+            nb_sims (int): minimal nuber of simulations to be performed
+            sizes (set): set of number of genes for which clustering coefficient shall be tested
         '''
         self.load_clustering_cache()
         a = time()
@@ -527,19 +539,47 @@ class Interactome:
         print('')
         self._write_clustering_cache()
 
-    def get_subinteractome(self, genes, namecode=None):
-        '''
+    def get_subinteractome(self, genes, neighbourhood='none', namecode=None, neighb_count=1):
+        r'''
         Extract a subinteractome and return it as an :class:`Interactome`
         object which is then usable for analyses.
 
+        For :math:`H` a subgraph of :math:`G`, the first neighbourhood of :math:`H`
+        within :math:`G` is defined by the graph:
+
+        .. math::
+            \mathcal N_G(H) = \Delta_{\mathcal N_G(V(H))}(G),
+
+        where for every :math:`W \subset V(G)`:
+
+        .. math::
+            \mathcal N_G(W) = W \cup \left\{v \in V(G) : \exists w \in V(H) \text{ s.t. } \{v, w\} \in E(G)\right\} \subset V(G).
+
         Args:
             genes (set): the gene set inducing the subinteractome
+            neighbourhood (str):
+                one of the following: `'none'`, `'first'`, `'first-joined'` where:
+
+                * `'none'` for no neighbouring gene
+                * `'first'` for the first neighbourhood :math:`\mathcal N_G(H)` with :math:`G` being `self` and :math:`H` being `genes`
+                * `'first-joined'` for the first neighbourhood with restriction that every neighbourhood gene must be associated to at least `neighb_count` genes.
             namecode (str): the namecode to be given to the subinteractome
+            neighb_count (int): (only if `neighbourhood == 'first-joined'`) determines the minimum number of adjacent genes to be extracted:
+
+                .. math::
+                    \mathcal N_G^{(k)}(H) := \Delta_{\mathcal N_G^{(k)}}(H),
+
+                with:
+
+                .. math::
+                    \mathcal N_G^{(k)}(W) := W \cup \left\{v \in V(G) : \exists \{v_1, \ldots, v_k\} \in \binom {V(H)}k \text{ s.t. } \{v, v_i\} \in E(G)
+                        \quad (i=1, \ldots, k)\right\} \subset V(G).
 
         Return:
             :class:`Interactome`:
                 the subinteractome
         '''
+        #TODO: implement neighbourhood extraction
         genes &= self.genes
         genes_hash = md5(''.join(sorted(map(str, genes))).encode('utf-8')).hexdigest()
         path = self.interactome_path + genes_hash
@@ -549,23 +589,59 @@ class Interactome:
         ret = deepcopy(self)
         ret.namecode = namecode
         ret.interactome_path = path
-        genes_l = list(genes)
-        genes_idx = self.verts_id(genes_l)
-        vorder = self.G.new_vp('int')
-        for i, idx in enumerate(genes_idx):
-            vorder.a[idx] = i
-        ret.G = Graph(self.get_subgraph(genes, True), prune=True, vorder=vorder)
+
+        ret.genes, ret.G = self._get_subinteractome_graph(genes, neighbourhood, neighb_count)
+        print('So {} vertices, {} edges (density == {})' \
+              .format(
+                ret.G.num_vertices(),
+                ret.G.num_edges(),
+                2*ret.G.num_edges()/(ret.G.num_vertices()*(ret.G.num_vertices() - 1))
+              )
+        )
+        genes_l = np.array(list(ret.genes))
+        # Compute the mappings gene -> idx
         all_items = sorted(ret.genes2vertices.items(), key=lambda e: e[1])
-        ret.genes2vertices = dict()
-        for i, g in enumerate(genes_l):
-            ret.genes2vertices[g] = i
+        vp = ret.G.vp['genes']
+        ret.genes2vertices = {vp[vertex]: int(vertex) for vertex in ret.G.vertices()}
+        del ret.G.vertex_properties['genes']
+        del self.G.vertex_properties['genes']
         ret.genes = set(ret.genes2vertices.keys())
-        assert len(ret.genes2vertices) == len(genes)
         ret.lcc_cache = ret.density_cache = None
         ret.distances = None
         ret.compute_spls()
         IO.save_interactome(ret)
         return ret
+
+    def _get_subinteractome_graph(self, genes, neighbourhood, neighb_count):
+        print('Initially: {} genes'.format(len(genes)))
+        if neighbourhood is not None and neighbourhood != 'none':
+            genes = self._get_genes_neighbourhood(genes, neighbourhood, neighb_count)
+        vp = self.G.new_vp('string')
+        for gene in genes:
+            vertex = self.genes2vertices[gene]
+            vp[vertex] = gene
+        self.G.vertex_properties['genes'] = vp
+        genes_l = np.array(list(genes))
+        # Extract subgraph with ``genes``
+        G = self.get_subgraph(genes, True)
+        # Ignore genes of degree 0
+        genes_idx = np.where(G.get_out_degrees(np.arange(G.num_vertices())) > 0)[0]
+        genes = {self.vertices2genes[idx] for idx in genes_idx}
+        print('After removing isolated vertices: {} genes'.format(len(genes)))
+        return genes, Graph(self.get_subgraph(genes, True), prune=True)
+
+    def _get_genes_neighbourhood(self, genes, neighbourhood, neighb_count):
+        raise NotImplementedError()
+        # First neighbourhood
+        vert2genes = dict()
+        for k, v in self.genes2vertices.items():
+            vert2genes[v] = k
+        closure_genes = set()
+        for gene in genes:
+            gene_idx = self.genes2vertices[gene]
+            for neighbour in self.G.get_out_neighbours(gene_idx):
+                closure_genes.add(vert2genes[neighbour])
+        return closure_genes | genes
 
     def copy(self):
         '''
@@ -597,7 +673,7 @@ class Interactome:
         N = nb_sims
         if size in self.density_cache:
             nb_sims -= len(self.density_cache[size])
-        if size <= 0:
+        if size <= 0 or nb_sims <= 0:
             return
         densities = np.empty(nb_sims, dtype=np.float)
         for i in range(nb_sims):
@@ -612,7 +688,7 @@ class Interactome:
         N = nb_sims
         if size in self.clustering_cache:
             nb_sims -= len(self.clustering_cache[size])
-        if size <= 0:
+        if size < 3 or nb_sims <= 0:
             return
         clustering_coeffs = np.empty(nb_sims, dtype=np.float)
         for i in range(nb_sims):
@@ -633,7 +709,4 @@ class Interactome:
         IO.save_clustering_cache(self, self.clustering_cache)
 
     def save(self):
-        r'''
-        TODO: write doc
-        '''
         IO.save_interactome(self)

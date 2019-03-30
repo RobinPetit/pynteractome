@@ -5,9 +5,7 @@ import multiprocessing as mp
 from time import time
 # ext libs
 import graph_tool as gt
-import graph_tool.draw as gt_draw
 # pynteractome
-from pynteractome.core.analyses.isomorphism import extract_isomorphism_classes, are_isomorphic
 from pynteractome.isomorphism_counts import IsomorphismCounts
 from pynteractome.IO import IO
 from pynteractome.utils import sec2date, log
@@ -29,7 +27,7 @@ def _binom(n, k):
 
 def pathogenic_topology_analysis(integrator, size=4, n_jobs=1):
     r'''
-    Perform analysis of common subtopologies within disease modules.
+    Perform analysis of common subtopologies within disease modules. Compute :math:`\Omega_\alpha` as defined below for :math:`\alpha` = ``size``.
 
     **Details**
 
@@ -49,7 +47,7 @@ def pathogenic_topology_analysis(integrator, size=4, n_jobs=1):
     Let :math:`\sim_\alpha` be an equivalence relation onto :math:`\Lambda_\alpha` defined by:
 
     .. math::
-        (t, \sigma) \sim_\alpha (t', \sigma') \; \iff \; \Xi_\alpha(\sigma) \cong \Xi_\alpha(\sigma').
+        (t, \sigma) \sim_\alpha (t', \sigma') \; \iff \; \Xi_\alpha(\sigma) = \Xi_\alpha(\sigma') \qquad (\text{i.e. }\Delta_\sigma(\mathscr G) \cong \Delta_{\sigma'}(\mathscr G)).
 
     Finally consider :math:`\Omega_\alpha`, the canonical extension of :math:`\Lambda_\alpha/\sim_\alpha` defined by:
 

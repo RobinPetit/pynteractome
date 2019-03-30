@@ -86,6 +86,9 @@ class LayersIntegrator:
         self.hpo_terms = set(hpo.nodes())
         self.propagation_depth = 0
         self.mendeliome = mendeliome
+        self.gamma_union = self.gamma_inter = None
+        self.gamma_union_prime = self.gamma_inter_prime = None
+        self.omim2hpo = self.bottom_up_hpo = None
 
         self._compute_hpo_by_order()
         self._compute_hpo_by_height()
@@ -184,7 +187,7 @@ class LayersIntegrator:
         return len(self.terms_by_order)
 
     def get_term_depth(self, term):
-        '''
+        r'''
         Get the depth (order) of a given term :math:`t` in the hierarchy.
 
         Args:
@@ -198,7 +201,7 @@ class LayersIntegrator:
         return self.depths[term]
 
     def get_term_height(self, term):
-        '''
+        r'''
         Get the height of a given term :math:`t` in the hierarchy.
 
         Args:
@@ -209,10 +212,10 @@ class LayersIntegrator:
             int:
                 :math:`\lambda(t)`
         '''
-        return self.heights[t]
+        return self.heights[term]
 
     def get_disease_modules(self, gene_mapping='intersection'):
-        '''
+        r'''
         Get all the disease modules. See :meth:`get_disease_module`.
 
         Args:
@@ -227,7 +230,7 @@ class LayersIntegrator:
         return (self.get_disease_module(term) for term in hpo2genes)
 
     def get_disease_module(self, term, gene_mapping='intersection'):
-        '''
+        r'''
         Get all the disease module of given HPO term.
 
         Args:
@@ -246,7 +249,7 @@ class LayersIntegrator:
         )
 
     def get_associated_genes(self, term, gene_mapping='intersection'):
-        '''
+        r'''
         Get the genes associated to given HPO term.
 
         Args:
@@ -277,6 +280,9 @@ class LayersIntegrator:
             depth (int):
                 the number of individual up-propagation to perform
         '''
+        print('Propagating genes')
+        if depth < 0:
+            depth = self.get_hpo_depth()
         new_depth = depth - self.propagation_depth
         if new_depth < 0:
             log('Unable to up-propagate by {} since already propagated of {}' \
@@ -345,7 +351,7 @@ class LayersIntegrator:
                 yield term
 
     def get_nb_associated_genes(self, gene_mapping='intersection'):
-        '''
+        r'''
         Get the number of genes associated to every HPO term.
 
         Args:
@@ -372,7 +378,7 @@ class LayersIntegrator:
         return np.asarray(nb_genes, dtype=np.int)
 
     def extract_mendeliome_from_interactome(self):
-        '''
+        r'''
         Get the sub-interactome induced by taking only the genes of the Mendeliome
         (associated to at least one phenotype)
 
@@ -381,23 +387,24 @@ class LayersIntegrator:
                 :math:`\Delta_{\mathcal M}(\mathcal I)`
         '''
         genes = self.mendeliome.get_all_genes() & self.interactome.genes
-        return self.interactome.get_subinteractome(genes, 'mendeliome')
+        return self.interactome.get_subinteractome(genes, namecode='mendeliome')
 
     ##### Private methods
 
     def _init_mappings(self, prop_depth):
-        '''
+        r'''
         Create mapping representing :math:`\mathcal M`, :math:`\mathcal H`, :math:`\gamma_\cap` and :math:`\gamma_\cup`.
         '''
         self.propagation_depth = 0
-        self.gene2omim = {k: v for (k, v) in self.mendeliome.get_gene2omim().items() if k in self.interactome.genes}
+        self.gene2omim = {k: v for (k, v) in self.mendeliome.get_gene2omim().items() if k in self.interactome.genes and len(v) > 0}
         self.omim2gene = reverse_set_dict(self.gene2omim)
         omim2hpo = get_omim2hpo()
-        self.hpo2omim = {k: v for (k, v) in reverse_set_dict(omim2hpo).items() if k in self.hpo}
+        self.hpo2omim = {k: v for (k, v) in reverse_set_dict(omim2hpo).items() if k in self.hpo and len(v) > 0}
         self.omim2hpo = reverse_set_dict(self.hpo2omim)
-        self._compute_gamma()
         if prop_depth > 0:
             self.propagate_genes(prop_depth)
+        else:
+            self._compute_gamma()
 
     def _compute_hpo_by_order(self):
         '''
@@ -431,7 +438,7 @@ class LayersIntegrator:
             self.terms_by_height[idx] = sorted(sub_set)
 
     def _get_term_height(self, t):
-        '''
+        r'''
         Get the height :math:`\lambda(t)` and store it in `self.heights`
         '''
         if t in self.heights:
@@ -464,6 +471,7 @@ class LayersIntegrator:
                     self.gamma_union[term] |= self.omim2gene[phenotype]
                     self.gamma_inter[term].append(self.omim2gene[phenotype])
         self.gamma_inter = {k: set.intersection(*v) for k, v in self.gamma_inter.items() if v != []}
+        self.gamma_inter = {k: v for k, v in self.gamma_inter.items() if len(v) > 0}
         self.gamma_inter_prime = reverse_set_dict(self.gamma_inter)
         self.gamma_union_prime = reverse_set_dict(self.gamma_union)
 
