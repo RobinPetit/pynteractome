@@ -36,7 +36,7 @@ def are_isomorphic(G, H):
         return False
     return G.num_edges() == 0 or isomorphism(G, H)
 
-def extract_isomorphism_classes(graphs, verbose=False):
+def extract_isomorphism_classes(graphs):
     r'''
     Extract the isomorphism classes among the provided graphs.
 
@@ -56,10 +56,6 @@ def extract_isomorphism_classes(graphs, verbose=False):
     classes = list()
     indices = np.arange(len(graphs))
     while indices.any():
-        if verbose:
-            log('Building new isomorphism class {} out of {} remaining    [{:3.2f}%]     ' \
-                .format(len(indices), len(graphs), 100*(1 - len(indices)/len(graphs))),
-                end='\r')
         to_remove = [0]
         G = graphs[indices[0]]
         classes.append([G])
@@ -125,7 +121,7 @@ def _process_entropy(interactome, nb_vertices):
     with _idx.get_lock():
         _idx.value += 1
         n = _idx.value
-    if True:
+    if n % 10 == 0:
         el_time = time()-_beg
         prop = n/_nb_sims
         nb_secs = el_time/prop * (1-prop)
@@ -187,7 +183,7 @@ def entropy(S):
         ret += p*np.log(p)
     return -ret/np.log(len_T), len(S)
 
-def isomorphism_entropy(S, verbose=False):
+def isomorphism_entropy(S):
     r'''
     Compute the entropy H(S).
 
@@ -198,5 +194,5 @@ def isomorphism_entropy(S, verbose=False):
         tuple:
             :math:`(H(S/\sim), |S/\sim|)` where :math:`\sim` is the isomorphism equivalence relation.
     '''
-    return entropy(extract_isomorphism_classes(S, verbose))
+    return entropy(extract_isomorphism_classes(S))
 

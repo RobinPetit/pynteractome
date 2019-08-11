@@ -2,8 +2,8 @@ from pynteractome.utils import log
 
 __all__ = ['clustering_analysis']
 
-def clustering_analysis(integrator, nb_sims):
-    _clustering_analysis(integrator, nb_sims, integrator.get_hpo2genes())
+def clustering_analysis(integrator, nb_sims, gene_mapping):
+    _clustering_analysis(integrator, nb_sims, integrator.get_hpo2genes(gene_mapping))
 
 def _clustering_analysis(integrator, nb_sims, disease2genes):
     interactome = integrator.interactome

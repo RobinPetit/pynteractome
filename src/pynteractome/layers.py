@@ -155,15 +155,6 @@ class LayersIntegrator:
         else:
             raise ValueError('Genes2Hpo mapping can only be \'intersection\' or \'union\'')
 
-    def het_hpo2omim(self):
-        r'''
-        Get the mapping OMIM phenotype :math:`\rightarrow` HPO terms
-
-        Return:
-            dict:
-                the mapping :math:`t \mapsto \mathcal H_t`
-        '''
-
     def get_omim2genes(self):
         r'''
         Get the mapping OMIM phenotypes :math:`\rightarrow` genes
@@ -289,10 +280,12 @@ class LayersIntegrator:
                 .format(depth, self.propagation_depth))
             return
         self.bottom_up_hpo = self.hpo.reverse()
+        if new_depth == 0:
+            return
 
         for order in reversed(range(self.get_hpo_depth())):
             for term in self.order_n_ontology(order):
-                self._propagate(term, depth)
+                self._propagate(term, new_depth)
         del self.bottom_up_hpo
         self.propagation_depth = depth
         self.omim2hpo = reverse_set_dict(self.hpo2omim)
@@ -345,9 +338,8 @@ class LayersIntegrator:
         Args:
             rank_parents (int): the number of generations above the leaves to also consider
         '''
-        # TODO: implement parents scanning
         for term in self.hpo.nodes():
-            if self.hpo.out_degree(term) == 0:
+            if self.heights[term] <= rank_parents:
                 yield term
 
     def get_nb_associated_genes(self, gene_mapping='intersection'):
@@ -471,7 +463,6 @@ class LayersIntegrator:
                     self.gamma_union[term] |= self.omim2gene[phenotype]
                     self.gamma_inter[term].append(self.omim2gene[phenotype])
         self.gamma_inter = {k: set.intersection(*v) for k, v in self.gamma_inter.items() if v != []}
-        self.gamma_inter = {k: v for k, v in self.gamma_inter.items() if len(v) > 0}
         self.gamma_inter_prime = reverse_set_dict(self.gamma_inter)
         self.gamma_union_prime = reverse_set_dict(self.gamma_union)
 

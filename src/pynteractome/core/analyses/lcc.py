@@ -11,16 +11,17 @@ def lcc_analysis_omim(integrator, nb_sims):
     '''
     _lcc_analysis(integrator, nb_sims, integrator.get_omim2genes())
 
-def lcc_analysis_hpo(integrator, nb_sims):
+def lcc_analysis_hpo(integrator, nb_sims, gene_mapping='intersection'):
     '''
     See :func:`pynteractome.core.analysis.lcc._lcc_analysis` with HPO terms as diseases.
     '''
+    print('[[{}]]'.format(gene_mapping))
     integrator.reset_propagation()
     for depth in range(integrator.get_hpo_depth()):
         log('Propagation == {}'.format(depth))
         integrator.propagate_genes(depth)
         assert integrator.get_hpo_propagation_depth() == depth
-        _lcc_analysis(integrator, nb_sims, integrator.get_hpo2genes())
+        _lcc_analysis(integrator, nb_sims, integrator.get_hpo2genes(gene_mapping))
         print('')
 
 def _lcc_analysis(integrator, nb_sims, disease2genes):
@@ -29,7 +30,7 @@ def _lcc_analysis(integrator, nb_sims, disease2genes):
 
     Args:
         integrator (:class:`LayersIntegrator <pynteractome.layers.LayersIntegrator>`):
-            the layers itnegrator
+            the layers integrator
         nb_sims (int):
             minimal number of simulations needed to approximate the probability distribution
         disease2genes (dict):

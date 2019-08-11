@@ -2,7 +2,7 @@ from pynteractome.utils import log
 
 __all__ = ['density_analysis']
 
-def density_analysis(integrator, nb_sims):
+def density_analysis(integrator, nb_sims, gene_mapping):
     '''
     Perform the density analysis of disease modules.
 
@@ -16,7 +16,7 @@ def density_analysis(integrator, nb_sims):
     Return:
         None
     '''
-    _density_analysis(integrator, nb_sims, integrator.get_hpo2genes())
+    _density_analysis(integrator, nb_sims, integrator.get_hpo2genes(gene_mapping))
 
 def _density_analysis(integrator, nb_sims, disease2genes):
     interactome = integrator.interactome

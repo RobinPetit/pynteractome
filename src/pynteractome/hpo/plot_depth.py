@@ -3,8 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pynteractome.hpo.load_obo import load_abnormal_phenotypes
 
+def get_depths(hpo):
+    return nx.shortest_path_length(hpo, source=118)
+
 def plot_depth(hpo):
-    sp = nx.shortest_path_length(hpo, source=118)
+    sp = get_depths(hpo)
     v = [0]*(max(sp.values())+1)
     for term in sp:
         v[sp[term]] += 1

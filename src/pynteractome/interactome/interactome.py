@@ -600,9 +600,9 @@ class Interactome:
         )
         genes_l = np.array(list(ret.genes))
         # Compute the mappings gene -> idx
-        all_items = sorted(ret.genes2vertices.items(), key=lambda e: e[1])
         vp = ret.G.vp['genes']
         ret.genes2vertices = {vp[vertex]: int(vertex) for vertex in ret.G.vertices()}
+        print('...  {}'.format(len(ret.genes2vertices)))
         del ret.G.vertex_properties['genes']
         del self.G.vertex_properties['genes']
         ret.genes = set(ret.genes2vertices.keys())
@@ -616,10 +616,9 @@ class Interactome:
         print('Initially: {} genes'.format(len(genes)))
         if neighbourhood is not None and neighbourhood != 'none':
             genes = self._get_genes_neighbourhood(genes, neighbourhood, neighb_count)
-        vp = self.G.new_vp('string')
-        for gene in genes:
-            vertex = self.genes2vertices[gene]
-            vp[vertex] = gene
+        vp = self.G.new_vp('int')
+        for gene, vertex in self.genes2vertices.items():
+            vp[self.G.vertex(vertex)] = gene
         self.G.vertex_properties['genes'] = vp
         genes_l = np.array(list(genes))
         # Extract subgraph with ``genes``

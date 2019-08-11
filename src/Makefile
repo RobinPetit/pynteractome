@@ -5,6 +5,6 @@ build:
 	python3 setup.py build_ext --inplace
 
 uml:
-	pyreverse -o eps pynteractome/*.py
+	pyreverse -ASmy -o eps pynteractome/*.py pynteractome/**/*.py pynteractome/**/**/*.py
 
 .PHONY: install build uml
